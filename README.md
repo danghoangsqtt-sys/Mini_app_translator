@@ -1,163 +1,174 @@
-<img src="https://github.com/niedev/RTranslator/blob/v1.00/images/logo_beta_cut.png" width="280">
+# Mini App Translator
+
+Ứng dụng dịch giọng nói thời gian thực dành cho Android, hỗ trợ hội thoại giữa hai thiết bị và chế độ bộ đàm trên một thiết bị.
 
-RTranslator is the world's first open source real-time translation app.
+> [!IMPORTANT]
+> Tên repository là **Mini App Translator**, nhưng mã nguồn hiện tại là ứng dụng Android native viết bằng Java, không phải mini app chạy trong trình duyệt. Dự án là một fork đang được hiện đại hóa từ [RTranslator](https://github.com/niedev/RTranslator).
 
-Connect to someone who has the app, connect Bluetooth headphones, put the phone in your pocket and you can have a conversation as if the other person spoke your language.
-<br /><br /><br />
+![Conversation mode](images/conversation_image_github.png)
 
-![Conversation mode](https://github.com/niedev/RTranslator/blob/v1.00/images/conversation_image_github.png)
-<br /><br /><br />
-![WalkieTalkie mode and Costs](https://github.com/niedev/RTranslator/blob/v1.00/images/WalkieTalkie_and_Costs_image_github.png)
-<br /><br /><br />
+## Tính năng
+
+- **Conversation mode**: kết nối hai hoặc nhiều thiết bị qua Bluetooth để trao đổi hội thoại đã dịch.
+- **Walkie-Talkie mode**: hai người dùng chung một điện thoại và nói luân phiên bằng hai ngôn ngữ.
+- Nhận dạng giọng nói bằng Google Cloud Speech-to-Text.
+- Dịch văn bản bằng Google Cloud Translation API v2.
+- Phát lại nội dung đã dịch bằng Text-to-Speech của Android.
+- Hỗ trợ tai nghe Bluetooth trong Conversation mode.
+- Lưu thiết bị gần đây và thống kê mức sử dụng API bằng Room.
+- Có thể tiếp tục dịch khi ứng dụng chạy nền trong các chế độ hội thoại.
 
-<h3>Conversation mode</h3>
+![Walkie-Talkie mode and API cost overview](images/WalkieTalkie_and_Costs_image_github.png)
 
-The Conversation mode is the main feature of RTranslator. In this mode, you can connect with another phone that uses this app. If the user accepts your connection request:
+## Trạng thái dự án
 
-- When you talk, your phone (or the Bluetooth headset, if connected) will capture the audio.
+| Thành phần | Giá trị hiện tại |
+|---|---|
+| Phiên bản ứng dụng | `1.1.2` (`versionCode 13`) |
+| Ngôn ngữ | Java |
+| Nền tảng | Android native |
+| Min SDK | API 23 (Android 6.0) |
+| Compile/Target SDK | API 29 (Android 10) |
+| Android Gradle Plugin | 3.6.1 |
+| Gradle Wrapper | 5.6.4 |
+| Giấy phép | Apache License 2.0 |
 
-- The audio captured will be converted into text and sent to the interlocutor's phone.
+Mã nguồn đang sử dụng toolchain và thư viện legacy. Bản hiện tại phù hợp cho mục đích nghiên cứu, bảo trì hoặc làm nền cho quá trình nâng cấp; chưa nên phát hành như một ứng dụng production mới nếu chưa xử lý các hạng mục bảo mật và tương thích Android hiện đại.
 
-- The interlocutors' phone will translate the text received into his language.
+## Kiến trúc tổng quan
 
-- The interlocutors' phone will convert the translated text into audio and will reproduce it from its speaker (or by the Bluetooth headset of the interlocutor, if connected to his phone). 
+```text
+Microphone
+    │
+    ▼
+Google Cloud Speech-to-Text
+    │
+    ▼
+Google Cloud Translation API
+    │
+    ├──► Android Text-to-Speech
+    │
+    └──► Bluetooth peer (Conversation mode)
+```
 
-All this in both directions.
+Các package chính:
 
-Each user can have more than one interlocutor so that you can translate conversations between more than two people and in any combination.
-<br /><br />
+- `voice_translation/cloud_apis`: nhận dạng giọng nói và dịch.
+- `voice_translation/_conversation_mode`: ghép nối và hội thoại qua Bluetooth.
+- `voice_translation/_walkie_talkie_mode`: nhận dạng luân phiên hai ngôn ngữ.
+- `api_management`: quản lý khóa Google Cloud và thống kê chi phí.
+- `database`: Room database cho lịch sử thiết bị và mức sử dụng.
+- `tools`: tiện ích âm thanh, Bluetooth, mã hóa và giao diện.
 
-<h3>WalkieTalkie mode</h3>
+## Yêu cầu
 
-If conversation mode is useful for having a long conversation with someone, this mode instead is designed for quick conversations, such as asking for information on the street or talking to a shop assistant.
+- Android Studio có thể mở dự án dùng Android Gradle Plugin 3.6.1.
+- JDK 8 được khuyến nghị cho toolchain Gradle 5.6.4 hiện tại.
+- Android SDK Platform 29 và Build Tools 28.0.3.
+- Thiết bị Android 6.0 trở lên có microphone.
+- Bluetooth Low Energy cho Conversation mode.
+- Một Google Cloud project đã bật:
+  - Cloud Speech-to-Text API
+  - Cloud Translation API
 
-This mode only translates conversations between two people, it doesn't work with Bluetooth headsets, and you have to talk in turns. It's not a real simultaneous translation, but it can work with only one phone.
+## Build từ mã nguồn
 
-In this mode, the smartphone microphone will listen in two languages (selectable in the same screen of the walkie talkie mode) simultaneously. <br />
-The app will detect in which language the interlocutor is speaking, translate the audio into the other language, convert the text into audio, and then reproduce it from the phone speaker. When the TTS has finished, it will automatically resume listening.
-<br /><br />
+Clone repository:
 
-<h3>General</h3>
+```bash
+git clone https://github.com/danghoangsqtt-sys/Mini_app_translator.git
+cd Mini_app_translator
+```
 
-Both translation and speech recognition use Google's APIs to ensure the best possible quality.
+Trên Windows:
 
-Also, RTranslator works even in the background, with the phone on standby or when using other apps (only when you use Conversation or WalkieTalkie modes).
+```powershell
+.\gradlew.bat assembleDebug
+```
 
-<a href="https://www.producthunt.com/posts/rtranslator?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-rtranslator" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=274849&theme=light" alt="RTranslator - World's first open-source simultaneous translation app. | Product Hunt" style="width: 250px; height: 80px;" /></a>
+Trên macOS/Linux:
 
-<br />
-<h3>Download and initial configuration</h3>
+```bash
+./gradlew assembleDebug
+```
 
-To use speech recognition and translation (without it, the app can do nothing), you need to create a Google Cloud Platform account and create and get a file to associate the account with the APIs for the payment based on the latter's use. If you create the account for the first time, activating the free trial, you will have $ 300 credit to use for 3 months in Google Cloud Platform.
+APK debug được tạo tại:
 
-To create the account and get the file follow this tutorial from a computer or using the "desktop site" option on the phone, this is because the Google Cloud Platform mobile version site does not have some options necessary to complete the tutorial.
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
 
-First, download the latest version of the app apk file from https://github.com/niedev/RTranslator/releases/ and install it. 
+Bạn cũng có thể mở thư mục gốc bằng Android Studio, chờ Gradle sync rồi chạy module `app` trên thiết bị thật. Các tính năng Bluetooth và microphone nên được kiểm thử trên thiết bị thật thay vì chỉ dùng emulator.
 
-<a href='https://github.com/niedev/RTranslator/releases'><img alt='Get it on GitHub' src='https://github.com/niedev/RTranslator/blob/v1.00/images/get_it_on_github_white_border.png' style="width: 190px; height: 80px;" /></a>
+## Cấu hình Google Cloud
 
-Then follow these passages:
-<br />
+1. Tạo một project trong [Google Cloud Console](https://console.cloud.google.com/).
+2. Bật Cloud Speech-to-Text API và Cloud Translation API.
+3. Tạo service account, chỉ cấp các quyền tối thiểu cần thiết.
+4. Tạo khóa JSON cho service account và tải tệp về thiết bị thử nghiệm.
+5. Trong ứng dụng, mở menu **APIs Management** và chọn tệp JSON.
+6. Theo dõi quota và chi phí trong Google Cloud Console. Xem bảng giá hiện hành của [Speech-to-Text](https://cloud.google.com/speech-to-text/pricing) và [Cloud Translation](https://cloud.google.com/translate/pricing).
 
-<strong>1.</strong> Go to&nbsp;<a style="background-color: #fafafa; font-size: 1rem;" href="http://console.cloud.google.com/" 
-target="_blank" rel="noopener noreferrer">console.cloud.google.com</a>&nbsp;and sign in with your Google account or create one.
+> [!CAUTION]
+> Không commit tệp JSON, API key hoặc thông tin thanh toán vào repository. Phiên bản legacy hiện lưu thông tin xác thực trên thiết bị theo cơ chế chưa phù hợp với yêu cầu bảo mật production hiện đại. Chỉ dùng project thử nghiệm có quota/budget giới hạn cho đến khi phần lưu trữ khóa và backup được gia cố.
 
-<strong>2.</strong> Activate the free trial and enter the required data (select the private account type if you do not have a company),
-including the credit card details (only for when the free trial will be sold out), to see how to disconnect the card read the point 13.
+## Quyền Android chính
 
-<strong>3.</strong> Create a new project from the top left (there is already a default project called "My First Project" but that
-will give problems for the operations we will perform) by clicking on "My First Project" and then on "NEW PROJECT", the name doesn't
-matter.
+Ứng dụng yêu cầu quyền truy cập mạng, microphone, Bluetooth, vị trí và bộ nhớ để hỗ trợ nhận dạng giọng nói, tìm thiết bị lân cận và chọn tệp khóa. Một số quyền/cơ chế lưu trữ trong manifest thuộc mô hình Android cũ và cần được chuyển sang API hiện hành trước khi phát hành lên Google Play.
 
-<strong>4.</strong> From the left pop-up bar, select "API and services", then "Dashboard".
+## Ngôn ngữ hỗ trợ
 
-<strong>5.</strong> Click on "ENABLE API AND SERVICES" and enable "Cloud Speech-to-Text API" and "Cloud Translation API".
+Mã nguồn hiện liệt kê các ngôn ngữ chính sau (không tính biến thể vùng): Bengali, Czech, Chinese, Korean, Danish, Finnish, French, Japanese, Greek, Hindi, Indonesian, English, Italian, Khmer, Nepali, Dutch, Polish, Portuguese, Romanian, Russian, Sinhala, Slovak, Spanish, Sundanese, Swedish, German, Thai, Turkish, Ukrainian, Hungarian và Vietnamese.
 
-<strong>6.</strong> Also from the left pop-up bar, select "APIs &amp; services" again, then "Credentials".
+Khả dụng thực tế còn phụ thuộc vào Google Cloud Speech-to-Text, Cloud Translation và engine Text-to-Speech trên thiết bị.
 
-<strong>7.</strong> Click on "Create credentials", then on "Service account key", fill out the form by creating a new service
-account (if it is not already present), choose at will the name, the id and the description of the account and click on "Create", then, clicking on the Role, select "Owner" then press "Create". At this point under "Service Accounts" click on the one just created (the email start with the name you choose before), click on "KEYS" at the top, then on "ADD KEY", "Create new key", select "JSON" and press "Create".
+## Hạn chế đã biết
 
-<strong>8.</strong> At this point, the key will be generated and downloaded automatically.
+- Toolchain, SDK đích và nhiều dependency đã cũ.
+- Test hiện chỉ gồm các test mẫu mặc định; chưa có test bao phủ luồng dịch và Bluetooth.
+- Một số thiết bị có thể gặp lỗi tìm kiếm hoặc kết nối Bluetooth LE.
+- Text-to-Speech không hoạt động đồng đều với mọi ngôn ngữ/engine.
+- Conversation mode gửi payload qua lớp giao tiếp Bluetooth legacy; cần đánh giá và gia cố mã hóa trước khi dùng cho dữ liệu nhạy cảm.
+- Mô hình service-account key phía client cần được thiết kế lại trước khi phát hành production.
 
-<strong>9.</strong> If you used a computer to do these operations, move the key file to your phone in the download folder.
+## Hướng phát triển đề xuất
 
-<strong>10.</strong> Open the RTranslator app and after the initial configuration, click on the three dots at the top right and then
-on "APIs Management", then click on the button to attach the APIs Key and select the above file from the list.
+- Nâng cấp Gradle, Android Gradle Plugin, compile SDK và target SDK.
+- Chuyển quyền Bluetooth/bộ nhớ sang mô hình permission và scoped storage mới.
+- Bảo vệ credential bằng Android Keystore và loại dữ liệu nhạy cảm khỏi Auto Backup.
+- Cập nhật Google Cloud/gRPC/Room và các dependency cũ.
+- Bổ sung unit test, instrumentation test và CI.
+- Tách rõ domain dịch, tầng dữ liệu và Android service để dễ kiểm thử.
+- Đổi package/application ID và branding trong mã nguồn nếu fork được phát hành độc lập.
 
-<strong>11.</strong> Excellent, from now on, you can use RTranslator freely.
-<br /><br />
+## Cấu trúc repository
 
+```text
+.
+├── app/                         # Module Android chính
+│   ├── src/main/java/           # Mã nguồn Java
+│   ├── src/main/res/            # Layout, chuỗi, icon và tài nguyên
+│   └── build.gradle             # Cấu hình module/version ứng dụng
+├── gradle/wrapper/              # Gradle Wrapper
+├── images/                      # Ảnh dùng trong tài liệu
+├── privacy/                     # Chính sách quyền riêng tư gốc
+├── build.gradle                 # Cấu hình build cấp project
+└── settings.gradle
+```
 
-<h3>Account management</h3>
+## Đóng góp
 
+Issue và pull request được chào đón tại [danghoangsqtt-sys/Mini_app_translator](https://github.com/danghoangsqtt-sys/Mini_app_translator).
 
-<strong>12.</strong> You must keep the key file safe because if someone came into its possession, he could use Google's API at your expense; keys can be deleted, created, limited, etc. always from&nbsp;<a style="font-size: 1rem; background-color: #fafafa;" href="http://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">console.cloud.google.com</a>. If you lose the key, therefore, it will have to be deleted via the site mentioned above. At that point, the key file will no longer be valid, and to use RTranslator you will have to repeat the tutorial from step 6.
+Khi đóng góp, vui lòng:
 
-<strong>13.</strong> To disconnect the credit card from the account, from the pop-up bar on the left select "Billing", then "Account management", at the top click on "CLOSE BILLING ACCOUNT" and confirm; the API keys from now until you reopen the account (click on "REOPEN BILLING ACCOUNT" instead of the button to close it) will not work, and money will not be deducted from the credit card.
+1. Không đưa credential hoặc dữ liệu cá nhân vào commit.
+2. Mô tả thiết bị và phiên bản Android khi báo lỗi.
+3. Kiểm thử cả Conversation mode và Walkie-Talkie mode nếu thay đổi luồng âm thanh/dịch.
+4. Giữ nguyên các thông báo bản quyền và giấy phép của mã nguồn upstream.
 
-<strong>14.</strong> In general, you can manage everything from the&nbsp;<a style="background-color: #fafafa; font-size: 1rem;" href="http://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">console.cloud.google.com</a>&nbsp;site. Visit the website to learn more.
-<br /><br />
+## Nguồn gốc và giấy phép
 
-<strong>N.B.</strong> The cost of the API is around 2-3 dollars per hour. Make sure you don't forget the application in the background when it is in WalkieTalkie or Conversation mode (just exit from the selected mode by pressing back or the exit button instead of pressing the home button ). Moreover, the microphone data will be sent to Google servers to be processed in order to obtain the final result (voice recognition or translation). The data mentioned above will not be saved or used for other purposes by google unless you activate the logging in the cloud platform console. For more information about it, read the Privacy section below.
-<br /><br />
+Repository này được phát triển từ dự án mã nguồn mở [niedev/RTranslator](https://github.com/niedev/RTranslator) của Luca Martino. Tên repository và tài liệu đã được điều chỉnh cho fork này; package Java và một số branding trong ứng dụng vẫn giữ nguyên từ upstream.
 
-
-<h3>APIs prices</h3>
-
-The voice recognition rounds the cost of each request to the nearest multiple of 15 seconds. The average total cost (both translator and voice recognition), without taking into account the rounding, is 2.5 dollars per hour of usage, but both have a free usage margin per month (500,000 characters for translation and 60 minutes for speech recognition). Also for WalkieTalkie must add the language detection costs to the translation. To learn more:
-
-<a href="https://cloud.google.com/speech-to-text/pricing" target="_blank" rel="noopener noreferrer">cloud.google.com/speech-to-text/pricing</a>
-
-<a href="https://cloud.google.com/translate/pricing" target="_blank" rel="noopener noreferrer">cloud.google.com/translate/pricing</a>
-
-The translator uses API Translation v2; voice recognition uses standard models, data logging is disabled by default. If you want to reduce voice recognition costs, you can activate data logging. To learn more, visit &nbsp;<a style="background-color: #fafafa;
-font-size: 1rem;" href="https://cloud.google.com/speech-to-text/docs/enable-data-logging" target="_blank" rel="noopener noreferrer">
-cloud.google.com/speech-to-text/docs/enable-data-logging</a>.
-<br /><br />
-
-<h3>Supported languages</h3>
-
-The languages supported (excluding variants) are as follows:
-
-Bengali, Czech, Chinese, Korean, Danish, Finnish, French, Japanese, Greek, Hindi, Indonesian, English, Italian, Khmer, Nepalese, Dutch, Polish, Portuguese, Romanian, Russian, Sinhalese, Slovak, Spanish, Sundanese, Swedish, German, Thai, Turkish, Ukrainian, Hungarian, Vietnamese.
-<br /><br />
-
-<h3>Privacy</h3>
-
-Privacy is a fundamental right. That's why RTranslator does not collect any personal data (I don't even have a server). For more information, read the <a href="https://github.com/niedev/RTranslator/blob/v1.00/privacy/Privacy_Policy_en.md" target="_blank" rel="noopener noreferrer">privacy policy</a>.
-
-Concerning audio data and transcripts sent to Google for translation and speech recognition, they are sent only when speaking in WalkieTalkie mode or Conversation mode and the microphone becomes clearer, so only when necessary. Also, the data are used by Google only to carry out these operations and in no other way.
-
-On the other hand, if data logging for Google Cloud Speech is activated, the audio data sent will be used by Google only to improve its products and services. For more information, read  https://cloud.google.com/speech-to-text/docs/data-logging#data-security for Google Cloud Speech and https://cloud.google.com/translate/data-usage for Google Cloud Translation API.
-<br /><br />
-
-<h3>Libraries</h3>
-
-RTranslator uses three open-source libraries, one for communication between devices, another for selecting and cropping the profile image from the gallery and another for the cost chart.
-
-The three libraries are <a href="https://github.com/niedev/BluetoothCommunicator" target="_blank" rel="noopener noreferrer">BluetoothCommunicator</a>, <a href="https://github.com/niedev/GalleryImageSelector" target="_blank" rel="noopener noreferrer">GalleryImageSelector</a> and [GraphView](https://github.com/jjoe64/GraphView) respectively. See their GitHub pages and sample apps for more details.
-<br /><br />
-
-<h3>Donations</h3>
-
-This is an open source and completely ad-free project, I don't make any money from it (as you can see from the tutorial, any payments for the APIs are made directly to google).
-
-So, if you like the project and want to say thank you and support it, you can make a donation via paypal by clicking on the button below (any amount is well accepted).
-
-<a href='https://www.paypal.com/donate/?business=3VBKS3WC6AFHN&no_recurring=0&currency_code=EUR'><img alt='Donate' src='https://raw.githubusercontent.com/niedev/RTranslator/v1.00/images/Paypal.png' style="width: 190px; height: 80px;" /></a>
-
-In case you will donate, or just live a star, thank you :heart:
-<br /><br />
-
-<h3>Bugs and problems</h3>
-I remind you that the app is still in beta. The bugs found are the following:
-
-- For some languages, the TTS does not work. Reinstall the text-to-speech engine to solve.
-- On some devices, there are device search problems.
-- Sometimes at the first start, the app notifies that Bluetooth LE is not supported. If your device supports Bluetooth LE, the next time you start the app, the message should no longer appear.
-
-If you have found any other bug please report it by writing an email to contact.niedev@gmail.com
-<br /><br />
-
-Enjoy your simultaneous translator.
+Mã nguồn được phân phối theo [Apache License 2.0](LICENSE.txt). Xem thêm [NOTICE.txt](NOTICE.txt), [chính sách quyền riêng tư tiếng Anh](privacy/Privacy_Policy_en.md) và [chính sách quyền riêng tư tiếng Ý](privacy/Privacy_Policy_it.md).
