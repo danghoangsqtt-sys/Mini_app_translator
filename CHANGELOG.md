@@ -9,6 +9,7 @@ All notable changes to this fork will be documented in this file.
 - Encrypt the Google Cloud service-account credential at rest with an Android Keystore-backed AES-GCM key, including safe migration from the former plaintext file.
 - Exclude encrypted and legacy credential files plus identifying preference metadata from Android Auto Backup.
 - Fix `Tools.merge()` so byte arrays are concatenated in order instead of repeatedly overwriting the first output byte.
+- Serialize recorder shutdown and make the capture thread release `AudioRecord` only after its blocking read has stopped.
 
 ### Planned
 

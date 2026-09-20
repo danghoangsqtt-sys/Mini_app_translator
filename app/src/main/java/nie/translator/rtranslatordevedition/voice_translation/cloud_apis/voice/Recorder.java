@@ -54,13 +54,15 @@ public class Recorder {
     public static final int DEFAULT_PREV_VOICE_DURATION = 800;
     public static final int MIN_PREV_VOICE_DURATION = 100;
     private static final int MAX_SPEECH_LENGTH_MILLIS = 29 * 1000; //original: 30 * 1000
+    private static final long STOP_JOIN_TIMEOUT_MILLIS = 2000;
     private Timer timer;
     private final Callback mCallback;
-    private AudioRecord mAudioRecord;
+    private volatile AudioRecord mAudioRecord;
     private Thread mThread;
     private int mPrevBufferMaxSize;
     private ArrayDeque<byte[]> mPrevBuffer;
     private byte[] mBuffer;
+    private volatile boolean mStopRequested;
     /**
      * The timestamp of the last time that voice is heard.
      */
@@ -109,35 +111,70 @@ public class Recorder {
      *
      * <p>The caller is responsible for calling {@link #stop()} later.</p>
      */
-    public void start() {
+    public synchronized void start() {
         // Stop recording if it is currently ongoing.
         stop();
+        if (mThread != null && mThread.isAlive()) {
+            throw new IllegalStateException("Previous recording session did not stop");
+        }
         // Try to create a new recording session.
         mAudioRecord = createAudioRecord();
         if (mAudioRecord == null) {
             throw new RuntimeException("Cannot instantiate Recorder");
         }
         // Start recording.
-        mAudioRecord.startRecording();  // here doesn't work with callback
+        try {
+            mAudioRecord.startRecording();  // here doesn't work with callback
+        } catch (RuntimeException e) {
+            mAudioRecord.release();
+            mAudioRecord = null;
+            throw e;
+        }
         // Start processing the captured audio.
-        mThread = new Thread(new ProcessVoice(), "processVoice");
-        mThread.start();
+        mStopRequested = false;
+        final AudioRecord sessionAudioRecord = mAudioRecord;
+        mThread = new Thread(new ProcessVoice(sessionAudioRecord, mBuffer,
+                mPrevBuffer, mPrevBufferMaxSize), "processVoice");
+        try {
+            mThread.start();
+        } catch (RuntimeException e) {
+            sessionAudioRecord.stop();
+            sessionAudioRecord.release();
+            mThread = null;
+            mAudioRecord = null;
+            throw e;
+        }
     }
 
     /**
      * Stops recording audio.
      */
-    public void stop() {
-        if (mThread != null) {
-            mThread.interrupt();
+    public synchronized void stop() {
+        mStopRequested = true;
+        final Thread sessionThread = mThread;
+        final AudioRecord sessionAudioRecord = mAudioRecord;
+        boolean stopped = RecordingSessionController.stopAndJoin(
+                sessionThread,
+                sessionAudioRecord == null ? null : new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (sessionAudioRecord.getRecordingState()
+                                    == AudioRecord.RECORDSTATE_RECORDING) {
+                                sessionAudioRecord.stop();
+                            }
+                        } catch (IllegalStateException ignored) {
+                            // The reader may already have ended and released its session.
+                        }
+                    }
+                },
+                STOP_JOIN_TIMEOUT_MILLIS);
+        if (stopped) {
             mThread = null;
+            mAudioRecord = null;
+            mBuffer = null;
+            mPrevBuffer = null;
         }
-        if (mAudioRecord != null) {
-            mAudioRecord.stop();
-            mAudioRecord.release();
-            //mAudioRecord = null;
-        }
-        //mBuffer = null;
         dismiss();
         mCallback.onListenEnd();
     }
@@ -158,8 +195,9 @@ public class Recorder {
      * @return The sample rate of recorded audio.
      */
     public int getSampleRate() {
-        if (mAudioRecord != null) {
-            return mAudioRecord.getSampleRate();
+        AudioRecord audioRecord = mAudioRecord;
+        if (audioRecord != null) {
+            return audioRecord.getSampleRate();
         }
         return 0;
     }
@@ -202,40 +240,60 @@ public class Recorder {
      * then call the onVoiceStarted method and then onVoice, otherwise only onVoice.
      */
     private class ProcessVoice implements Runnable {
+        private final AudioRecord audioRecord;
+        private final byte[] buffer;
+        private final ArrayDeque<byte[]> previousBuffers;
+        private final int previousBufferMaxSize;
+
+        ProcessVoice(AudioRecord audioRecord, byte[] buffer,
+                     ArrayDeque<byte[]> previousBuffers, int previousBufferMaxSize) {
+            this.audioRecord = audioRecord;
+            this.buffer = buffer;
+            this.previousBuffers = previousBuffers;
+            this.previousBufferMaxSize = previousBufferMaxSize;
+        }
+
         @Override
         public void run() {
-            while (!Thread.currentThread().isInterrupted()) {
-                final int size = mAudioRecord.read(mBuffer, 0, mBuffer.length);
-                mPrevBuffer.addLast(mBuffer.clone());
-                if (mPrevBuffer.size() > mPrevBufferMaxSize) {
-                    mPrevBuffer.pollFirst();   // the excess buffer is eliminated, since the prevBuffer must only store the last buffers, the number is decided by prevBufferMaxSize
-                }
-                final long now = System.currentTimeMillis();
-                if (isHearingVoice(mBuffer, size)) {
-                    if (mLastVoiceHeardMillis == Long.MAX_VALUE) {    // use Long's maximum limit to indicate that we have no voice
-                        mVoiceStartedMillis = now;
-                        if (!isListening) {
-                            mCallback.onListenStart();
+            try {
+                while (!mStopRequested && !Thread.currentThread().isInterrupted()) {
+                    final int size = audioRecord.read(buffer, 0, buffer.length);
+                    if (mStopRequested || Thread.currentThread().isInterrupted() || size <= 0) {
+                        break;
+                    }
+                    previousBuffers.addLast(buffer.clone());
+                    if (previousBuffers.size() > previousBufferMaxSize) {
+                        previousBuffers.pollFirst();   // the excess buffer is eliminated, since the prevBuffer must only store the last buffers, the number is decided by prevBufferMaxSize
+                    }
+                    final long now = System.currentTimeMillis();
+                    if (isHearingVoice(buffer, size)) {
+                        if (mLastVoiceHeardMillis == Long.MAX_VALUE) {    // use Long's maximum limit to indicate that we have no voice
+                            mVoiceStartedMillis = now;
+                            if (!isListening) {
+                                mCallback.onListenStart();
+                            }
+                            mCallback.onVoiceStart();
+                            // we send the previous section (PREV_VOICE_DURATION seconds) when the voice is recognized
+                            while (previousBuffers.size() > 0) {
+                                mCallback.onVoice(previousBuffers.pollFirst(), size);
+                            }
+                        } else {
+                            mCallback.onVoice(buffer, size);
                         }
-                        mCallback.onVoiceStart();
-                        // we send the previous section (PREV_VOICE_DURATION seconds) when the voice is recognized
-                        while (mPrevBuffer.size() > 0) {
-                            mCallback.onVoice(mPrevBuffer.pollFirst(), size);
+                        mLastVoiceHeardMillis = now;
+                        if (now - mVoiceStartedMillis > MAX_SPEECH_LENGTH_MILLIS) {
+                            end();
+                            mCallback.onListenEnd();
                         }
-                    } else {
-                        mCallback.onVoice(mBuffer, size);
-                    }
-                    mLastVoiceHeardMillis = now;
-                    if (now - mVoiceStartedMillis > MAX_SPEECH_LENGTH_MILLIS) {
-                        end();
-                        mCallback.onListenEnd();
-                    }
-                } else if (mLastVoiceHeardMillis != Long.MAX_VALUE) {
-                    mCallback.onVoice(mBuffer, size);
-                    if (now - mLastVoiceHeardMillis > global.getSpeechTimeout()) {
-                        end();
+                    } else if (mLastVoiceHeardMillis != Long.MAX_VALUE) {
+                        mCallback.onVoice(buffer, size);
+                        if (now - mLastVoiceHeardMillis > global.getSpeechTimeout()) {
+                            end();
+                        }
                     }
                 }
+            } finally {
+                audioRecord.release();
             }
         }
 
