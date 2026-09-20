@@ -1,0 +1,17 @@
+flowchart LR
+    subgraph PhoneA["Phone A (speaker)"]
+        MicA[AudioRecord] --> RecA[Recognizer.java\ngRPC stream]
+    end
+
+    RecA -->|audio chunks| STT[Google Cloud\nSpeech-to-Text API]
+    STT -->|transcript| TransA[Translation API call]
+    TransA -->|translated text| BTA[ConversationBluetoothCommunicator]
+
+    BTA <-->|Bluetooth\nBluetoothCommunicator lib| BTB[ConversationBluetoothCommunicator]
+
+    subgraph PhoneB["Phone B (listener)"]
+        BTB --> TTS[Android TextToSpeech]
+    end
+
+    KeyFile[User-supplied GCP\nservice-account key] -.OAuth2 token.-> RecA
+    KeyFile -.OAuth2 token.-> TransA

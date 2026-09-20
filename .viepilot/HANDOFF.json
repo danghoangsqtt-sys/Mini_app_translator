@@ -1,0 +1,38 @@
+{
+  "crystallize_version": "0.8.0",
+  "crystallized_at": "2026-09-19T00:00:00Z",
+  "mode": "brownfield",
+  "project_name": "RTranslator",
+  "planned_product_name": "Mini Conversation",
+  "current_phase": 1,
+  "current_phase_name": "Security & Stability Hardening",
+  "current_phase_status": "in_progress",
+  "current_task": {
+    "id": "1.1",
+    "name": "Protect stored GCP key",
+    "status": "in_progress",
+    "task_file": ".viepilot/phases/phase-1-security-stability/tasks/1.1-protect-gcp-key.md"
+  },
+  "branch": {
+    "checked_out": "master",
+    "origin_tracking": "origin/master",
+    "upstream_default": "upstream/v3.00",
+    "mismatch_flagged": false,
+    "lineage_review_requested": true,
+    "tracking_request": "ENH-015"
+  },
+  "requests": {
+    "bug_count": 16,
+    "enh_count": 19,
+    "source": "vp-audit 2026-09-19 and 2026-09-20",
+    "status": "mixed: new and planned"
+  },
+  "scope_reduction": {
+    "readme_rewrite": false,
+    "license_regen": false,
+    "contributing_generated": false,
+    "external_stack_research": false,
+    "reason": "Upstream open-source project identity files left untouched; stack guardrails already captured per-finding from audit instead of generic research."
+  },
+  "resume_hint": "Run /vp-auto --from 1 to execute security hardening. Then run Phase 2, Phase 3 platform modernization, and Phase 5 Mini Conversation rebrand/UI. Install JDK and Android SDK before build gates."
+}
