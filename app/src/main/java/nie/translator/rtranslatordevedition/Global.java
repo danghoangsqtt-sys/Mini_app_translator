@@ -27,8 +27,6 @@ import androidx.annotation.Nullable;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
@@ -37,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import nie.translator.rtranslatordevedition.api_management.ConsumptionsDataManager;
+import nie.translator.rtranslatordevedition.api_management.CredentialStore;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode.communication.ConversationBluetoothCommunicator;
@@ -60,6 +59,7 @@ public class Global extends Application {
     private String name = "";
     private String apiKeyFileName = "";
     private ConsumptionsDataManager databaseManager;
+    private CredentialStore credentialStore;
     private AccessToken apiToken;
     private int micSensitivity = -1;
     private int speechTimeout = -1;
@@ -75,6 +75,7 @@ public class Global extends Application {
     public void onCreate() {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
+        credentialStore = new CredentialStore(this);
         recentPeersDataManager = new RecentPeersDataManager(this);
         bluetoothCommunicator = new ConversationBluetoothCommunicator(this, getName(), BluetoothCommunicator.STRATEGY_P2P_WITH_RECONNECTION);
         translator = new Translator(this);
@@ -423,6 +424,10 @@ public class Global extends Application {
         editor.apply();
     }
 
+    public CredentialStore getCredentialStore() {
+        return credentialStore;
+    }
+
 
     //api token
 
@@ -492,54 +497,43 @@ public class Global extends Application {
                 public void run() {
                     super.run();
                     Log.d("token", "token fetched");
-                    final InputStream stream;
-                    try {
-                        stream = new FileInputStream(new File(getFilesDir(), getApiKeyFileName()));
-                        try {
-                            final GoogleCredentials credentials = GoogleCredentials.fromStream(stream).createScoped(SCOPE);
-                            apiToken = credentials.refreshAccessToken();
-                            if (responseListener != null) {
-                                mainHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (apiToken != null) {
-                                            responseListener.onSuccess(apiToken);
-                                        } else {
-                                            responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
-                                        }
-                                    }
-                                });
-                            }
-
-                            // Schedule access token refresh before it expires
-                            if (mHandler != null) {
-                                // elimination of all runnables in handlers to ensure that only one getAppToken is scheduled at a time
-                                mHandler.removeCallbacksAndMessages(null);
-                                long refreshTime = Math.max(apiToken.getExpirationTime().getTime() - System.currentTimeMillis() - TOKEN_FETCH_MARGIN, TOKEN_FETCH_MARGIN);
-                                mHandler.postDelayed(new GetApiTokenRunnable(null), refreshTime);
-                            }
-                        } catch (final IOException e) {
-                            Log.e("token", "Failed to obtain access token.", e);
+                    File legacyCredential = new File(getFilesDir(), getApiKeyFileName());
+                    try (InputStream stream = credentialStore.openCredential(legacyCredential)) {
+                        final GoogleCredentials credentials = GoogleCredentials.fromStream(stream).createScoped(SCOPE);
+                        apiToken = credentials.refreshAccessToken();
+                        if (responseListener != null) {
                             mainHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (responseListener != null) {
-                                        if (e.getCause() instanceof UnknownHostException) {
-                                            responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
-                                        } else {
-                                            responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
-                                        }
+                                    if (apiToken != null) {
+                                        responseListener.onSuccess(apiToken);
+                                    } else {
+                                        responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
                                     }
                                 }
                             });
                         }
-                    } catch (FileNotFoundException e) {
-                        Log.e("token", "Failed to obtain access token.", e);
+
+                        // Schedule access token refresh before it expires
+                        if (mHandler != null) {
+                            // elimination of all runnables in handlers to ensure that only one getAppToken is scheduled at a time
+                            mHandler.removeCallbacksAndMessages(null);
+                            long refreshTime = Math.max(apiToken.getExpirationTime().getTime() - System.currentTimeMillis() - TOKEN_FETCH_MARGIN, TOKEN_FETCH_MARGIN);
+                            mHandler.postDelayed(new GetApiTokenRunnable(null), refreshTime);
+                        }
+                    } catch (final IOException e) {
+                        Log.e("token", "Failed to obtain access token.");
                         mainHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 if (responseListener != null) {
-                                    responseListener.onFailure(new int[]{ErrorCodes.MISSING_API_KEY}, -1);
+                                    if (e.getCause() instanceof UnknownHostException) {
+                                        responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
+                                    } else if (getApiKeyFileName().length() == 0) {
+                                        responseListener.onFailure(new int[]{ErrorCodes.MISSING_API_KEY}, -1);
+                                    } else {
+                                        responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
+                                    }
                                 }
                             }
                         });

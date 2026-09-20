@@ -31,6 +31,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import nie.translator.rtranslatordevedition.GeneralActivity;
 import nie.translator.rtranslatordevedition.Global;
@@ -65,7 +66,7 @@ public class KeyFileContainer {
             public void onClick(View v) {
                 activity.showConfirmDeleteDialog(new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        delete(new File(global.getFilesDir(), global.getApiKeyFileName()), new FileOperationListener() {
+                        delete(new FileOperationListener() {
                             public void onSuccess() {
                                 KeyFileContainer.this.textView.setText(global.getApiKeyFileName());
                                 KeyFileContainer.this.deleteButton.setVisibility(View.INVISIBLE);
@@ -165,7 +166,8 @@ public class KeyFileContainer {
         new Thread() {
             public void run() {
                 super.run();
-                if (Tools.copyFile(file, new File(activity.getFilesDir(), file.getName()))) {
+                try {
+                    global.getCredentialStore().importCredential(file);
                     global.setApiKeyFileName(file.getName());
                     global.resetApiToken();
                     mainHandler.post(new Runnable() {
@@ -174,6 +176,8 @@ public class KeyFileContainer {
                         }
                     });
                     return;
+                } catch (IOException ignored) {
+                    // The UI reports a generic failure without exposing the credential path.
                 }
                 mainHandler.post(new Runnable() {
                     public void run() {
@@ -184,18 +188,27 @@ public class KeyFileContainer {
         }.start();
     }
 
-    private void delete(final File file, final FileOperationListener responseListener) {
+    private void delete(final FileOperationListener responseListener) {
         new Thread() {
             public void run() {
                 super.run();
-                Tools.deleteFile(file);
-                global.setApiKeyFileName("");
-                global.resetApiToken();
-                mainHandler.post(new Runnable() {
-                    public void run() {
-                        responseListener.onSuccess();
-                    }
-                });
+                File legacyFile = new File(global.getFilesDir(), global.getApiKeyFileName());
+                try {
+                    global.getCredentialStore().deleteCredential(legacyFile);
+                    global.setApiKeyFileName("");
+                    global.resetApiToken();
+                    mainHandler.post(new Runnable() {
+                        public void run() {
+                            responseListener.onSuccess();
+                        }
+                    });
+                } catch (IOException ignored) {
+                    mainHandler.post(new Runnable() {
+                        public void run() {
+                            responseListener.onFailure();
+                        }
+                    });
+                }
             }
         }.start();
     }

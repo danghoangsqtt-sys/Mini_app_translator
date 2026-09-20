@@ -10,7 +10,7 @@
   "current_task": {
     "id": "1.1",
     "name": "Protect stored GCP key",
-    "status": "in_progress",
+    "status": "done",
     "task_file": ".viepilot/phases/phase-1-security-stability/tasks/1.1-protect-gcp-key.md"
   },
   "branch": {
@@ -34,5 +34,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails already captured per-finding from audit instead of generic research."
   },
-  "resume_hint": "Run /vp-auto --from 1 to execute security hardening. Then run Phase 2, Phase 3 platform modernization, and Phase 5 Mini Conversation rebrand/UI. Install JDK and Android SDK before build gates."
+  "resume_hint": "Continue /vp-auto with Phase 1 task 1.2 (exclude credential storage from Android Auto Backup). JDK 11 and Android SDK 29 are installed; no connected Android device/emulator was available for the task 1.1 instrumentation run."
 }
