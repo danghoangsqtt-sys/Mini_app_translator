@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 1 — Security & Stability Hardening (`in_progress`)
-- **Current task**: 1.5 — Handle gRPC stream errors (`not_started`)
+- **Current task**: 1.6 — Replace unrestricted key-file scan (`not_started`)
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
 
@@ -18,7 +18,7 @@
 
 | Phase | Status | Progress |
 |---|---|---|
-| 1 — Security & Stability Hardening | in progress | 4/6 tasks |
+| 1 — Security & Stability Hardening | in progress | 5/6 tasks |
 | 2 — Correctness & Robustness | planned | 0/6 tasks |
 | 3 — Android Modernization | planned | 0/5 tasks |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
@@ -34,7 +34,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-002 | 🐛 | Service-account key exposed via unencrypted Auto Backup | Critical | resolved (Phase 1, task 1.2) |
 | BUG-003 | 🐛 | `Tools.merge()` byte-array corruption | High | resolved (Phase 1, task 1.3) |
 | BUG-004 | 🐛 | `Recorder` stop/release race with recording thread | High | resolved (Phase 1, task 1.4) |
-| BUG-005 | 🐛 | gRPC streaming `onError` silently swallowed | High | new |
+| BUG-005 | 🐛 | gRPC streaming `onError` silently swallowed | High | resolved (Phase 1, task 1.5) |
 | BUG-006 | 🐛 | Unrestricted Downloads `.json` scan + legacy storage | High | new |
 | BUG-007 | 🐛 | Two independent Room DB instances on one SQLite file | Medium | new |
 | BUG-008 | 🐛 | AES/CTR encryption without MAC (malleable ciphertext) | Medium | new |

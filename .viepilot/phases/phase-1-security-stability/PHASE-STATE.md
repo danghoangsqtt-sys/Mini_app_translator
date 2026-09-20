@@ -1,8 +1,8 @@
 # Phase State — Phase 1: Security & Stability Hardening
 
 - **Status**: in progress
-- **Tasks**: 4/6 complete
-- **Current task**: 1.5 — Handle gRPC stream errors
+- **Tasks**: 5/6 complete
+- **Current task**: 1.6 — Replace unrestricted key-file scan
 - **Created**: 2026-09-20 via `/vp-evolve` after `/vp-audit`
 
 | Task | Request | Status |
@@ -11,7 +11,7 @@
 | 1.2 — Exclude secrets from backup | `BUG-002` | done |
 | 1.3 — Fix byte-array merge | `BUG-003` | done |
 | 1.4 — Fix recorder teardown race | `BUG-004` | done |
-| 1.5 — Handle gRPC stream errors | `BUG-005` | not started |
+| 1.5 — Handle gRPC stream errors | `BUG-005` | done |
 | 1.6 — Replace unrestricted key-file scan | `BUG-006` | not started |
 
 ## Entry gate

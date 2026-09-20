@@ -10,6 +10,7 @@ All notable changes to this fork will be documented in this file.
 - Exclude encrypted and legacy credential files plus identifying preference metadata from Android Auto Backup.
 - Fix `Tools.merge()` so byte arrays are concatenated in order instead of repeatedly overwriting the first output byte.
 - Serialize recorder shutdown and make the capture thread release `AudioRecord` only after its blocking read has stopped.
+- Propagate gRPC speech-stream failures through the service/UI error path with status mapping and stale-stream isolation.
 
 ### Planned
 

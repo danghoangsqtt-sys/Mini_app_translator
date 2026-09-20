@@ -73,8 +73,10 @@ public class Recognizer extends CloudApi {
     private RecognizerListener callback;
     private Chronometer chronometer = new Chronometer();
     private RecognizerApi recognizerApi = new RecognizerApi();
-    private StreamObserver<StreamingRecognizeResponse> mResponseObserver;
     private StreamObserver<StreamingRecognizeRequest> mRequestObserver;
+    private final RecognizerStreamErrorHandler streamErrorHandler;
+    private final boolean returnResultOnlyAtTheEnd;
+    private long activeStreamId;
     private boolean recognizing = false;
     private ArrayDeque<ByteString> dataToRecognize = new ArrayDeque<>();
     private String currentLanguageCode;
@@ -84,6 +86,14 @@ public class Recognizer extends CloudApi {
     public Recognizer(Service service, final boolean returnResultOnlyAtTheEnd, final RecognizerListener callback) {
         this.callback = callback;
         this.global = (Global) service.getApplication();
+        this.returnResultOnlyAtTheEnd = returnResultOnlyAtTheEnd;
+        this.streamErrorHandler = new RecognizerStreamErrorHandler(
+                new RecognizerStreamErrorHandler.Listener() {
+                    @Override
+                    public void onStreamError(long streamId, int reason) {
+                        handleStreamError(streamId, reason);
+                    }
+                });
         this.apiTokenListener = new Global.ApiTokenListener() {
             @Override
             public void onSuccess(AccessToken apiToken) {
@@ -97,12 +107,24 @@ public class Recognizer extends CloudApi {
 
         global.getApiToken(true, apiTokenListener);
 
-        mResponseObserver = new StreamObserver<StreamingRecognizeResponse>() {
+
+
+
+    }
+
+    private StreamObserver<StreamingRecognizeResponse> createResponseObserver(
+            final long streamId) {
+        return new StreamObserver<StreamingRecognizeResponse>() {
             private CloudApiResult ultimateInterimResult = new CloudApiResult("");
             private CloudApiResult ultimateFinalResult = new CloudApiResult("", true);
 
             @Override
             public void onNext(StreamingRecognizeResponse response) {
+                synchronized (lock) {
+                    if (activeStreamId != streamId) {
+                        return;
+                    }
+                }
                 if (response.getResultsCount() > 0) {
                     final StreamingRecognitionResult result = response.getResults(0);
                     boolean isFinal = result.getIsFinal();
@@ -112,19 +134,21 @@ public class Recognizer extends CloudApi {
                         String text = alternative.getTranscript();
                         if (text != null) {
                             if (isFinal) {
-                                Log.e("recognizerResultFinal",text);
+                                Log.e("recognizerResultFinal", text);
                                 if (returnResultOnlyAtTheEnd) {
-                                    ultimateFinalResult.setText(ultimateFinalResult.getText() + " " + text);
+                                    ultimateFinalResult.setText(
+                                            ultimateFinalResult.getText() + " " + text);
                                     ultimateFinalResult.setConfidenceScore(confidence);
                                 } else {
                                     ultimateInterimResult = new CloudApiResult("");
                                 }
                             } else {
-                                Log.e("recognizerResult",text);
+                                Log.e("recognizerResult", text);
                                 ultimateInterimResult.setText(text);
                             }
                             if (!returnResultOnlyAtTheEnd) {
-                                callback.onSpeechRecognizedResult(text, currentLanguageCode, confidence, isFinal);
+                                callback.onSpeechRecognizedResult(
+                                        text, currentLanguageCode, confidence, isFinal);
                             }
                         }
                     }
@@ -132,13 +156,26 @@ public class Recognizer extends CloudApi {
             }
 
             @Override
-            public void onError(Throwable t) {
-                //callback.onError();
+            public void onError(Throwable error) {
+                ultimateInterimResult = new CloudApiResult("");
+                ultimateFinalResult = new CloudApiResult("", true);
+                streamErrorHandler.onError(streamId, error);
             }
 
             @Override
             public void onCompleted() {
-                Log.e("recognizerResult","completed");
+                if (!streamErrorHandler.onStreamFinished(streamId)) {
+                    return;
+                }
+                synchronized (lock) {
+                    if (activeStreamId != streamId) {
+                        return;
+                    }
+                    recognizing = false;
+                    mRequestObserver = null;
+                    dataToRecognize.clear();
+                }
+                Log.e("recognizerResult", "completed");
                 String text;
                 float confidence = 0;
 
@@ -153,14 +190,12 @@ public class Recognizer extends CloudApi {
                     text = ultimateInterimResult.getText();
                 }
 
-                callback.onSpeechRecognizedResult(text, currentLanguageCode, confidence, true);
-                ultimateInterimResult = new CloudApiResult("");
-                ultimateFinalResult = new CloudApiResult("", true);
+                callback.onSpeechRecognizedResult(
+                        text, currentLanguageCode, confidence, true);
             }
         };
-
-
     }
+
 
 
     /**
@@ -205,22 +240,30 @@ public class Recognizer extends CloudApi {
         //start timer
         chronometer.start();
         // Configure the API
-        mRequestObserver = recognizerApi.getApi().streamingRecognize(mResponseObserver);
-        mRequestObserver.onNext(StreamingRecognizeRequest.newBuilder()
-                .setStreamingConfig(StreamingRecognitionConfig.newBuilder()
-                        .setConfig(RecognitionConfig.newBuilder()
-                                .setLanguageCode(languageCode)
-                                .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                                .setSampleRateHertz(sampleRate)
-                                .setEnableAutomaticPunctuation(true)
-                                .setUseEnhanced(true)
-                                .setEnableWordTimeOffsets(true)
-                                .build())
-                        // this is because single utterance is true only for the single device mode in which only the final results are taken
-                        .setInterimResults(true)  //!singleUtterance
-                        .setSingleUtterance(false)  //singleUtterance
-                        .build())
-                .build());
+        activeStreamId = streamErrorHandler.onStreamStarted();
+        final long streamId = activeStreamId;
+        try {
+            mRequestObserver = recognizerApi.getApi().streamingRecognize(
+                    createResponseObserver(streamId));
+            mRequestObserver.onNext(StreamingRecognizeRequest.newBuilder()
+                    .setStreamingConfig(StreamingRecognitionConfig.newBuilder()
+                            .setConfig(RecognitionConfig.newBuilder()
+                                    .setLanguageCode(languageCode)
+                                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                                    .setSampleRateHertz(sampleRate)
+                                    .setEnableAutomaticPunctuation(true)
+                                    .setUseEnhanced(true)
+                                    .setEnableWordTimeOffsets(true)
+                                    .build())
+                            // this is because single utterance is true only for the single device mode in which only the final results are taken
+                            .setInterimResults(true)  //!singleUtterance
+                            .setSingleUtterance(false)  //singleUtterance
+                            .build())
+                    .build());
+        } catch (RuntimeException error) {
+            streamErrorHandler.onError(streamId, error);
+            return;
+        }
         Log.e("recognizer","startRecognition");
         recognize();
     }
@@ -254,8 +297,8 @@ public class Recognizer extends CloudApi {
                             .setAudioContent(data)
                             .build());
                 } catch (IllegalStateException e) {
-                    e.printStackTrace();
-                    ////e("Recognizer","call was half-closed exception");
+                    streamErrorHandler.onError(activeStreamId, e);
+                    return;
                 }
                 Log.e("recognizer","recognizing");
                 recognize();
@@ -284,7 +327,11 @@ public class Recognizer extends CloudApi {
 
     private void performFinishRecognizing() {
         if (mRequestObserver != null) {
-            mRequestObserver.onCompleted();
+            try {
+                mRequestObserver.onCompleted();
+            } catch (RuntimeException error) {
+                streamErrorHandler.onError(activeStreamId, error);
+            }
             mRequestObserver = null;
             Log.e("recognizer","stopRecognition");
             //stop timer e sottrazione credito
@@ -322,6 +369,9 @@ public class Recognizer extends CloudApi {
 
     public void destroy() {
         synchronized (lock) {  // if it generates a block then we should have a thread perform the destroy operation
+            streamErrorHandler.onStreamFinished(activeStreamId);
+            recognizing = false;
+            dataToRecognize.clear();
             // Release the gRPC channel.
             SpeechGrpc.SpeechStub mApi = recognizerApi.getApi();
             if (mApi != null) {
@@ -333,6 +383,18 @@ public class Recognizer extends CloudApi {
             }
             mRequestObserver = null;
         }
+    }
+
+    private void handleStreamError(long streamId, int reason) {
+        synchronized (lock) {
+            if (activeStreamId != streamId) {
+                return;
+            }
+            recognizing = false;
+            mRequestObserver = null;
+            dataToRecognize.clear();
+        }
+        callback.onError(new int[]{reason}, -1);
     }
 
     private static class RecognizerApi {

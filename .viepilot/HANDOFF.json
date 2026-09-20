@@ -8,10 +8,10 @@
   "current_phase_name": "Security & Stability Hardening",
   "current_phase_status": "in_progress",
   "current_task": {
-    "id": "1.4",
-    "name": "Fix recorder teardown race",
+    "id": "1.5",
+    "name": "Handle gRPC stream errors",
     "status": "done",
-    "task_file": ".viepilot/phases/phase-1-security-stability/tasks/1.4-fix-recorder-teardown-race.md"
+    "task_file": ".viepilot/phases/phase-1-security-stability/tasks/1.5-handle-grpc-stream-errors.md"
   },
   "branch": {
     "checked_out": "master",
@@ -34,5 +34,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails already captured per-finding from audit instead of generic research."
   },
-  "resume_hint": "Continue /vp-auto with Phase 1 task 1.5 (handle gRPC stream errors). JDK 11 and Android SDK 29 are installed; device-only credential, backup, and recorder verification remains in the Phase 1 exit gate."
+  "resume_hint": "Continue /vp-auto with Phase 1 task 1.6 (replace unrestricted key-file scan with the Storage Access Framework). JDK 11 and Android SDK 29 are installed; device-only credential, backup, recorder, and service/UI verification remains in the Phase 1 exit gate."
 }
