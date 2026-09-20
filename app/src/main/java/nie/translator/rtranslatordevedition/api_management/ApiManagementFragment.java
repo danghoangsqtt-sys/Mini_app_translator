@@ -17,8 +17,8 @@
 package nie.translator.rtranslatordevedition.api_management;
 
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -31,7 +31,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -41,7 +40,6 @@ import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
 import nie.translator.rtranslatordevedition.tools.CustomTime;
 import nie.translator.rtranslatordevedition.tools.gui.CustomDayGraphsPagerAdapter;
-import nie.translator.rtranslatordevedition.tools.gui.DeactivableButton;
 import nie.translator.rtranslatordevedition.tools.gui.GuiTools;
 import nie.translator.rtranslatordevedition.tools.gui.KeyFileSelectorButton;
 
@@ -66,12 +64,6 @@ public class ApiManagementFragment extends Fragment {
     private Handler selfHandler;
     private Global global;
     private ApiManagementActivity activity;
-    //permissions
-    public static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 5;
-    public static final String[] REQUIRED_PERMISSIONS = new String[]{
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-
     public ApiManagementFragment() {
         // Required empty public constructor
     }
@@ -190,12 +182,6 @@ public class ApiManagementFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
-    }
-
     private void appearNoDataMessage() {
         Messenger selfMessenger = new Messenger(selfHandler);
         Message message = Message.obtain();
@@ -257,29 +243,11 @@ public class ApiManagementFragment extends Fragment {
         }
     }
 
-    /**
-     * Handles user acceptance (or denial) of our permission request.
-     */
-    @CallSuper
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode != REQUEST_CODE_REQUIRED_PERMISSIONS) {
-            return;
-        }
-
-        for (int grantResult : grantResults) {
-            if (grantResult == PackageManager.PERMISSION_DENIED) {
-                Toast.makeText(activity, R.string.error_missing_mic_permissions, Toast.LENGTH_LONG).show();
-                selectFileButton.deactivate(DeactivableButton.DEACTIVATED_FOR_MISSING_MIC_PERMISSION);
-                return;
-            }
-        }
-
-        //possible activation of the selectFileButton
-        if(selectFileButton.getActivationStatus()!=DeactivableButton.ACTIVATED) {
-            selectFileButton.activate(false);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && keyFileContainer != null) {
+            keyFileContainer.onActivityResult(requestCode, data);
         }
     }
 }

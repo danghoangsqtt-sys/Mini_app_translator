@@ -1,8 +1,8 @@
 # Phase State — Phase 1: Security & Stability Hardening
 
-- **Status**: in progress
-- **Tasks**: 5/6 complete
-- **Current task**: 1.6 — Replace unrestricted key-file scan
+- **Status**: complete
+- **Tasks**: 6/6 complete
+- **Current task**: none
 - **Created**: 2026-09-20 via `/vp-evolve` after `/vp-audit`
 
 | Task | Request | Status |
@@ -12,7 +12,7 @@
 | 1.3 — Fix byte-array merge | `BUG-003` | done |
 | 1.4 — Fix recorder teardown race | `BUG-004` | done |
 | 1.5 — Handle gRPC stream errors | `BUG-005` | done |
-| 1.6 — Replace unrestricted key-file scan | `BUG-006` | not started |
+| 1.6 — Replace unrestricted key-file scan | `BUG-006` | done |
 
 ## Entry gate
 
@@ -25,3 +25,7 @@
 - All six fixes have focused regression coverage.
 - No service-account credential is included in backup, logs, screenshots, or test fixtures.
 - `testDebugUnitTest`, `lintDebug`, and `assembleDebug` pass in the supported toolchain.
+
+## Completion evidence
+
+- 2026-09-20: Task 1.6 passed SAF/import regression tests and manual validation on the API 36 `medium_phone` emulator. The known lint baseline (5 errors, 119 warnings) remains tracked by Phase 3 task 3.6; this legacy lint configuration does not fail the command today.

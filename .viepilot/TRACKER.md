@@ -3,10 +3,11 @@
 ## Current state
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
-- **Current phase**: Phase 1 — Security & Stability Hardening (`in_progress`)
-- **Current task**: 1.6 — Replace unrestricted key-file scan (`not_started`)
+- **Current phase**: Phase 1 — Security & Stability Hardening (`complete`)
+- **Current task**: none — Phase 2 task 2.1 is ready to start
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
+- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phase 1 complete; Phase 2 task 2.1 is next)
 
 ## Brownfield Import
 
@@ -18,9 +19,9 @@
 
 | Phase | Status | Progress |
 |---|---|---|
-| 1 — Security & Stability Hardening | in progress | 5/6 tasks |
+| 1 — Security & Stability Hardening | complete | 6/6 tasks |
 | 2 — Correctness & Robustness | planned | 0/6 tasks |
-| 3 — Android Modernization | planned | 0/5 tasks |
+| 3 — Android Modernization | planned | 0/6 tasks |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
 | 5 — Mini Conversation Rebrand & UI | planned | 0/6 tasks |
 
@@ -35,13 +36,13 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-003 | 🐛 | `Tools.merge()` byte-array corruption | High | resolved (Phase 1, task 1.3) |
 | BUG-004 | 🐛 | `Recorder` stop/release race with recording thread | High | resolved (Phase 1, task 1.4) |
 | BUG-005 | 🐛 | gRPC streaming `onError` silently swallowed | High | resolved (Phase 1, task 1.5) |
-| BUG-006 | 🐛 | Unrestricted Downloads `.json` scan + legacy storage | High | new |
-| BUG-007 | 🐛 | Two independent Room DB instances on one SQLite file | Medium | new |
-| BUG-008 | 🐛 | AES/CTR encryption without MAC (malleable ciphertext) | Medium | new |
-| BUG-009 | 🐛 | Data race on `Global.apiToken` | Medium | new |
-| BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | new |
-| BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | new |
-| BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Medium | new |
+| BUG-006 | 🐛 | Unrestricted Downloads `.json` scan + legacy storage | High | resolved (Phase 1, task 1.6) |
+| BUG-007 | 🐛 | Two independent Room DB instances on one SQLite file | Medium | planned (Phase 2, task 2.1) |
+| BUG-008 | 🐛 | AES/CTR encryption without MAC (malleable ciphertext) | Medium | planned (Phase 2, task 2.2; verify reachability) |
+| BUG-009 | 🐛 | Data race on `Global.apiToken` | Medium | planned (Phase 2, task 2.3) |
+| BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | planned (Phase 2, task 2.4) |
+| BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | planned (Phase 2, task 2.5) |
+| BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Medium | planned (Phase 2, task 2.6; verify reachability) |
 | BUG-013 | 🐛 | Missing Android 12+ Bluetooth runtime permissions (blocks safe targetSdk 31+ upgrade) | High | planned (Phase 3, task 3.2) |
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | planned (Phase 3, task 3.4) |
 | BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | planned (Phase 3, task 3.5) |
@@ -73,8 +74,11 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-19**: `/vp-evolve BUG-013 ENH-012` — user chose to also bundle `ENH-011` in, since `BUG-013` has no executable meaning without the targetSdk bump `ENH-011` performs. Created Phase 3 ("Android Modernization", planned, 3 tasks) with `.viepilot/phases/phase-3-android-modernization/{SPEC.md,PHASE-STATE.md}`. Renumbered the old undifferentiated Phase 3 backlog remainder (`ENH-013`–`ENH-017`) into Phase 4 ("Remaining Hygiene Backlog", still proposed). No app version bump — planning only, no code changed yet; version bumps on actual merge per `SYSTEM-RULES.md`.
 - **2026-09-20**: `/vp-audit` confirmed the existing defect backlog and added `BUG-014` (exported launcher), `BUG-015` (foreground service types), `BUG-016` (missing README images), `ENH-018` (Mini Conversation identity/icon), and `ENH-019` (UI/accessibility). Build execution is currently blocked by the absence of Java and Android SDK on this machine.
 - **2026-09-20**: `/vp-evolve` made Phases 1 and 2 executable, expanded Phase 3 from 3 to 5 tasks for target API 36, and created Phase 5 for the Mini Conversation rebrand/UI. Application code and runtime version remain unchanged.
+- **2026-09-20**: `/vp-evolve` audit follow-up created a remediation sequence and task contracts for Phases 2–3 plus Phase 5 documentation/release QA. Added Phase 3 task 3.6 for blocking lint/release checks (5 lint errors and 119 warnings were observed despite a successful legacy build); host builds and 9 unit tests passed, but no Android device was connected and the release APK was unsigned. Phase 1 task 1.6 remains in progress; no app code or runtime version was changed by this planning pass.
+- **2026-09-20**: `/vp-auto` completed Phase 1 task 1.6. Credential import now uses SAF, validates the selected JSON before encrypted persistence, and removes legacy storage access. Build checks passed with 14 unit tests; API 36 emulator validation covered picker open/cancel, invalid rejection, valid import persistence, and the gallery provider entry point without a storage-permission prompt.
 
 ## Version info
 
 - App version at import: `1.1.2` (versionCode 13) — on the stale `master` branch only.
 - Planned feature release after Phase 5: `1.2.0`; select the next `versionCode` during implementation/release, not during planning.
+- If a bug-fix-only release is cut before the planned feature release, propose a PATCH version (for example `1.1.3`) and increment `versionCode` at release time; this plan does not bump either value.

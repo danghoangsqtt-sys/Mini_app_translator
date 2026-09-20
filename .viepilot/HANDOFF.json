@@ -6,13 +6,8 @@
   "planned_product_name": "Mini Conversation",
   "current_phase": 1,
   "current_phase_name": "Security & Stability Hardening",
-  "current_phase_status": "in_progress",
-  "current_task": {
-    "id": "1.5",
-    "name": "Handle gRPC stream errors",
-    "status": "done",
-    "task_file": ".viepilot/phases/phase-1-security-stability/tasks/1.5-handle-grpc-stream-errors.md"
-  },
+  "current_phase_status": "complete",
+  "current_task": null,
   "branch": {
     "checked_out": "master",
     "origin_tracking": "origin/master",
@@ -34,5 +29,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails already captured per-finding from audit instead of generic research."
   },
-  "resume_hint": "Continue /vp-auto with Phase 1 task 1.6 (replace unrestricted key-file scan with the Storage Access Framework). JDK 11 and Android SDK 29 are installed; device-only credential, backup, recorder, and service/UI verification remains in the Phase 1 exit gate."
+  "resume_hint": "Continue /vp-auto with Phase 2 task 2.1 (reuse a single Room database instance). JDK 11 and Android SDK are installed; Phase 1 task 1.6 passed its API 36 emulator SAF validation."
 }

@@ -75,7 +75,27 @@ public final class CredentialStore {
             throw new FileNotFoundException("Credential source is not a readable file");
         }
         try (InputStream input = new FileInputStream(source)) {
-            writeEncrypted(readBounded(input, MAX_CREDENTIAL_SIZE));
+            importCredential(input);
+        }
+    }
+
+    /**
+     * Imports one explicitly selected credential stream. The stream is closed after its bounded
+     * content has been copied, validated, and encrypted.
+     */
+    public synchronized void importCredential(InputStream source) throws IOException {
+        if (source == null) {
+            throw new FileNotFoundException("Credential source is not readable");
+        }
+        byte[] plaintext = readBounded(source, MAX_CREDENTIAL_SIZE);
+        try {
+            ServiceAccountCredentialValidator.validate(plaintext);
+            writeEncrypted(plaintext);
+            plaintext = null;
+        } finally {
+            if (plaintext != null) {
+                Arrays.fill(plaintext, (byte) 0);
+            }
         }
     }
 

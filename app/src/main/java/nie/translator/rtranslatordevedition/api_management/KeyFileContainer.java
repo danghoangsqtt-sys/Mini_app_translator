@@ -17,33 +17,31 @@
 package nie.translator.rtranslatordevedition.api_management;
 
 import android.content.DialogInterface;
-import android.os.Environment;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.OpenableColumns;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
 import nie.translator.rtranslatordevedition.GeneralActivity;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
-import nie.translator.rtranslatordevedition.tools.Tools;
-import nie.translator.rtranslatordevedition.tools.gui.FileListAdapter;
 import nie.translator.rtranslatordevedition.tools.gui.KeyFileSelectorButton;
 
 public class KeyFileContainer {
+    private static final int REQUEST_CODE_PICK_CREDENTIAL = 6;
     private GeneralActivity activity;
     private AppCompatImageButton deleteButton;
-    private AlertDialog dialog;
     private Fragment fragment;
     private Global global;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -78,114 +76,97 @@ public class KeyFileContainer {
         });
         this.selectFileButton.setOnClickListenerForActivated(new View.OnClickListener() {
             public void onClick(View v) {
-                View editDialogLayout = activity.getLayoutInflater().inflate(R.layout.dialog_key_files, null);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setCancelable(true);
-                builder.setTitle((CharSequence) global.getResources().getString(R.string.dialog_select_file));
-
-                dialog = builder.create();
-                dialog.setView(editDialogLayout, 0, Tools.convertDpToPixels(activity, 16), 0, 0);
-                dialog.show();
-
-                final ListView listViewGui = (ListView) editDialogLayout.findViewById(R.id.list_view_dialog);
-                final ProgressBar progressBar = (ProgressBar) editDialogLayout.findViewById(R.id.progressBar3);
-                //Environment.getExternalStorageDirectory().getAbsolutePath()  //this is for viewing all directories of the phone, but the search became slow if the phone has a lot of files
-
-                findJsonFiles(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()), (FilesListListener) new FilesListListener() {
-                    public void onSuccess(ArrayList<File> filesList) {
-                        progressBar.setVisibility(View.GONE);
-                        listViewGui.setVisibility(View.VISIBLE);
-
-                        final FileListAdapter adapter = new FileListAdapter(activity, filesList);
-                        listViewGui.setAdapter(adapter);
-                        listViewGui.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                                save((File) adapter.getItem(position), new FileOperationListener() {
-                                    public void onSuccess() {
-                                        KeyFileContainer.this.textView.setText(global.getApiKeyFileName());
-                                        KeyFileContainer.this.deleteButton.setVisibility(View.VISIBLE);
-                                        dialog.dismiss();
-                                    }
-
-                                    public void onFailure() {
-                                        Toast.makeText(global, global.getResources().getString(R.string.error_picking_file), Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+                openDocumentPicker();
             }
         });
     }
 
-    private void findJsonFiles(final File dir, final FilesListListener filesListListener) {
+    private void openDocumentPicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        fragment.startActivityForResult(intent, REQUEST_CODE_PICK_CREDENTIAL);
+    }
+
+    public void onActivityResult(int requestCode, Intent data) {
+        if (requestCode != REQUEST_CODE_PICK_CREDENTIAL || data == null || data.getData() == null) {
+            return;
+        }
+        save(data.getData(), new FileOperationListener() {
+            @Override
+            public void onSuccess() {
+                KeyFileContainer.this.textView.setText(global.getApiKeyFileName());
+                KeyFileContainer.this.deleteButton.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onInvalidCredential() {
+                Toast.makeText(global, R.string.error_invalid_key, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(global, R.string.error_picking_file, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void save(final Uri uri, final FileOperationListener responseListener) {
         new Thread() {
             public void run() {
-                super.run();
-                final ArrayList<File> list = new ArrayList<>();
-                findJsonFiles(dir, list);
-                mainHandler.post(new Runnable() {
-                    public void run() {
-                        filesListListener.onSuccess(list);
-                    }
-                });
-            }
-        }.start();
-    }
-
-    private void findJsonFiles(File dir, ArrayList<File> matchingSAFFiles) {
-        String safPattern = ".json";
-        File[] listFile = dir.listFiles();
-        if (listFile != null) {
-            for (int i = 0; i < listFile.length; i++) {
-                String filename = listFile[i].getName();
-                if (listFile[i].isDirectory()) {
-                    findJsonFiles(listFile[i], matchingSAFFiles);
-                } else if (filename.endsWith(safPattern)) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(dir.toString());
-                    sb.append(File.separator);
-                    sb.append(listFile[i].getName());
-                    matchingSAFFiles.add(new File(sb.toString()));
-                }
-            }
-        }
-    }
-
-    private static abstract class FilesListListener {
-        private FilesListListener() {
-        }
-
-        public void onSuccess(ArrayList<File> arrayList) {
-        }
-    }
-
-    private void save(final File file, final FileOperationListener responseListener) {
-        new Thread() {
-            public void run() {
-                super.run();
                 try {
-                    global.getCredentialStore().importCredential(file);
-                    global.setApiKeyFileName(file.getName());
+                    String displayName = getDisplayName(uri);
+                    try (InputStream input = activity.getContentResolver().openInputStream(uri)) {
+                        if (input == null) {
+                            throw new FileNotFoundException("Selected credential is unavailable");
+                        }
+                        global.getCredentialStore().importCredential(input);
+                    }
+                    global.setApiKeyFileName(displayName);
                     global.resetApiToken();
                     mainHandler.post(new Runnable() {
                         public void run() {
                             responseListener.onSuccess();
                         }
                     });
-                    return;
+                } catch (final ServiceAccountCredentialValidator.InvalidCredentialException ignored) {
+                    mainHandler.post(new Runnable() {
+                        public void run() {
+                            responseListener.onInvalidCredential();
+                        }
+                    });
                 } catch (IOException ignored) {
-                    // The UI reports a generic failure without exposing the credential path.
+                    mainHandler.post(new Runnable() {
+                        public void run() {
+                            responseListener.onFailure();
+                        }
+                    });
                 }
-                mainHandler.post(new Runnable() {
-                    public void run() {
-                        responseListener.onFailure();
-                    }
-                });
             }
         }.start();
+    }
+
+    private String getDisplayName(Uri uri) {
+        Cursor cursor = null;
+        try {
+            cursor = activity.getContentResolver().query(uri,
+                    new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int displayNameColumn = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (displayNameColumn >= 0 && !cursor.isNull(displayNameColumn)) {
+                    String displayName = cursor.getString(displayNameColumn);
+                    if (displayName != null && displayName.trim().length() > 0) {
+                        return displayName;
+                    }
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return "service-account.json";
     }
 
     private void delete(final FileOperationListener responseListener) {
@@ -215,6 +196,9 @@ public class KeyFileContainer {
 
     public static abstract class FileOperationListener {
         public void onSuccess() {
+        }
+
+        public void onInvalidCredential() {
         }
 
         public void onFailure() {
