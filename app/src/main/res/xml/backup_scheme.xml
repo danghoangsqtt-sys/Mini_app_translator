@@ -15,8 +15,22 @@
   limitations under the License.
 -->
 <full-backup-content>
-    <!-- We don't want the access token to be backed up -->
+    <!--
+      Credentials live in files/gcp_credentials.v1. Excluding the whole files
+      domain also protects a legacy plaintext credential whose filename was
+      selected by the user and therefore cannot be listed here safely.
+    -->
+    <exclude
+        domain="file"
+        path="." />
+
+    <!-- Android backup rules can exclude a preference file, not one key. -->
     <exclude
         domain="sharedpref"
-        path="AccessTokenLoader.xml"/>
+        path="nie.translator.rtranslatordevedition_preferences.xml" />
+
+    <!-- We don't want the access token to be backed up. -->
+    <exclude
+        domain="sharedpref"
+        path="AccessTokenLoader.xml" />
 </full-backup-content>

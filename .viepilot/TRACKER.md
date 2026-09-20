@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 1 — Security & Stability Hardening (`in_progress`)
-- **Current task**: 1.2 — Exclude secrets from backup (`not_started`)
+- **Current task**: 1.3 — Fix byte-array merge (`not_started`)
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
 
@@ -18,7 +18,7 @@
 
 | Phase | Status | Progress |
 |---|---|---|
-| 1 — Security & Stability Hardening | in progress | 1/6 tasks |
+| 1 — Security & Stability Hardening | in progress | 2/6 tasks |
 | 2 — Correctness & Robustness | planned | 0/6 tasks |
 | 3 — Android Modernization | planned | 0/5 tasks |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
@@ -31,7 +31,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ID | Type | Title | Priority | Status |
 |----|------|-------|----------|--------|
 | BUG-001 | 🐛 | GCP service-account key stored unencrypted at rest | Critical | resolved (Phase 1, task 1.1) |
-| BUG-002 | 🐛 | Service-account key exposed via unencrypted Auto Backup | Critical | new |
+| BUG-002 | 🐛 | Service-account key exposed via unencrypted Auto Backup | Critical | resolved (Phase 1, task 1.2) |
 | BUG-003 | 🐛 | `Tools.merge()` byte-array corruption | High | new |
 | BUG-004 | 🐛 | `Recorder` stop/release race with recording thread | High | new |
 | BUG-005 | 🐛 | gRPC streaming `onError` silently swallowed | High | new |
