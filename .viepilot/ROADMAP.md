@@ -2,7 +2,7 @@
 
 ## Phase 1 — Security & Stability Hardening
 
-**Status**: in progress (2/6 tasks complete)
+**Status**: in progress (3/6 tasks complete)
 **Source**: `/vp-audit` full-codebase pass, 2026-09-19 (see `.viepilot/requests/`)
 **Goal**: close the Critical/High findings before any new feature work proceeds.
 **Execution spec**: `.viepilot/phases/phase-1-security-stability/SPEC.md`
@@ -82,7 +82,7 @@ Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-013` (test covera
 
 | Phase | Status | Tasks Done | Tasks Total |
 |---|---|---|---|
-| 1 — Security & Stability Hardening | in progress | 2 | 6 |
+| 1 — Security & Stability Hardening | in progress | 3 | 6 |
 | 2 — Correctness & Robustness | planned | 0 | 6 |
 | 3 — Android Modernization | planned | 0 | 5 |
 | 4 — Remaining Hygiene Backlog | proposed | 0 | 5 |

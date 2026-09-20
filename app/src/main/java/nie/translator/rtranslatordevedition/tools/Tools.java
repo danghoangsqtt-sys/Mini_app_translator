@@ -294,17 +294,19 @@ public class Tools {
     public static byte[] merge(byte[]... arrays) {
         int length = 0;
         for (byte[] array : arrays) {
+            if (length > Integer.MAX_VALUE - array.length) {
+                throw new IllegalArgumentException("Merged array is too large");
+            }
             length += array.length;
         }
-        byte[] c = new byte[length];
+        byte[] merged = new byte[length];
 
-        int count = 0;
+        int offset = 0;
         for (byte[] array : arrays) {
-            for (byte anArray : array) {
-                c[count] = anArray;
-            }
+            System.arraycopy(array, 0, merged, offset, array.length);
+            offset += array.length;
         }
-        return c;
+        return merged;
     }
 
     public static byte[] objToByte(Parcelable object) {
