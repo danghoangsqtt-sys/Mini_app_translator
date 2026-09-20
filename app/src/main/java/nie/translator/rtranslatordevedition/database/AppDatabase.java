@@ -16,6 +16,9 @@
 
 package nie.translator.rtranslatordevedition.database;
 
+import android.content.Context;
+import androidx.annotation.VisibleForTesting;
+import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import nie.translator.rtranslatordevedition.database.dao.MyDao;
 import nie.translator.rtranslatordevedition.database.entities.Hour;
@@ -24,5 +27,34 @@ import nie.translator.rtranslatordevedition.database.entities.RecentPeerEntity;
 
 @androidx.room.Database(version = 1, entities = {Hour.class, RecentPeerEntity.class})
 abstract public class AppDatabase extends RoomDatabase {
+    private static final String DATABASE_NAME = "consumption_credit_dp";
+    private static volatile AppDatabase instance;
+
     abstract public MyDao myDao();
+
+    /**
+     * All consumers of the usage/recent-peer database must share this instance. Building from
+     * the application context prevents an Activity from being retained beyond its lifecycle.
+     */
+    public static AppDatabase getInstance(Context context) {
+        if (instance == null) {
+            synchronized (AppDatabase.class) {
+                if (instance == null) {
+                    instance = Room.databaseBuilder(context.getApplicationContext(),
+                            AppDatabase.class, DATABASE_NAME).build();
+                }
+            }
+        }
+        return instance;
+    }
+
+    @VisibleForTesting
+    static void resetInstanceForTesting() {
+        synchronized (AppDatabase.class) {
+            if (instance != null) {
+                instance.close();
+                instance = null;
+            }
+        }
+    }
 }

@@ -33,6 +33,7 @@ android {
         versionCode 13
         versionName '1.1.2'
         minSdkVersion 23
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         debug {

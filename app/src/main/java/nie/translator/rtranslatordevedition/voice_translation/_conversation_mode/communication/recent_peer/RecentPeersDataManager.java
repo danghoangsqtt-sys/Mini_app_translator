@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.Room;
 import java.util.ArrayList;
 import nie.translator.rtranslatordevedition.database.AppDatabase;
 import nie.translator.rtranslatordevedition.database.dao.MyDao;
@@ -29,11 +28,11 @@ import nie.translator.rtranslatordevedition.database.entities.RecentPeerEntity;
 import nie.translator.rtranslatordevedition.tools.Tools;
 
 public class RecentPeersDataManager {
-    private AppDatabase database;
+    private final AppDatabase database;
     private ArrayList<RecentPeer> cachedRecentPeers;
 
     public RecentPeersDataManager(Context context) {
-        database = Room.databaseBuilder(context, AppDatabase.class, "consumption_credit_dp").build();
+        database = AppDatabase.getInstance(context);
     }
 
     public void insertRecentPeer(@NonNull final String deviceId, final String uniqueName, final Bitmap userImage) {

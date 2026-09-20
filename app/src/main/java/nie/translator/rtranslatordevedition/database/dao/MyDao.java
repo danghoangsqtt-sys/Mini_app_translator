@@ -43,6 +43,9 @@ public interface MyDao{
     @Delete
     void deleteRecentPeers(RecentPeerEntity... recentPeerEntities);
 
+    @Query("DELETE FROM Hour WHERE year=:year AND month=:month AND day=:day AND id=:hour")
+    void deleteHour(int year, int month, int day, int hour);
+
     //select
     @Query("SELECT COUNT(id) FROM Hour")
     int loadHoursCount();

@@ -12,6 +12,7 @@ All notable changes to this fork will be documented in this file.
 - Serialize recorder shutdown and make the capture thread release `AudioRecord` only after its blocking read has stopped.
 - Propagate gRPC speech-stream failures through the service/UI error path with status mapping and stale-stream isolation.
 - Replace the recursive Downloads credential scan with a Storage Access Framework JSON picker, validate service-account content before encrypted persistence, and remove legacy external-storage access.
+- Share a single application-context Room database instance between consumption and recent-peer managers, preserving the existing database file and schema.
 
 ### Planned
 

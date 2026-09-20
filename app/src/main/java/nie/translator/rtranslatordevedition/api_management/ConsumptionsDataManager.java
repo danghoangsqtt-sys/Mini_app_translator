@@ -18,7 +18,6 @@ package nie.translator.rtranslatordevedition.api_management;
 
 import android.content.Context;
 import android.util.Log;
-import androidx.room.Room;
 import java.util.Date;
 import java.util.HashMap;
 import nie.translator.rtranslatordevedition.database.AppDatabase;
@@ -28,10 +27,10 @@ import nie.translator.rtranslatordevedition.tools.CustomTime;
 
 
 public class ConsumptionsDataManager {
-    private AppDatabase database;
+    private final AppDatabase database;
 
     public ConsumptionsDataManager(Context context) {
-        database = Room.databaseBuilder(context, AppDatabase.class, "consumption_credit_dp").build();
+        database = AppDatabase.getInstance(context);
     }
 
     public void addUsage(float credit) { //dovrà essere richiamato a ogni utilizzo dell' api
