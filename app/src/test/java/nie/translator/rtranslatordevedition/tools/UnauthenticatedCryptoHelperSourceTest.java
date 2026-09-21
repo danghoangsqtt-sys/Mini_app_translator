@@ -25,14 +25,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class UnauthenticatedCryptoHelperSourceTest {
     private static final File PRODUCTION_SOURCE = new File("src/main/java");
 
     @Test
     public void productionJavaDoesNotContainLegacyUnauthenticatedCrypto() throws Exception {
+        assertTrue("Production source directory must exist", PRODUCTION_SOURCE.isDirectory());
+
         List<File> sourceFiles = new ArrayList<File>();
         collectJavaFiles(PRODUCTION_SOURCE, sourceFiles);
+        assertFalse("Production source directory must contain Java files", sourceFiles.isEmpty());
 
         for (File sourceFile : sourceFiles) {
             String source = new String(Files.readAllBytes(sourceFile.toPath()),
