@@ -74,8 +74,8 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.voiceTranslationServiceCommunicator = new WalkieTalkieService.WalkieTalkieServiceCommunicator(0);
-        super.voiceTranslationServiceCallback = new VoiceTranslationServiceCallback();
+        voiceTranslationServiceCommunicator = new WalkieTalkieService.WalkieTalkieServiceCommunicator(0);
+        voiceTranslationServiceCallback = new VoiceTranslationServiceCallback();
     }
 
     @Override

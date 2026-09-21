@@ -43,8 +43,8 @@ public class ConversationMainFragment extends VoiceTranslationFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.voiceTranslationServiceCommunicator = new ConversationService.ConversationServiceCommunicator(0);
-        super.voiceTranslationServiceCallback = new VoiceTranslationServiceCallback() {
+        voiceTranslationServiceCommunicator = new ConversationService.ConversationServiceCommunicator(0);
+        voiceTranslationServiceCallback = new VoiceTranslationServiceCallback() {
             @Override
             public void onBluetoothHeadsetConnected() {
                 super.onBluetoothHeadsetConnected();

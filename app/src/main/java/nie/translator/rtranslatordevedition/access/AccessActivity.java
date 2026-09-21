@@ -17,6 +17,7 @@
 package nie.translator.rtranslatordevedition.access;
 
 import android.os.Bundle;
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import nie.translator.rtranslatordevedition.GeneralActivity;
@@ -27,10 +28,17 @@ public class AccessActivity extends GeneralActivity {
     public static final int USER_DATA_FRAGMENT = 0;
     public static final int NOTICE_FRAGMENT = 1;
     private Fragment fragment;
+    private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            handleBackNavigation();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
         setContentView(R.layout.activity_access);
         if (savedInstanceState != null) {
             //Restore the fragment's instance
@@ -77,13 +85,18 @@ public class AccessActivity extends GeneralActivity {
     }
 
 
-    @Override
-    public void onBackPressed() {
+    private void handleBackNavigation() {
         if(fragment instanceof UserDataFragment){
             startFragment(NOTICE_FRAGMENT,null);
             return;
         }
-        super.onBackPressed();
+        dispatchDefaultBackNavigation();
+    }
+
+    private void dispatchDefaultBackNavigation() {
+        backPressedCallback.setEnabled(false);
+        getOnBackPressedDispatcher().onBackPressed();
+        backPressedCallback.setEnabled(true);
     }
 }
 

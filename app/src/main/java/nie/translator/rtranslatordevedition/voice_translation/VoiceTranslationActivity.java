@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.activity.OnBackPressedCallback;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
@@ -86,6 +87,12 @@ public class VoiceTranslationActivity extends GeneralActivity {
     private ArrayList<CustomServiceConnection> conversationServiceConnections = new ArrayList<>();
     private ArrayList<CustomServiceConnection> walkieTalkieServiceConnections = new ArrayList<>();
     private Handler mainHandler;  // handler that can be used to post to the main thread
+    private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            handleBackNavigation();
+        }
+    };
     //variables
     private int connectionId = 1;
 
@@ -93,6 +100,7 @@ public class VoiceTranslationActivity extends GeneralActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
         setContentView(R.layout.activity_main);
         global = (Global) getApplication();
         mainHandler = new Handler(Looper.getMainLooper());
@@ -371,8 +379,7 @@ public class VoiceTranslationActivity extends GeneralActivity {
         //recreate();   // was called only if the grantResults were of length 0 or were neither PERMISSIONS_GRANTED nor PERMISSION_DENIED (I don't know what it is for anyway)
     }
 
-    @Override
-    public void onBackPressed() {
+    private void handleBackNavigation() {
         DialogInterface.OnClickListener confirmExitListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -406,11 +413,17 @@ public class VoiceTranslationActivity extends GeneralActivity {
                     }
                 }
             } else {
-                super.onBackPressed();
+                dispatchDefaultBackNavigation();
             }
         } else {
-            super.onBackPressed();
+            dispatchDefaultBackNavigation();
         }
+    }
+
+    private void dispatchDefaultBackNavigation() {
+        backPressedCallback.setEnabled(false);
+        getOnBackPressedDispatcher().onBackPressed();
+        backPressedCallback.setEnabled(true);
     }
 
     public void exitFromVoiceTranslation() {

@@ -30,7 +30,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -613,9 +612,7 @@ public class GraphView extends View {
      * @param title
      */
     public void takeSnapshotAndShare(Context context, String imageName, String title) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         Bitmap inImage = takeSnapshot();
-        inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
 
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, imageName, null);
         if (path == null) {

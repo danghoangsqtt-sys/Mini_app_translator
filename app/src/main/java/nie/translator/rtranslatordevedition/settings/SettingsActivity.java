@@ -19,6 +19,7 @@ package nie.translator.rtranslatordevedition.settings;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toolbar;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -32,10 +33,17 @@ public class SettingsActivity extends GeneralActivity {
     public static final String CONFIRM_EMAIL_FRAGMENT = "startConfirm";
     public static final String CHANGE_PASSWORD_FRAGMENT = "startChangePsw";
     private Fragment fragment;
+    private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            handleBackNavigation();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
         setContentView(R.layout.activity_settings);
 
         Toolbar toolbar = findViewById(R.id.toolbarSettings);
@@ -72,7 +80,7 @@ public class SettingsActivity extends GeneralActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                onBackPressed();
+                handleBackNavigation();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -85,8 +93,7 @@ public class SettingsActivity extends GeneralActivity {
         getSupportFragmentManager().putFragment(outState, "fragment_inizialization", fragment);
     }
 
-    @Override
-    public void onBackPressed() {
+    private void handleBackNavigation() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_settings_container);
         if (fragment != null) {
             if (fragment instanceof SettingsFragment) {
@@ -94,14 +101,20 @@ public class SettingsActivity extends GeneralActivity {
                 if (settingsFragment.isDownloading()) {
                     showDownloadDialog();
                 }else {
-                    super.onBackPressed();
+                    dispatchDefaultBackNavigation();
                 }
             }else{
-                super.onBackPressed();
+                dispatchDefaultBackNavigation();
             }
         }else{
-            super.onBackPressed();
+            dispatchDefaultBackNavigation();
         }
+    }
+
+    private void dispatchDefaultBackNavigation() {
+        backPressedCallback.setEnabled(false);
+        getOnBackPressedDispatcher().onBackPressed();
+        backPressedCallback.setEnabled(true);
     }
 
     private void showDownloadDialog() {

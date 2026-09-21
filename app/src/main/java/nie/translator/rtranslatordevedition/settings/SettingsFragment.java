@@ -23,9 +23,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -33,9 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceGroupAdapter;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.gallery.imageselector.GalleryImageSelector;
 
@@ -107,24 +102,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onCreate(savedInstanceState);
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
-    }
-
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        PreferenceGroupAdapter adapter = (PreferenceGroupAdapter) super.onCreateAdapter(super.getPreferenceScreen());
-        RecyclerView recyclerView = view.findViewById(R.id.preference_recyclerview);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
-
-
-        // to scroll the scrollview up
-        /*recyclerView.setFocusable(false);
-        image.requestFocus();*/
     }
 
     @Override
