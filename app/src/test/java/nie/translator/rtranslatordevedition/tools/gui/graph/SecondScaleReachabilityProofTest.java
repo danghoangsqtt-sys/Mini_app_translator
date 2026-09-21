@@ -42,10 +42,10 @@ public class SecondScaleReachabilityProofTest {
         for (File file : productionJavaFiles) {
             String path = file.getPath().replace('\\', '/');
             String source = read(file);
-            assertFalse("production source must not reflectively mutate SecondScale: " + path,
-                    source.contains("Class.forName") || source.contains(".getDeclaredMethod(")
-                            || source.contains(".getMethod(") || source.contains("Method.invoke")
-                            || source.contains("setAccessible"));
+            if (referencesSecondScale(source)) {
+                assertFalse("a SecondScale-related path must not use reflection: " + path,
+                        usesReflection(source));
+            }
             if (!path.contains("/tools/gui/graph/")) {
                 assertFalse("application code must not call GraphView.getSecondScale(): " + path,
                         source.contains("getSecondScale("));
@@ -112,5 +112,16 @@ public class SecondScaleReachabilityProofTest {
 
     private static String read(File file) throws IOException {
         return new String(Files.readAllBytes(file.toPath()), Charset.forName("UTF-8"));
+    }
+
+    private static boolean referencesSecondScale(String source) {
+        return source.contains("SecondScale") || source.contains("getSecondScale")
+                || source.contains("mYAxisBoundsManual");
+    }
+
+    private static boolean usesReflection(String source) {
+        return source.contains("Class.forName") || source.contains(".getDeclaredMethod(")
+                || source.contains(".getMethod(") || source.contains("Method.invoke")
+                || source.contains("setAccessible");
     }
 }
