@@ -21,22 +21,44 @@ import org.junit.Test;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 
 public class UnauthenticatedCryptoHelperSourceTest {
-    private static final File TOOLS_SOURCE = new File(
-            "src/main/java/nie/translator/rtranslatordevedition/tools/Tools.java");
+    private static final File PRODUCTION_SOURCE = new File("src/main/java");
 
     @Test
-    public void tools_doesNotReintroduceLegacyUnauthenticatedCrypto() throws Exception {
-        String source = new String(Files.readAllBytes(TOOLS_SOURCE.toPath()),
-                StandardCharsets.UTF_8);
+    public void productionJavaDoesNotContainLegacyUnauthenticatedCrypto() throws Exception {
+        List<File> sourceFiles = new ArrayList<File>();
+        collectJavaFiles(PRODUCTION_SOURCE, sourceFiles);
 
-        assertFalse(source.contains("AES/CTR"));
-        assertFalse(source.contains("class CipherData"));
-        assertFalse(source.contains("encript("));
-        assertFalse(source.contains("decript("));
-        assertFalse(source.contains("decriptToString"));
+        for (File sourceFile : sourceFiles) {
+            String source = new String(Files.readAllBytes(sourceFile.toPath()),
+                    StandardCharsets.UTF_8);
+
+            assertFalse(sourceFile + " must not use AES/CTR", source.contains("AES/CTR"));
+            assertFalse(sourceFile + " must not declare CipherData",
+                    source.contains("class CipherData"));
+            assertFalse(sourceFile + " must not declare encript", source.contains("encript("));
+            assertFalse(sourceFile + " must not declare decript", source.contains("decript("));
+            assertFalse(sourceFile + " must not declare decriptToString",
+                    source.contains("decriptToString"));
+        }
+    }
+
+    private static void collectJavaFiles(File directory, List<File> sourceFiles) {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                collectJavaFiles(file, sourceFiles);
+            } else if (file.getName().endsWith(".java")) {
+                sourceFiles.add(file);
+            }
+        }
     }
 }
