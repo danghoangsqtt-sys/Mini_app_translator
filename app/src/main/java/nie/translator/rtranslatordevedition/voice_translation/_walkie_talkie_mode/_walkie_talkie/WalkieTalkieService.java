@@ -276,13 +276,15 @@ public class WalkieTalkieService extends VoiceTranslationService {
     }
 
     private void bindFirstLanguageRecognizer(Intent intent) {
-        firstLanguageBindingAttempts.recordBindAttempt();
-        bindService(intent, firstLanguageConnection, Service.BIND_AUTO_CREATE);
+        if (firstLanguageBindingAttempts.recordBindAttempt()) {
+            bindService(intent, firstLanguageConnection, Service.BIND_AUTO_CREATE);
+        }
     }
 
     private void bindSecondLanguageRecognizer(Intent intent) {
-        secondLanguageBindingAttempts.recordBindAttempt();
-        bindService(intent, secondLanguageConnection, Service.BIND_AUTO_CREATE);
+        if (secondLanguageBindingAttempts.recordBindAttempt()) {
+            bindService(intent, secondLanguageConnection, Service.BIND_AUTO_CREATE);
+        }
     }
 
     private void stopFirstLanguageCommunication() {

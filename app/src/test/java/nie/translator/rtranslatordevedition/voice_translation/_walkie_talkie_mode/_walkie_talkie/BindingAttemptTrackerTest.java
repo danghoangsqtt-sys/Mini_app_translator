@@ -40,7 +40,7 @@ public class BindingAttemptTrackerTest {
         BindingAttemptTracker second = new BindingAttemptTracker();
         RecordingUnbinder firstUnbinder = new RecordingUnbinder();
         RecordingUnbinder secondUnbinder = new RecordingUnbinder();
-        first.recordBindAttempt();
+        assertEquals(true, first.recordBindAttempt());
 
         first.releaseAll(firstUnbinder, new RecordingFailureListener());
         second.releaseAll(secondUnbinder, new RecordingFailureListener());
@@ -56,7 +56,7 @@ public class BindingAttemptTrackerTest {
         boolean bindServiceReturned = false;
 
         // The return value is intentionally irrelevant to Android's unbind contract.
-        tracker.recordBindAttempt();
+        assertEquals(true, tracker.recordBindAttempt());
         tracker.releaseAll(unbinder, new RecordingFailureListener());
 
         assertEquals(false, bindServiceReturned);
@@ -69,8 +69,8 @@ public class BindingAttemptTrackerTest {
         BindingAttemptTracker second = new BindingAttemptTracker();
         RecordingUnbinder firstUnbinder = new RecordingUnbinder();
         RecordingUnbinder secondUnbinder = new RecordingUnbinder();
-        first.recordBindAttempt();
-        second.recordBindAttempt();
+        assertEquals(true, first.recordBindAttempt());
+        assertEquals(true, second.recordBindAttempt());
 
         first.releaseAll(firstUnbinder, new RecordingFailureListener());
         second.releaseAll(secondUnbinder, new RecordingFailureListener());
@@ -80,31 +80,36 @@ public class BindingAttemptTrackerTest {
     }
 
     @Test
-    public void repeatedStartsReleaseOnceForEachBindAttempt() {
+    public void repeatedStartWithTheSameConnectionOnlyKeepsOneActiveBind() {
         BindingAttemptTracker tracker = new BindingAttemptTracker();
         RecordingUnbinder unbinder = new RecordingUnbinder();
-        tracker.recordBindAttempt();
-        tracker.recordBindAttempt();
+        assertEquals(true, tracker.recordBindAttempt());
+        assertEquals(false, tracker.recordBindAttempt());
 
         tracker.releaseAll(unbinder, new RecordingFailureListener());
 
-        assertEquals(2, unbinder.calls);
+        assertEquals(1, unbinder.calls);
         assertEquals(0, tracker.getPendingUnbindCount());
     }
 
     @Test
-    public void cleanupFailureDoesNotPreventLaterAttemptFromBeingReleased() {
-        BindingAttemptTracker tracker = new BindingAttemptTracker();
-        FailingFirstUnbinder unbinder = new FailingFirstUnbinder();
+    public void cleanupFailureForOneConnectionDoesNotPreventTheOtherConnectionRelease() {
+        BindingAttemptTracker first = new BindingAttemptTracker();
+        BindingAttemptTracker second = new BindingAttemptTracker();
+        FailingFirstUnbinder firstUnbinder = new FailingFirstUnbinder();
+        RecordingUnbinder secondUnbinder = new RecordingUnbinder();
         RecordingFailureListener failures = new RecordingFailureListener();
-        tracker.recordBindAttempt();
-        tracker.recordBindAttempt();
+        assertEquals(true, first.recordBindAttempt());
+        assertEquals(true, second.recordBindAttempt());
 
-        tracker.releaseAll(unbinder, failures);
+        first.releaseAll(firstUnbinder, failures);
+        second.releaseAll(secondUnbinder, failures);
 
-        assertEquals(2, unbinder.calls);
+        assertEquals(1, firstUnbinder.calls);
+        assertEquals(1, secondUnbinder.calls);
         assertEquals(1, failures.failures.size());
-        assertEquals(0, tracker.getPendingUnbindCount());
+        assertEquals(0, first.getPendingUnbindCount());
+        assertEquals(0, second.getPendingUnbindCount());
     }
 
     private static class RecordingUnbinder implements BindingAttemptTracker.Unbinder {

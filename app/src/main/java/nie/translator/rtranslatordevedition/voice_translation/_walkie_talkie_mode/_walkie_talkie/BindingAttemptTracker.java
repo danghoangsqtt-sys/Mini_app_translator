@@ -17,9 +17,9 @@
 package nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie;
 
 /**
- * Counts bindService registrations for one ServiceConnection. Android requires one unbind for
- * every bindService call, including calls that return false, so this deliberately does not track
- * the return value or onServiceConnected.
+ * Tracks one active bindService registration for one ServiceConnection. A false bind result still
+ * requires unbind, but an active connection cannot be registered twice because the framework
+ * reuses its dispatcher and rejects a second teardown unbind.
  */
 final class BindingAttemptTracker {
     interface Unbinder {
@@ -30,18 +30,20 @@ final class BindingAttemptTracker {
         void onFailure(RuntimeException error);
     }
 
-    private int pendingUnbinds;
+    private boolean active;
 
-    synchronized void recordBindAttempt() {
-        pendingUnbinds++;
+    synchronized boolean recordBindAttempt() {
+        if (active) return false;
+        active = true;
+        return true;
     }
 
     synchronized int getPendingUnbindCount() {
-        return pendingUnbinds;
+        return active ? 1 : 0;
     }
 
     void releaseAll(Unbinder unbinder, FailureListener failureListener) {
-        while (consumeOneAttempt()) {
+        if (consumeActiveAttempt()) {
             try {
                 unbinder.unbind();
             } catch (RuntimeException error) {
@@ -50,11 +52,11 @@ final class BindingAttemptTracker {
         }
     }
 
-    private synchronized boolean consumeOneAttempt() {
-        if (pendingUnbinds == 0) {
+    private synchronized boolean consumeActiveAttempt() {
+        if (!active) {
             return false;
         }
-        pendingUnbinds--;
+        active = false;
         return true;
     }
 }

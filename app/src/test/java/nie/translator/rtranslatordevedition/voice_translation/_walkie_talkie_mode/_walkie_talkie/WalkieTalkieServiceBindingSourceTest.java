@@ -42,10 +42,10 @@ public class WalkieTalkieServiceBindingSourceTest {
         assertFalse("second connection must not be unbound without an attempt check",
                 source.contains("unbindService(secondLanguageConnection);"));
         assertAttemptIsRecordedBeforeBind(source,
-                "firstLanguageBindingAttempts.recordBindAttempt();",
+                "if (firstLanguageBindingAttempts.recordBindAttempt())",
                 "bindService(intent, firstLanguageConnection, Service.BIND_AUTO_CREATE);");
         assertAttemptIsRecordedBeforeBind(source,
-                "secondLanguageBindingAttempts.recordBindAttempt();",
+                "if (secondLanguageBindingAttempts.recordBindAttempt())",
                 "bindService(intent, secondLanguageConnection, Service.BIND_AUTO_CREATE);");
         assertCleanupContinuesToTheParentService(source);
     }

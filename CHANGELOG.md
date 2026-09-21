@@ -17,6 +17,8 @@ All notable changes to this fork will be documented in this file.
 - Prevent a queued access-token callback from delivering a token for a replaced or deleted credential after reset.
 - Track each WalkieTalkie recognizer bind attempt so teardown releases the matching registrations
   without unconditional unbinds, including false-return and partial-bind cases.
+- Avoid duplicate active WalkieTalkie recognizer registrations, validated against API 36 binding
+  lifecycle behavior.
 
 ### Planned
 
