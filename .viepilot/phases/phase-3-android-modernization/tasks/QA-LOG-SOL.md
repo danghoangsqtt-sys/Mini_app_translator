@@ -73,3 +73,51 @@ Vấn đề Terra cần sửa trước khi yêu cầu QA lại Cụm A:
 Không tạo request BUG/ENH mới: các vấn đề trên nằm trực tiếp trong phạm vi Task 3.1, 3.2 và lint gate 3.6.
 
 VERDICT: FAIL — toolchain API 36 chưa được hỗ trợ, tài liệu phiên bản sai, permission legacy không nhất quán, và lint có 20 lỗi mới; đồng thời toàn bộ device matrix/physical Bluetooth evidence vẫn PENDING HUMAN.
+
+## [2026-09-21 15:52:01 +07:00] Cụm A re-QA — Task(s) 3.1, 3.2, 3.4, 3.5
+Commit: `3b6626085e41fb5bd65db6efe354dd0db8db41a3` (remediation code: `4121be7dead0ba27ca3543bf2aed1c68436ea07e`)
+
+Lệnh đã chạy + kết quả tóm tắt:
+- Xác minh snapshot: PASS — cả hai commit tồn tại; `4121be7` là ancestor trực tiếp của corrective commit `3b66260`; hash này chưa có verdict trước đó. Do working tree chính còn thay đổi Phase 5/IDE/local ngoài phạm vi, SOL dùng worktree detached sạch `D:\DataAdmin\qa-a-3b66` tại đúng `3b66260`.
+- `gradlew.bat ... --max-workers=1 --no-daemon --console=plain testDebugUnitTest lintDebug assembleDebug assembleRelease` bằng Microsoft OpenJDK `17.0.20.1`, AGP `8.13.2`, Gradle `8.13`: lần quyết định cuối **BUILD SUCCESSFUL** trong 43 giây, 97 actionable tasks (15 executed, 82 up-to-date). Trước đó host có hai JVM native-memory crash và một R8 heap OOM; không lần nào được tính PASS. Sau khi commit memory của Windows hồi phục, lần cuối dùng heap 1024 MiB và hoàn tất cả bốn gate.
+- Unit tests: PASS — 17 suites, 42 tests, 0 failures, 0 errors, 0 skipped.
+- Artifacts/R8: PASS — `app-debug.apk` và `app-release-unsigned.apk` được tạo; `minifyReleaseWithR8` hoàn tất. Release APK vẫn unsigned đúng trạng thái hiện tại, không phải distributable release.
+- Toolchain/static config: PASS — `compileSdk`/`targetSdk` 36, `minSdk` 23, namespace, Maven Central, Java source/target 8, protobuf plugin 0.10.0; không còn cảnh báo AGP không hỗ trợ compileSdk 36. Không có đường dẫn JDK/signing cá nhân trong snapshot commit.
+- Lint snapshot chính xác từ `lint-results-debug.xml`: **18 errors / 168 warnings**. Baseline PM là 5 errors/121 warnings; 3 `ResourceType` và 2 `InvalidPackage` baseline không còn xuất hiện, nhưng có **18 lỗi mới**: `UseAppTint` 9, `GestureBackNavigation` 3, `MissingSuperCall` 2, `RestrictedApi` 2, `NewApi` 1, `WrongThread` 1. Năm `MissingPermission` và một `CoarseFineLocation` của verdict trước đã được loại. Exit 0 chỉ do `abortOnError=false`/`checkReleaseBuilds=false`, không phải lint sạch.
+- Merged manifest debug/release: PASS — `LoadingActivity` exported true; toàn bộ activity/service/provider còn lại quan sát được exported false; `GeneralService` count 0; chỉ `ConversationService` và `WalkieTalkieService` có `microphone|connectedDevice`; hai recognizer service không có FGS type.
+- Manifest/runtime permission static evidence: PASS — legacy `BLUETOOTH`, `BLUETOOTH_ADMIN`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `ACCESS_BACKGROUND_LOCATION` đều `maxSdkVersion=30`; `BLUETOOTH_SCAN` có `neverForLocation`; `BLUETOOTH_CONNECT`, `BLUETOOTH_ADVERTISE`, `NEARBY_WIFI_DEVICES` và hai FGS normal permissions có mặt. Runtime arrays được gate theo API 23–30/31–32/33+, và năm headset/SCO call site không còn `MissingPermission` lint error.
+- Không phát hiện defect mới ngoài sáu task Phase 3; 18 lint errors thuộc trực tiếp phạm vi Task 3.6 nên không tạo BUG/ENH request mới. Không sửa code app, Phase 4/5, icon, `Mo_May_Ao.bat` hoặc `.idea`.
+
+Đối chiếu acceptance criteria:
+
+Task 3.1:
+- PASS — Compatibility spike/build chứng minh AGP 8.13.2 + Gradle 8.13 + JDK 17 + protobuf generation hoạt động với API 36; manifest merger, Java compile, unit tests, debug build và release/R8 đều hoàn tất.
+- FAIL — Tiêu chí “supported clean build” chưa đạt theo quality gate: lint có 18 lỗi mới và 168 warnings so với baseline 5/121; Gradle xanh vì lint chưa blocking.
+- PASS — API 36 target, namespace, repository/tool versions và compatibility decisions khớp commit/EXEC log; thay đổi vẫn giới hạn ở cụm tích hợp Phase 3.
+- PENDING-HUMAN — Chưa có regression/device evidence tích hợp trên API 23/31/34/36.
+
+Task 3.2:
+- PASS — Manifest declarations/flags và runtime request arrays đúng nhánh API; mismatch `ACCESS_COARSE_LOCATION` đã sửa.
+- PASS — Static lint không còn `CoarseFineLocation` hoặc `MissingPermission`; advertising/discovery/connect/accept/reject/disconnect và headset/SCO có guard tại các call site đã sửa.
+- PENDING-HUMAN — Chưa có bằng chứng grant/deny/revoke và đánh giá `neverForLocation` trên API 31/34/36; chưa chứng minh các flow không ném `SecurityException` trên thiết bị.
+- PENDING-HUMAN — Chưa có two-phone Conversation và one-phone WalkieTalkie/headset/SCO smoke tests.
+- PASS — Task 3.2 vẫn nằm cùng snapshot tích hợp với 3.1/3.4/3.5.
+
+Task 3.4:
+- PASS — Merged debug/release manifests xác nhận launcher exported true, components nội bộ/dependency quan sát được non-exported, `GeneralService` stale đã loại.
+- PENDING-HUMAN — Chưa có install/launch evidence trên API 31/34/36.
+- PASS — Manifest merger và integrated host build với 3.1 hoàn tất.
+
+Task 3.5:
+- PASS — Hai foreground voice services có đúng `microphone|connectedDevice` và normal permissions; bound-only recognizer services không bị gán type.
+- PASS — Foreground promotion kiểm tra `RECORD_AUDIO` và `BLUETOOTH_CONNECT` trước khi gọi `startForeground`, kèm type flags trên API 29+.
+- PENDING-HUMAN — Chưa có bằng chứng không có missing-type/permission exception trong Conversation/WalkieTalkie trên API 34/36.
+- PENDING-HUMAN — Chưa có bằng chứng permission ordering, background start restrictions, screen lock, stop/restart, process recreation trên API 34/36 và tương thích API 23/31.
+- PENDING-HUMAN — Chưa có đầy đủ ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO evidence; đây là release blocker.
+
+Vấn đề Terra cần xử lý trước lần QA kế tiếp của Cụm A:
+1. Không mô tả lint là sạch hoặc coi exit 0 là pass. Phải xử lý/disposition toàn bộ **18 lint errors mới theo ID/nguồn** để Cụm A không làm xấu baseline 5/121; không mass-suppress. Task 3.6 vẫn chịu trách nhiệm bật blocking gate sau Cụm B, nhưng thứ tự gate yêu cầu Cụm A PASS trước khi bắt đầu Cụm B.
+2. Warning count hiện là **168**, tăng 47 so với baseline 121; chuyển giao danh sách/triage cụ thể cho Task 3.6, không dùng broad suppression.
+3. Cung cấp human/device evidence bắt buộc nêu trên. Nếu host/static findings đã sạch nhưng evidence vẫn thiếu, verdict kế tiếp tối đa là BLOCKED/PENDING-HUMAN, không được tự pass.
+
+VERDICT: FAIL — remediation đã sửa đúng AGP, legacy permission và năm headset/SCO `MissingPermission`, đồng thời full host build/R8 chạy thành công; tuy nhiên lint vẫn lệch baseline với 18 lỗi mới/168 warnings. Ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO evidence tiếp tục PENDING HUMAN EVIDENCE và là release blocker.
