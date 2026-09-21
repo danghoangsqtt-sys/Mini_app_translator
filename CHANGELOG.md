@@ -19,6 +19,8 @@ All notable changes to this fork will be documented in this file.
   without unconditional unbinds, including false-return and partial-bind cases.
 - Avoid duplicate active WalkieTalkie recognizer registrations, validated against API 36 binding
   lifecycle behavior.
+- Prevent stale Conversation SCO reconnect callbacks from restarting Bluetooth after service
+  teardown or from an old service instance.
 
 ### Planned
 

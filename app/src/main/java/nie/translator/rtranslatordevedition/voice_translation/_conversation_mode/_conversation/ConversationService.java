@@ -54,8 +54,8 @@ public class ConversationService extends VoiceTranslationService {
     private BluetoothHelper mBluetoothHelper;
     private Global global;
     private ConversationBluetoothCommunicator.Callback communicationCallback;
-    private static Handler mHandler = new Handler();
     private Handler mainHandler;
+    private ScoReconnectCoordinator scoReconnectCoordinator;
 
 
     @Override
@@ -63,6 +63,25 @@ public class ConversationService extends VoiceTranslationService {
         super.onCreate();
         global = (Global) getApplication();
         mainHandler = new Handler(Looper.getMainLooper());
+        scoReconnectCoordinator = new ScoReconnectCoordinator(new ScoReconnectCoordinator.Dispatcher() {
+            @Override
+            public void postDelayed(Runnable runnable, long delayMillis) {
+                mainHandler.postDelayed(runnable, delayMillis);
+            }
+
+            @Override
+            public void removeCallbacks(Runnable runnable) {
+                mainHandler.removeCallbacks(runnable);
+            }
+        }, new ScoReconnectCoordinator.Reconnector() {
+            @Override
+            public void reconnect() {
+                if (mBluetoothHelper != null) {
+                    mBluetoothHelper.stop();
+                    mBluetoothHelper.start();
+                }
+            }
+        });
         // wake lock initialization (to keep the process active when the phone is on standby)
         acquireWakeLock();
         //startBluetoothSco
@@ -307,6 +326,8 @@ public class ConversationService extends VoiceTranslationService {
 
     @Override
     public void onDestroy() {
+        // Mark lifecycle ended before Bluetooth teardown can synchronously emit SCO callbacks.
+        scoReconnectCoordinator.destroy();
         // Stop Cloud Speech API
         mVoiceRecognizer.destroy();
         mVoiceRecognizer = null;
@@ -345,13 +366,7 @@ public class ConversationService extends VoiceTranslationService {
             Bundle bundle = new Bundle();
             bundle.putInt("callback", ON_DISCONNECTED_BLUETOOTH_HEADSET);
             notifyToClient(bundle);
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    stop();
-                    start();
-                }
-            }, 1000);
+            scoReconnectCoordinator.scheduleReconnect(1000);
         }
 
         @Override
