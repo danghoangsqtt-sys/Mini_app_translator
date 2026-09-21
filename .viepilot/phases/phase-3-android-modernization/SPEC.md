@@ -15,6 +15,28 @@ This phase is **one dedicated, highest-blast-radius mechanical upgrade** — seq
 | 3.3 | Refresh Room (`2.1.0` → current stable), `play-services-nearby` (`17.0.0` → current stable), gRPC, `google-auth-library-oauth2-http`, `nimbus-jose-jwt` | `ENH-012` | 3.1 (newer AGP/Gradle may require newer dep versions anyway) |
 | 3.4 | Add explicit `android:exported` declarations and review merged component exposure | `BUG-014` | 3.1 (same PR) |
 | 3.5 | Add microphone/connected-device foreground service types, permissions, and runtime ordering | `BUG-015` | 3.1 + 3.2 (same PR) |
+| 3.6 | Resolve lint errors, make quality gates blocking, and document release signing | 2026-09-20 `vp-audit` | 3.3 + GraphView disposition in 2.6 |
+
+Individual execution contracts are in `tasks/3.1-*` through `tasks/3.6-*`. Tasks 3.1, 3.2, 3.4 and 3.5 form one integrated target-SDK change; task 3.6 closes the phase quality gate rather than relying on a build that ignores lint errors.
+
+## Entry Baseline and Integrated Cluster
+
+- Phase 3 is planned, 0/6, with no active task. This document does not authorize implementation.
+- The compatibility-spike candidate is AGP 8.13.2, Gradle 8.13, JDK 17 to run Gradle, `compileSdk`/`targetSdk` 36, `minSdk` 23, and Java 8 source/target compatibility for the first migration step. The candidate protobuf Gradle plugin is 0.10.0, subject to a generated-source smoke test; it is not a completed dependency decision.
+- Remove the legacy `buildToolsVersion 28.0.3` only during implementation and let AGP select its supported default. Do not commit `org.gradle.java.home`, a personal JDK path, debug-keystore path, signing password, keystore, or other signing secret.
+- Tasks 3.1, 3.2, 3.4, and 3.5 are one integrated change. A protobuf/codegen compatibility spike belongs at its start because the legacy plugin can block the AGP/Gradle upgrade; the full dependency refresh remains Task 3.3.
+- The PM-confirmed lint baseline is 5 errors/121 warnings: three `ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core:1.11.0`. The historical 5/119 result is provenance only. Task 3.6 compares ID, source, and count; Gradle exit code and broad suppression are insufficient.
+
+## Required Device Matrix
+
+| API | Required evidence |
+|---|---|
+| 23 | Legacy Bluetooth/location permission path and service start/stop behavior. |
+| 31 | Nearby-device grant, deny, and revoke behavior before advertising, discovery, or connection. |
+| 34 | Foreground-service type and permission ordering, background restrictions, screen lock, restart, and process recreation. |
+| 36 | Final integrated Conversation, WalkieTalkie, manifest, and release/R8 behavior. |
+
+Physical two-phone Nearby Connections and SCO/headset tests are required phase-exit evidence, not entry blockers. Phase 5 rebrand/assets remain out of scope.
 
 ## Task 3.1 — Toolchain / targetSdk upgrade (`ENH-011`)
 
@@ -60,7 +82,7 @@ This phase is **one dedicated, highest-blast-radius mechanical upgrade** — seq
 
 ## Verification command
 
-`./gradlew testDebugUnitTest lintDebug assembleDebug` + manual on-device regression pass (Conversation mode, WalkieTalkie mode, API key file picker) on API 23, 31, 34, and 36 — existing automated coverage is minimal (`ENH-013`), so manual regression is load-bearing here.
+`./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease` + manual on-device regression pass (Conversation mode, WalkieTalkie mode, API key file picker) on API 23, 31, 34, and 36. Use at least one physical two-phone pair; automated coverage remains narrow (`ENH-013`), so manual regression is load-bearing here. Lint errors must be resolved and made build-blocking; an unsigned release build is not a distributable release.
 
 ## Out of scope (remains in Phase 4 backlog)
 
