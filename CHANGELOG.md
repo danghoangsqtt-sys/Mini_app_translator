@@ -14,6 +14,7 @@ All notable changes to this fork will be documented in this file.
 - Replace the recursive Downloads credential scan with a Storage Access Framework JSON picker, validate service-account content before encrypted persistence, and remove legacy external-storage access.
 - Share a single application-context Room database instance between consumption and recent-peer managers, preserving the existing database file and schema.
 - Remove unreachable, unauthenticated AES/CTR helpers so no application path can use malleable ciphertext.
+- Prevent a queued access-token callback from delivering a token for a replaced or deleted credential after reset.
 
 ### Planned
 

@@ -67,12 +67,21 @@ public class Global extends Application {
     private Handler mainHandler;
     private Handler tokenRefreshHandler;
     private ApiTokenCoordinator apiTokenCoordinator;
+    private ApiTokenCallbackDispatcher apiTokenCallbackDispatcher;
+    private final Object apiTokenBoundaryLock = new Object();
 
     @Override
     public void onCreate() {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
         tokenRefreshHandler = new Handler(Looper.getMainLooper());
+        apiTokenCallbackDispatcher = new ApiTokenCallbackDispatcher(
+                new ApiTokenCallbackDispatcher.MainThreadExecutor() {
+                    @Override
+                    public void execute(Runnable runnable) {
+                        mainHandler.post(runnable);
+                    }
+                });
         credentialStore = new CredentialStore(this);
         apiTokenCoordinator = new ApiTokenCoordinator(new Executor() {
             @Override
@@ -455,39 +464,51 @@ public class Global extends Application {
     //api token
 
     public void resetApiToken() {
-        apiTokenCoordinator.reset();
+        synchronized (apiTokenBoundaryLock) {
+            apiTokenCallbackDispatcher.reset(
+                    new IOException("Credential changed before token callback delivery"));
+            apiTokenCoordinator.reset();
+        }
     }
 
     public void getApiToken(final boolean recycleResult, @Nullable final ApiTokenListener responseListener) {
-        apiTokenCoordinator.request(recycleResult, responseListener == null ? null
-                : new ApiTokenCoordinator.Listener() {
-                    @Override
-                    public void onSuccess(final AccessToken apiToken) {
-                        mainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                responseListener.onSuccess(apiToken);
-                            }
-                        });
-                    }
+        synchronized (apiTokenBoundaryLock) {
+            if (responseListener == null) {
+                apiTokenCoordinator.request(recycleResult, null);
+                return;
+            }
 
-                    @Override
-                    public void onFailure(final IOException exception) {
-                        Log.e("token", "Failed to obtain access token.", exception);
-                        mainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (exception.getCause() instanceof UnknownHostException) {
-                                    responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
-                                } else if (getApiKeyFileName().length() == 0) {
-                                    responseListener.onFailure(new int[]{ErrorCodes.MISSING_API_KEY}, -1);
-                                } else {
-                                    responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
-                                }
+            final ApiTokenCallbackDispatcher.Registration registration =
+                    apiTokenCallbackDispatcher.register(new ApiTokenCallbackDispatcher.Callback() {
+                        @Override
+                        public void onSuccess(AccessToken apiToken) {
+                            responseListener.onSuccess(apiToken);
+                        }
+
+                        @Override
+                        public void onFailure(IOException exception) {
+                            Log.e("token", "Failed to obtain access token.", exception);
+                            if (exception.getCause() instanceof UnknownHostException) {
+                                responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
+                            } else if (getApiKeyFileName().length() == 0) {
+                                responseListener.onFailure(new int[]{ErrorCodes.MISSING_API_KEY}, -1);
+                            } else {
+                                responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
                             }
-                        });
-                    }
-                });
+                        }
+                    });
+            apiTokenCoordinator.request(recycleResult, new ApiTokenCoordinator.Listener() {
+                @Override
+                public void onSuccess(AccessToken apiToken) {
+                    apiTokenCallbackDispatcher.postSuccess(registration, apiToken);
+                }
+
+                @Override
+                public void onFailure(IOException exception) {
+                    apiTokenCallbackDispatcher.postFailure(registration, exception);
+                }
+            });
+        }
     }
 
     public interface ApiTokenListener {
