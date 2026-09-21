@@ -4,10 +4,10 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 2 — Correctness & Robustness (`in_progress`)
-- **Current task**: none — all Phase 2 implementations are PM-accepted locally; phase exit gates remain open
+- **Current task**: none — all Phase 2 implementations are PM-accepted locally; remote-persistence gate remains open
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
-- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phase 1 complete; Phase 2 has 6/6 locally accepted implementations and awaits lint, remote-persistence, and state-sync gates)
+- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phase 1 complete; Phase 2 has 6/6 locally accepted implementations; its limited lint waiver is recorded, but remote persistence and state-sync verification remain)
 
 ## Brownfield Import
 
@@ -24,6 +24,13 @@
 | 3 — Android Modernization | planned | 0/6 tasks |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
 | 5 — Mini Conversation Rebrand & UI | planned | 0/6 tasks |
+
+**Phase 2 limited lint waiver**: applies only to the verified baseline of three `ResourceType`
+errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core 1.11.0`. No new
+lint error is waived; the count and error IDs must stay the same or decrease. The 121 warnings
+must not be mass-suppressed and remain for Task 3.6 triage. Task 3.6 remains incomplete and owns
+the final remediation after Task 3.3 dependency refresh. This waiver is only a Phase 2 quality
+decision and does not satisfy its remote-persistence gate or mark Phase 2 PASS.
 
 ## Backlog — Pending Requests
 

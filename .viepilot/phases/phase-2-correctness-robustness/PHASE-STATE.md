@@ -17,6 +17,11 @@
 ## Exit gates
 
 Local task acceptance is not a Phase 2 PASS. The six task commits and this state synchronization
-still require authorized remote persistence, and the shared `vp-auto` quality gate still has five
-lint errors (121 warnings) without an approved exception. Lint remediation remains Phase 3 task
-3.6 work and is not pulled into Phase 2.
+still require authorized remote persistence.
+
+PM approved a limited waiver for the Phase 2 quality decision only: exactly three `ResourceType`
+errors in `GridLabelRenderer` and exactly two `InvalidPackage` errors from `grpc-core 1.11.0`.
+No new lint error is waived; the error count and IDs must remain unchanged or decrease. The 121
+warnings must not be mass-suppressed and remain for Task 3.6 triage. Task 3.6 remains incomplete,
+depends on Task 3.3 dependency refresh for final remediation, and is not pulled into Phase 2.
+This waiver does not satisfy remote persistence or mark Phase 2 PASS.

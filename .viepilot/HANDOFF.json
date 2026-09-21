@@ -29,5 +29,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails already captured per-finding from audit instead of generic research."
   },
-  "resume_hint": "Phase 2 has 6/6 PM-accepted local implementations but 0/6 Git-persistence/quality-gate completions. Do not start a new Phase 2 task or mark PASS: resolve the five lint errors or obtain an explicit exception, persist the approved commits remotely when authorized, and verify the committed state-sync gate."
+  "resume_hint": "Phase 2 has 6/6 PM-accepted local implementations but is not PASS because remote persistence is pending. Its quality decision has a limited waiver only for three ResourceType errors in GridLabelRenderer and two InvalidPackage errors from grpc-core 1.11.0; no new lint errors are waived and their count/IDs must not increase. Do not mass-suppress 121 warnings. Task 3.6, after Task 3.3 dependency refresh, owns final lint remediation and remains incomplete. When authorized, persist the approved commits remotely and verify the state-sync gate."
 }

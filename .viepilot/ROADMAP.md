@@ -37,7 +37,7 @@
 | 2.5 | Cancel delayed Conversation callbacks during teardown | `BUG-011` |
 | 2.6 | Verify second-scale reachability, then implement or eliminate the GraphView crash branch | `BUG-012` |
 
-**Phase 2 exit gates**: persist the approved commits remotely, commit the synchronized state, and resolve (or obtain an explicit approved exception for) the current lint baseline. The five lint errors remain owned by Phase 3 task 3.6; that task is not moved into Phase 2.
+**Phase 2 exit gates**: persist the approved commits remotely and commit the synchronized state. PM approved a limited quality-decision waiver only for the verified baseline of three `ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core 1.11.0`. No new lint error is waived: the count and error IDs must remain unchanged or decrease. The 121 warnings must not be mass-suppressed and remain for Task 3.6 triage. Task 3.6 retains final ownership after Task 3.3 dependency refresh and is not moved into or completed by Phase 2.
 
 ## Phase 3 — Android Modernization (planned, not started)
 
