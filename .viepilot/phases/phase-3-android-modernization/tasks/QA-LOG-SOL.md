@@ -121,3 +121,49 @@ Vấn đề Terra cần xử lý trước lần QA kế tiếp của Cụm A:
 3. Cung cấp human/device evidence bắt buộc nêu trên. Nếu host/static findings đã sạch nhưng evidence vẫn thiếu, verdict kế tiếp tối đa là BLOCKED/PENDING-HUMAN, không được tự pass.
 
 VERDICT: FAIL — remediation đã sửa đúng AGP, legacy permission và năm headset/SCO `MissingPermission`, đồng thời full host build/R8 chạy thành công; tuy nhiên lint vẫn lệch baseline với 18 lỗi mới/168 warnings. Ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO evidence tiếp tục PENDING HUMAN EVIDENCE và là release blocker.
+
+## [2026-09-21 21:21:02 +07:00] Cụm A re-QA #2 — Task(s) 3.1, 3.2, 3.4, 3.5
+Commit: `0b50beff501e04bf37a3ae7ba38a44a681d30cd5`
+
+Lệnh đã chạy + kết quả tóm tắt:
+- Xác minh snapshot: PASS — commit tồn tại, là hậu duệ của corrective snapshot `3b6626085e41fb5bd65db6efe354dd0db8db41a3`, chưa từng được QA. Working tree chính còn thay đổi ngoài phạm vi nên toàn bộ kiểm tra chạy trong worktree detached sạch `D:\DataAdmin\qa-a-0b50` tại đúng hash trên.
+- `gradlew.bat ... --max-workers=1 --no-daemon --console=plain testDebugUnitTest lintDebug assembleDebug assembleRelease` bằng Microsoft OpenJDK `17.0.20.1`, AGP `8.13.2`, Gradle `8.13`: **BUILD SUCCESSFUL** trong 1 phút 52 giây; 97/97 actionable tasks executed.
+- Unit tests: PASS — 17 suites, 42 tests, 0 failures, 0 errors, 0 skipped.
+- Artifacts/R8: PASS — debug APK và unsigned release APK được tạo; `minifyReleaseWithR8` hoàn tất.
+- Lint XML: PASS về error gate — **0 errors / 168 warnings**. So với baseline PM 5 errors/121 warnings: ba `ResourceType` = 0, hai `InvalidPackage` = 0; toàn bộ 18 error IDs của verdict trước (`UseAppTint`, `GestureBackNavigation`, `MissingSuperCall`, `RestrictedApi`, `NewApi`, `WrongThread`) đều = 0. EXEC log ghi 169 warnings nhưng report QA độc lập ghi **168**; dùng số từ XML làm bằng chứng quyết định.
+- Warning inventory hiện tại: `Typos` 36, `UnusedResources` 29, `HardcodedText` 15, `ContentDescription` 13, `GradleDependency` 10, `NewerVersionAvailable` 7, bốn nhóm 6 (`CanvasSize`, `ObsoleteSdkInt`, `SetTextI18n`, `InflateParams`), `Overdraw` 5, hai nhóm 4 (`UseCompatLoadingForDrawables`, `IconLocation`), `UnknownIdInLayout` 3, bốn nhóm 2 và mười nhóm 1; tổng 168, tăng 47 so với baseline warning count. Đây là inventory chuyển giao cho Cụm C, không được mass-suppress.
+- Kiểm tra suppression: PASS — commit không thêm `@SuppressLint`, lint baseline, broad `disable`, `warningsAsErrors` override hay `tools:ignore`; chỉ còn `GoogleAppIndexingWarning` ignore có sẵn. `abortOnError=false`/`checkReleaseBuilds=false` vẫn tồn tại theo sequencing và phải được xử lý ở Task 3.6.
+- Merged debug/release manifests: PASS — `appComponentFactory` vẫn được AndroidX merger cung cấp; `LoadingActivity` exported true; mọi activity/service/provider còn lại quan sát được exported false; `GeneralService` count 0; chỉ `ConversationService` và `WalkieTalkieService` có `microphone|connectedDevice`.
+- Permission contract: PASS tĩnh — legacy Bluetooth/location permissions đều `maxSdkVersion=30`; `BLUETOOTH_SCAN` có `neverForLocation`; `BLUETOOTH_CONNECT`, `BLUETOOTH_ADVERTISE`, `NEARBY_WIFI_DEVICES` và hai FGS normal permissions có mặt.
+- Review code lint fixes: không thấy defect tĩnh mới. Việc đổi ba back handlers sang `OnBackPressedDispatcher`, bỏ custom restricted adapter/layout wiring của `SettingsFragment`, và giữ snapshot sharing sau khi bỏ buffer compression thừa vẫn cần on-device/UI regression evidence; unit/lint/build không thay thế bằng chứng này.
+- Không tạo BUG/ENH request mới: chưa phát hiện defect mới ngoài sáu task Phase 3. Không sửa code app hoặc file Phase 4/5/IDE/assets trong quá trình QA.
+
+Đối chiếu acceptance criteria:
+
+Task 3.1:
+- PASS — AGP 8.13.2 + Gradle 8.13 + JDK 17 + protobuf generation hoạt động với compile/target API 36; manifest merge, Java compile, 42 unit tests, lint, debug build và release/R8 hoàn tất.
+- PASS — API 36, namespace, Maven Central, Java 8 source/target và toolchain decisions khớp snapshot; không có warning unsupported compileSdk.
+- PENDING-HUMAN — Chưa có regression evidence cho chức năng hiện hữu trên API 23/31/34/36, gồm launcher, Settings/API-key flow và back gesture/navigation vừa sửa.
+
+Task 3.2:
+- PASS — Manifest/runtime permission arrays và guards đúng theo kiểm tra tĩnh; không còn `MissingPermission`/`CoarseFineLocation` lint error.
+- PENDING-HUMAN — Chưa có grant/deny/revoke evidence, đánh giá `neverForLocation`, hoặc chứng minh advertising/discovery/connect/accept/disconnect không ném `SecurityException` trên API 31/34/36.
+- PENDING-HUMAN — Chưa có legacy API 23 permission/device evidence, two-phone Conversation test và one-phone WalkieTalkie/headset/SCO test.
+- PASS — 3.2 vẫn nằm trong cùng chuỗi commit tích hợp với 3.1/3.4/3.5.
+
+Task 3.4:
+- PASS — Debug/release manifest merger và export-surface review đạt: launcher true, internal/dependency components false, stale `GeneralService` đã loại.
+- PENDING-HUMAN — Chưa có install/launch evidence trên API 31/34/36.
+
+Task 3.5:
+- PASS — Hai voice foreground services có đúng `microphone|connectedDevice`, matching normal permissions, runtime permission checks trước promotion; recognizer services không bị gán type.
+- PENDING-HUMAN — Chưa chứng minh không có missing-type/permission exception trong Conversation/WalkieTalkie trên API 34/36.
+- PENDING-HUMAN — Chưa có permission ordering, background restriction, screen-lock, stop/restart và process-recreation evidence trên API 34/36, cùng compatibility behavior trên API 23/31.
+- PENDING-HUMAN — Toàn bộ ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO evidence vẫn thiếu; đây là release blocker.
+
+Điều kiện để gỡ BLOCKED:
+1. Cung cấp log/video/checklist thiết bị định danh rõ API/device cho toàn bộ matrix và Bluetooth/SCO flows nêu trên.
+2. Xác nhận Settings rendering, toolbar/system back, predictive/back gesture, API-key file picker, Conversation và WalkieTalkie không regress sau lint remediation.
+3. Cụm B chưa được phép bắt đầu cho tới khi Cụm A có verdict PASS theo thứ tự gate đã chốt.
+
+VERDICT: BLOCKED — toàn bộ host/static criteria của Cụm A hiện PASS, lint có 0 errors và không mass-suppress; nhưng acceptance criteria bắt buộc về API 23/31/34/36 và physical two-phone Bluetooth/SCO chưa có bằng chứng. Cụm A chưa PASS và chưa mở gate cho Cụm B.
