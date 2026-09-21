@@ -332,7 +332,7 @@ public class PeersInfoFragment extends Fragment {
         initializePeerList();
         activity.addCallback(communicatorCallback);
         // if you have the permission for the search it is activated from here, otherwise the permission will be requested at the time of the click or selection
-        if (selected && Tools.hasPermissions(activity, VoiceTranslationActivity.REQUIRED_PERMISSIONS)) {
+        if (selected && Tools.hasPermissions(activity, activity.getRequiredNearbyPermissions())) {
             startSearch();
         }
     }

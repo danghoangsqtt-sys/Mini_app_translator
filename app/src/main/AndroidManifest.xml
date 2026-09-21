@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="nie.translator.rtranslatordevedition">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <!-- GalleryImageSelector declares this legacy permission transitively; SAF image providers grant URI access. -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -35,6 +50,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name="nie.translator.rtranslatordevedition.LoadingActivity"
+            android:exported="true"
             android:launchMode="singleTask"
             android:noHistory="true"
             android:theme="@style/Theme.Speech">
@@ -49,28 +65,43 @@
         service in background, inoltre così la rotazione sarà più fluida e per ora non abbiamo problemi ne per la rotazione ne per il ridimensionamento quando in finestra-->
         <activity
             android:name="nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.Speech" />
         <activity
             android:name="nie.translator.rtranslatordevedition.settings.SettingsActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Speech" />
         <activity
             android:name="nie.translator.rtranslatordevedition.access.AccessActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Speech" />
         <activity
             android:name="nie.translator.rtranslatordevedition.api_management.ApiManagementActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Speech" />
-        <activity android:name="nie.translator.rtranslatordevedition.GeneralActivity" />
+        <activity
+            android:name="nie.translator.rtranslatordevedition.GeneralActivity"
+            android:exported="false" />
 
-        <service android:name="nie.translator.rtranslatordevedition.voice_translation._conversation_mode._conversation.ConversationService" />
-        <service android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie.WalkieTalkieService" />
-        <service android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode.recognizer_services.FirstLanguageRecognizerService" />
-        <service android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode.recognizer_services.SecondLanguageRecognizerService" />
-        <service android:name="nie.translator.rtranslatordevedition.GeneralService" />
+        <service
+            android:name="nie.translator.rtranslatordevedition.voice_translation._conversation_mode._conversation.ConversationService"
+            android:exported="false"
+            android:foregroundServiceType="microphone|connectedDevice" />
+        <service
+            android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie.WalkieTalkieService"
+            android:exported="false"
+            android:foregroundServiceType="microphone|connectedDevice" />
+        <service
+            android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode.recognizer_services.FirstLanguageRecognizerService"
+            android:exported="false" />
+        <service
+            android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode.recognizer_services.SecondLanguageRecognizerService"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -77,11 +77,6 @@ public class VoiceTranslationActivity extends GeneralActivity {
     public static final int DEFAULT_FRAGMENT = PAIRING_FRAGMENT;
     public static final int NO_PERMISSIONS = -10;
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 2;
-    public static final String[] REQUIRED_PERMISSIONS = new String[]{
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-    };
     //objects
     private Global global;
     private Fragment fragment;
@@ -137,19 +132,14 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings: {
-                Intent intent = new Intent(this, SettingsActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                break;
-            }
-            case R.id.apiManagement: {
-                Intent intent = new Intent(this, ApiManagementActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                break;
-            }
+        if (item.getItemId() == R.id.settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } else if (item.getItemId() == R.id.apiManagement) {
+            Intent intent = new Intent(this, ApiManagementActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -254,10 +244,10 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
     public int startSearch() {
         if (global.getBluetoothCommunicator().isBluetoothLeSupported()) {
-            if (Tools.hasPermissions(this, REQUIRED_PERMISSIONS)) {
+            if (hasNearbyPermissions()) {
                 return global.getBluetoothCommunicator().startSearch();
             } else {
-                requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
+                requestNearbyPermissions();
                 return NO_PERMISSIONS;
             }
         } else {
@@ -274,15 +264,24 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public void connect(Peer peer) {
+        if (!ensureNearbyPermissions()) {
+            return;
+        }
         stopSearch(false);
         global.getBluetoothCommunicator().connect(peer);
     }
 
     public void acceptConnection(Peer peer) {
+        if (!ensureNearbyPermissions()) {
+            return;
+        }
         global.getBluetoothCommunicator().acceptConnection(peer);
     }
 
     public void rejectConnection(Peer peer) {
+        if (!ensureNearbyPermissions()) {
+            return;
+        }
         global.getBluetoothCommunicator().rejectConnection(peer);
     }
 
@@ -295,7 +294,50 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public void disconnect(Peer peer) {
+        if (!ensureNearbyPermissions()) {
+            return;
+        }
         global.getBluetoothCommunicator().disconnect(peer);
+    }
+
+    public String[] getRequiredNearbyPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return new String[]{
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                    Manifest.permission.NEARBY_WIFI_DEVICES,
+            };
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return new String[]{
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_ADVERTISE,
+            };
+        }
+        return new String[]{
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+        };
+    }
+
+    private boolean hasNearbyPermissions() {
+        return Tools.hasPermissions(this, getRequiredNearbyPermissions());
+    }
+
+    public void requestNearbyPermissions() {
+        requestPermissions(getRequiredNearbyPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
+    }
+
+    private boolean ensureNearbyPermissions() {
+        if (hasNearbyPermissions()) {
+            return true;
+        }
+        requestNearbyPermissions();
+        notifyMissingSearchPermission();
+        return false;
     }
 
 

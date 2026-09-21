@@ -16,10 +16,13 @@
 
 package nie.translator.rtranslatordevedition.voice_translation.cloud_apis.voice;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import java.util.ArrayDeque;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.tools.Timer;
@@ -209,6 +212,10 @@ public class Recorder {
      * permissions?).
      */
     private AudioRecord createAudioRecord() {
+        if (ContextCompat.checkSelfPermission(global, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        }
         for (int sampleRate : SAMPLE_RATE_CANDIDATES) {
             final int sizeInBytes = AudioRecord.getMinBufferSize(sampleRate, CHANNEL, ENCODING);
             if (sizeInBytes == AudioRecord.ERROR_BAD_VALUE) {

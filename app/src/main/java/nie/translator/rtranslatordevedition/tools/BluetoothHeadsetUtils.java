@@ -1,5 +1,6 @@
 package nie.translator.rtranslatordevedition.tools;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
@@ -8,7 +9,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.os.Build;
+import android.util.Log;
+import androidx.core.content.ContextCompat;
 import java.util.List;
 
 import com.bluetooth.communicator.tools.CustomCountDownTimer;
@@ -99,7 +104,7 @@ public abstract class BluetoothHeadsetUtils {
         ////d(TAG, "startBluetooth11"); //$NON-NLS-1$
 
         // Device support bluetooth
-        if (mBluetoothAdapter != null) {
+        if (mBluetoothAdapter != null && hasBluetoothConnectPermission()) {
             if (mAudioManager.isBluetoothScoAvailableOffCall()) {
                 // All the detection and audio connection are done in mHeadsetProfileListener
                 return mBluetoothAdapter.getProfileProxy(mContext, mHeadsetProfileListener, BluetoothProfile.HEADSET);
@@ -124,13 +129,17 @@ public abstract class BluetoothHeadsetUtils {
         if (mBluetoothHeadset != null) {
             // Need to call stopVoiceRecognition here when the app
             // change orientation or close with headset still turns on.
-            mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
+            if (hasBluetoothConnectPermission() && mConnectedHeadset != null) {
+                mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
+            }
             try {
                 mContext.unregisterReceiver(mHeadsetBroadcastReceiver);
-            }catch (Exception e){
-
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Headset receiver was already unregistered", e);
             }
-            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mBluetoothHeadset);
+            if (hasBluetoothConnectPermission()) {
+                mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mBluetoothHeadset);
+            }
             mBluetoothHeadset = null;
         }
     }
@@ -158,6 +167,10 @@ public abstract class BluetoothHeadsetUtils {
             // mBluetoothHeadset is just a headset profile,
             // it does not represent a headset device.
             mBluetoothHeadset = (BluetoothHeadset) proxy;
+            if (!hasBluetoothConnectPermission()) {
+                mBluetoothHeadset = null;
+                return;
+            }
 
             // If a headset is connected before this application starts,
             // ACTION_CONNECTION_STATE_CHANGED will not be broadcast.
@@ -244,7 +257,10 @@ public abstract class BluetoothHeadsetUtils {
 
                     // The headset audio is disconnected, but calling
                     // stopVoiceRecognition always returns true here.
-                    mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
+                    if (hasBluetoothConnectPermission() && mBluetoothHeadset != null
+                            && mConnectedHeadset != null) {
+                        mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
+                    }
 
                     // override this if you want to do other thing when headset audio is disconnected.
                     onScoAudioDisconnected();
@@ -265,7 +281,10 @@ public abstract class BluetoothHeadsetUtils {
             // First stick calls always returns false. The second stick
             // always returns true if the countDownInterval is setSender to 1000.
             // It is somewhere in between 500 to a 1000.
-            mBluetoothHeadset.startVoiceRecognition(mConnectedHeadset);
+            if (hasBluetoothConnectPermission() && mBluetoothHeadset != null
+                    && mConnectedHeadset != null) {
+                mBluetoothHeadset.startVoiceRecognition(mConnectedHeadset);
+            }
 
             ////d(TAG, "onTick startVoiceRecognition"); //$NON-NLS-1$
         }
@@ -285,11 +304,18 @@ public abstract class BluetoothHeadsetUtils {
     }
 
     public boolean isHeadsetConnected() {
-        if (mBluetoothHeadset == null || mBluetoothHeadset.getConnectedDevices().size() == 0) {
+        if (!hasBluetoothConnectPermission() || mBluetoothHeadset == null
+                || mBluetoothHeadset.getConnectedDevices().size() == 0) {
             return false;
         } else {
             return true;
         }
+    }
+
+    private boolean hasBluetoothConnectPermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                || ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
 }

@@ -328,7 +328,7 @@ public class PairingFragment extends PairingToolbarFragment {
         activateInputs();
         disappearLoading(true, null);
         // if you don't have permission to search, activate from here
-        if (!Tools.hasPermissions(activity, VoiceTranslationActivity.REQUIRED_PERMISSIONS)) {
+        if (!Tools.hasPermissions(activity, activity.getRequiredNearbyPermissions())) {
             startSearch();
         }
     }
@@ -349,7 +349,7 @@ public class PairingFragment extends PairingToolbarFragment {
 
         activity.addCallback(communicatorCallback);
         // if you have permission to search it is activated from here
-        if (Tools.hasPermissions(activity, VoiceTranslationActivity.REQUIRED_PERMISSIONS)) {
+        if (Tools.hasPermissions(activity, activity.getRequiredNearbyPermissions())) {
             startSearch();
         }
     }

@@ -25,15 +25,19 @@ ext {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion '28.0.3'
+    namespace 'nie.translator.rtranslatordevedition'
+    compileSdk 36
     defaultConfig {
         applicationId "nie.translator.rtranslatordevedition"
-        targetSdkVersion 29
+        targetSdk 36
         versionCode 13
         versionName '1.1.2'
         minSdkVersion 23
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     buildTypes {
         debug {

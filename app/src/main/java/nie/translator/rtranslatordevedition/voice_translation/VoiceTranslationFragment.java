@@ -427,6 +427,10 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
                         requestPermissions(VoiceTranslationService.REQUIRED_PERMISSIONS, VoiceTranslationService.REQUEST_CODE_REQUIRED_PERMISSIONS);
                         break;
                     }
+                    case VoiceTranslationService.MISSING_NEARBY_PERMISSION: {
+                        activity.requestNearbyPermissions();
+                        break;
+                    }
                     default: {
                         activity.onError(aReason, value);
                         break;

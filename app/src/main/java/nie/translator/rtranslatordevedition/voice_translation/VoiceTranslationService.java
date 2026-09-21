@@ -20,6 +20,7 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     // errors
     public static final int MISSING_MIC_PERMISSION = 400;
+    public static final int MISSING_NEARBY_PERMISSION = 401;
 
     // objects
     Notification notification;
@@ -245,10 +247,30 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (notification != null) {
+        promoteToForeground();
+        return true;
+    }
+
+    private void promoteToForeground() {
+        if (notification == null) {
+            return;
+        }
+        if (!Tools.hasPermissions(this, Manifest.permission.RECORD_AUDIO)) {
+            notifyError(new int[]{MISSING_MIC_PERMISSION}, -1);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && !Tools.hasPermissions(this, Manifest.permission.BLUETOOTH_CONNECT)) {
+            notifyError(new int[]{MISSING_NEARBY_PERMISSION}, -1);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(11, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                            | ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+        } else {
             startForeground(11, notification);
         }
-        return true;
     }
 
     @Override
