@@ -30,6 +30,8 @@ public class AndroidModernizationManifestTest {
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("30", permission(document, "android.permission.ACCESS_FINE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
+        assertEquals("30", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
+                .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("neverForLocation", permission(document, "android.permission.BLUETOOTH_SCAN")
                 .getAttributeNS(ANDROID_NAMESPACE, "usesPermissionFlags"));
         assertNotNull(permission(document, "android.permission.BLUETOOTH_CONNECT"));

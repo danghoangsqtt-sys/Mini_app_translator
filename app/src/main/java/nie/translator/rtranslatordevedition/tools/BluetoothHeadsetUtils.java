@@ -129,7 +129,9 @@ public abstract class BluetoothHeadsetUtils {
         if (mBluetoothHeadset != null) {
             // Need to call stopVoiceRecognition here when the app
             // change orientation or close with headset still turns on.
-            if (hasBluetoothConnectPermission() && mConnectedHeadset != null) {
+            if (mConnectedHeadset != null && (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                    || ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
+                    == PackageManager.PERMISSION_GRANTED)) {
                 mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
             }
             try {
@@ -167,7 +169,9 @@ public abstract class BluetoothHeadsetUtils {
             // mBluetoothHeadset is just a headset profile,
             // it does not represent a headset device.
             mBluetoothHeadset = (BluetoothHeadset) proxy;
-            if (!hasBluetoothConnectPermission()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    && ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
                 mBluetoothHeadset = null;
                 return;
             }
@@ -257,7 +261,9 @@ public abstract class BluetoothHeadsetUtils {
 
                     // The headset audio is disconnected, but calling
                     // stopVoiceRecognition always returns true here.
-                    if (hasBluetoothConnectPermission() && mBluetoothHeadset != null
+                    if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                            || ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
+                            == PackageManager.PERMISSION_GRANTED) && mBluetoothHeadset != null
                             && mConnectedHeadset != null) {
                         mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
                     }
@@ -281,7 +287,9 @@ public abstract class BluetoothHeadsetUtils {
             // First stick calls always returns false. The second stick
             // always returns true if the countDownInterval is setSender to 1000.
             // It is somewhere in between 500 to a 1000.
-            if (hasBluetoothConnectPermission() && mBluetoothHeadset != null
+            if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                    || ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
+                    == PackageManager.PERMISSION_GRANTED) && mBluetoothHeadset != null
                     && mConnectedHeadset != null) {
                 mBluetoothHeadset.startVoiceRecognition(mConnectedHeadset);
             }
@@ -304,7 +312,9 @@ public abstract class BluetoothHeadsetUtils {
     }
 
     public boolean isHeadsetConnected() {
-        if (!hasBluetoothConnectPermission() || mBluetoothHeadset == null
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) || mBluetoothHeadset == null
                 || mBluetoothHeadset.getConnectedDevices().size() == 0) {
             return false;
         } else {
@@ -317,5 +327,6 @@ public abstract class BluetoothHeadsetUtils {
                 || ContextCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT)
                 == PackageManager.PERMISSION_GRANTED;
     }
+
 
 }
