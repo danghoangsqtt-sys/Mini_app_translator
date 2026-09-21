@@ -22,11 +22,11 @@
 
 **Verification command**: `./gradlew testDebugUnitTest lintDebug assembleDebug` plus credential import and backup checks on a device. Focused unit tests now exist for all Phase 1 fixes; task 1.6 passed manual SAF import validation on the API 36 emulator.
 
-## Phase 2 — Correctness & Robustness (implementation accepted locally; exit gates pending)
+## Phase 2 — Correctness & Robustness (complete / PASS)
 
 **Execution spec**: `.viepilot/phases/phase-2-correctness-robustness/SPEC.md`
 **Task contracts**: `.viepilot/phases/phase-2-correctness-robustness/tasks/`; execution is gated on Phase 1's exit criteria.
-**Status**: in progress. PM accepted local implementation for all 6 tasks; 0/6 have passed the Git-persistence/quality gate. Phase 2 is not complete or PASS.
+**Status**: complete / PASS. All 6 tasks passed the technical and PM gate; remote persistence was verified at `origin/master = d7c591f95b3fde595a0ad8aac722ac033baf0bfa`.
 
 | Task | Request | Priority |
 |---|---|---|
@@ -37,7 +37,7 @@
 | 2.5 | Cancel delayed Conversation callbacks during teardown | `BUG-011` |
 | 2.6 | Verify second-scale reachability, then implement or eliminate the GraphView crash branch | `BUG-012` |
 
-**Phase 2 exit gates**: persist the approved commits remotely and commit the synchronized state. PM approved a limited quality-decision waiver only for the verified baseline of three `ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core 1.11.0`. No new lint error is waived: the count and error IDs must remain unchanged or decrease. The 121 warnings must not be mass-suppressed and remain for Task 3.6 triage. Task 3.6 retains final ownership after Task 3.3 dependency refresh and is not moved into or completed by Phase 2.
+**Final gate**: at `d7c591f`, 39/39 JVM tests, `assembleDebug`, and 7/7 API 36 instrumentation tests passed. The approved limited lint waiver covers only three `ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core 1.11.0` (5 errors, 121 warnings); no new lint error was present. JDK 11 is required by Gradle 5.6.4; JBR 25 is incompatible. Task 3.6 remains incomplete and owns dependency-refresh-aware lint remediation and warning triage.
 
 ## Phase 3 — Android Modernization (planned, not started)
 
@@ -90,9 +90,9 @@ Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-013` (test covera
 | Phase | Status | Tasks Done | Tasks Total |
 |---|---|---|---|
 | 1 — Security & Stability Hardening | complete | 6 | 6 |
-| 2 — Correctness & Robustness | in progress (local implementation accepted; exit gates pending) | 6 accepted locally / 0 gate-passing | 6 |
+| 2 — Correctness & Robustness | complete / PASS | 6 | 6 |
 | 3 — Android Modernization | planned | 0 | 6 |
 | 4 — Remaining Hygiene Backlog | proposed | 0 | 5 |
 | 5 — Mini Conversation Rebrand & UI | planned | 0 | 6 |
 
-Phase 2 has no active implementation task. Resolve its lint, remote-persistence, and state-sync gates before requesting a phase decision; do not mark it PASS from local acceptance alone. The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`. Phase 3 performs the integrated platform upgrade; Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 remains planned and has not started. The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`; Phase 3 performs the integrated platform upgrade and retains Task 3.6 lint remediation. Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.

@@ -3,11 +3,11 @@
 ## Current state
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
-- **Current phase**: Phase 2 — Correctness & Robustness (`in_progress`)
-- **Current task**: none — all Phase 2 implementations are PM-accepted locally; remote-persistence gate remains open
+- **Current phase**: Phase 3 — Android Modernization (`planned`; not started)
+- **Current task**: none
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
-- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phase 1 complete; Phase 2 has 6/6 locally accepted implementations; its limited lint waiver is recorded, but remote persistence and state-sync verification remain)
+- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is planned and has not started)
 
 ## Brownfield Import
 
@@ -20,17 +20,17 @@
 | Phase | Status | Progress |
 |---|---|---|
 | 1 — Security & Stability Hardening | complete | 6/6 tasks |
-| 2 — Correctness & Robustness | in progress | 6/6 implementations accepted locally; 0/6 Git-persistence/quality gate |
+| 2 — Correctness & Robustness | complete / PASS | 6/6 tasks |
 | 3 — Android Modernization | planned | 0/6 tasks |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
 | 5 — Mini Conversation Rebrand & UI | planned | 0/6 tasks |
 
-**Phase 2 limited lint waiver**: applies only to the verified baseline of three `ResourceType`
-errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core 1.11.0`. No new
-lint error is waived; the count and error IDs must stay the same or decrease. The 121 warnings
-must not be mass-suppressed and remain for Task 3.6 triage. Task 3.6 remains incomplete and owns
-the final remediation after Task 3.3 dependency refresh. This waiver is only a Phase 2 quality
-decision and does not satisfy its remote-persistence gate or mark Phase 2 PASS.
+**Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
+`assembleDebug`, and 7/7 API 36 instrumentation tests passed; lint had only the three
+`ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core
+1.11.0` (5 errors, 121 warnings). Remote persistence was verified at `origin/master = d7c591f`.
+JDK 11 is required for Gradle 5.6.4; JBR 25 is incompatible. Task 3.6 remains incomplete and
+owns final lint remediation after Task 3.3 dependency refresh; warnings are not mass-suppressed.
 
 ## Backlog — Pending Requests
 
@@ -44,12 +44,12 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-004 | 🐛 | `Recorder` stop/release race with recording thread | High | resolved (Phase 1, task 1.4) |
 | BUG-005 | 🐛 | gRPC streaming `onError` silently swallowed | High | resolved (Phase 1, task 1.5) |
 | BUG-006 | 🐛 | Unrestricted Downloads `.json` scan + legacy storage | High | resolved (Phase 1, task 1.6) |
-| BUG-007 | 🐛 | Two independent Room DB instances on one SQLite file | Medium | PM accepted locally; migration deferred to a schema change; gate pending (Phase 2, task 2.1) |
-| BUG-008 | 🐛 | AES/CTR encryption without MAC (malleable ciphertext) | Medium | PM accepted locally; gate pending (Phase 2, task 2.2) |
-| BUG-009 | 🐛 | Data race on `Global.apiToken` | Medium | PM accepted locally; gate pending (Phase 2, task 2.3) |
-| BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | PM accepted locally; gate pending (Phase 2, task 2.4) |
-| BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | PM accepted locally; gate pending (Phase 2, task 2.5) |
-| BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Low | PM accepted locally as future capability; no production fix; gate pending (Phase 2, task 2.6) |
+| BUG-007 | 🐛 | Two independent Room DB instances on one SQLite file | Medium | resolved (Phase 2, task 2.1; migration deferred to schema change) |
+| BUG-008 | 🐛 | AES/CTR encryption without MAC (malleable ciphertext) | Medium | resolved (Phase 2, task 2.2) |
+| BUG-009 | 🐛 | Data race on `Global.apiToken` | Medium | resolved (Phase 2, task 2.3) |
+| BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | resolved (Phase 2, task 2.4) |
+| BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | resolved (Phase 2, task 2.5) |
+| BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Low | closed/reclassified future capability; no production fix (Phase 2, task 2.6) |
 | BUG-013 | 🐛 | Missing Android 12+ Bluetooth runtime permissions (blocks safe targetSdk 31+ upgrade) | High | planned (Phase 3, task 3.2) |
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | planned (Phase 3, task 3.4) |
 | BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | planned (Phase 3, task 3.5) |
