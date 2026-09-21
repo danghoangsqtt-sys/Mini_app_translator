@@ -22,10 +22,11 @@
 
 **Verification command**: `./gradlew testDebugUnitTest lintDebug assembleDebug` plus credential import and backup checks on a device. Focused unit tests now exist for all Phase 1 fixes; task 1.6 passed manual SAF import validation on the API 36 emulator.
 
-## Phase 2 — Correctness & Robustness (planned, not started)
+## Phase 2 — Correctness & Robustness (implementation accepted locally; exit gates pending)
 
 **Execution spec**: `.viepilot/phases/phase-2-correctness-robustness/SPEC.md`
 **Task contracts**: `.viepilot/phases/phase-2-correctness-robustness/tasks/`; execution is gated on Phase 1's exit criteria.
+**Status**: in progress. PM accepted local implementation for all 6 tasks; 0/6 have passed the Git-persistence/quality gate. Phase 2 is not complete or PASS.
 
 | Task | Request | Priority |
 |---|---|---|
@@ -35,6 +36,8 @@
 | 2.4 | Make WalkieTalkie service teardown binding-safe | `BUG-010` |
 | 2.5 | Cancel delayed Conversation callbacks during teardown | `BUG-011` |
 | 2.6 | Verify second-scale reachability, then implement or eliminate the GraphView crash branch | `BUG-012` |
+
+**Phase 2 exit gates**: persist the approved commits remotely, commit the synchronized state, and resolve (or obtain an explicit approved exception for) the current lint baseline. The five lint errors remain owned by Phase 3 task 3.6; that task is not moved into Phase 2.
 
 ## Phase 3 — Android Modernization (planned, not started)
 
@@ -87,9 +90,9 @@ Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-013` (test covera
 | Phase | Status | Tasks Done | Tasks Total |
 |---|---|---|---|
 | 1 — Security & Stability Hardening | complete | 6 | 6 |
-| 2 — Correctness & Robustness | planned | 0 | 6 |
+| 2 — Correctness & Robustness | in progress (local implementation accepted; exit gates pending) | 6 accepted locally / 0 gate-passing | 6 |
 | 3 — Android Modernization | planned | 0 | 6 |
 | 4 — Remaining Hygiene Backlog | proposed | 0 | 5 |
 | 5 — Mini Conversation Rebrand & UI | planned | 0 | 6 |
 
-Run `/vp-auto --from 2` to begin Phase 2 task 2.1. The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`. Phase 3 performs the integrated platform upgrade; Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 has no active implementation task. Resolve its lint, remote-persistence, and state-sync gates before requesting a phase decision; do not mark it PASS from local acceptance alone. The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`. Phase 3 performs the integrated platform upgrade; Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.
