@@ -167,3 +167,20 @@ Task 3.5:
 3. Cụm B chưa được phép bắt đầu cho tới khi Cụm A có verdict PASS theo thứ tự gate đã chốt.
 
 VERDICT: BLOCKED — toàn bộ host/static criteria của Cụm A hiện PASS, lint có 0 errors và không mass-suppress; nhưng acceptance criteria bắt buộc về API 23/31/34/36 và physical two-phone Bluetooth/SCO chưa có bằng chứng. Cụm A chưa PASS và chưa mở gate cho Cụm B.
+
+## [2026-09-21 22:06:04 +07:00] AUDIT FOLLOW-UP — Cụm A / Task 3.1, 3.2
+Commit được rà soát: `0b50beff501e04bf37a3ae7ba38a44a681d30cd5` (code snapshot hiện tại; không chạy lại full Gradle gate)
+
+Bằng chứng mới từ audit mã nguồn và tài liệu chính thức:
+- FAIL — Ma trận quyền Nearby Connections chưa đúng cho API 29–31. Tài liệu Google yêu cầu `ACCESS_COARSE_LOCATION` đến API 28 và `ACCESS_FINE_LOCATION` từ API 29 đến 31, đồng thời các quyền nguy hiểm phải được request runtime trước advertising/discovery. Manifest hiện giới hạn `ACCESS_FINE_LOCATION` ở API 30; `VoiceTranslationActivity.getRequiredNearbyPermissions()` chỉ request `ACCESS_COARSE_LOCATION` trên API 23–30 và không request location trên API 31. Vì vậy static acceptance của Task 3.2 chưa đạt, dù lint không phát hiện và device evidence chưa có. Nguồn: https://developers.google.com/nearby/connections/android/get-started
+- GAP — `gradle-wrapper.properties` trỏ tới Gradle 8.13 nhưng `gradle-wrapper.jar`, `gradlew`, `gradlew.bat` trên `master` vẫn không đổi từ commit ban đầu `63128ec`; `distributionSha256Sum` cũng chưa có. Gradle xác nhận wrapper cũ thường vẫn chạy được, nhưng cần chạy wrapper task lần hai để đồng bộ toàn bộ wrapper artifacts; checksum là guardrail tái lập/supply-chain nên cần disposition trong Task 3.1/3.6. Nguồn: https://docs.gradle.org/current/userguide/gradle_wrapper.html
+- LOCAL-ENV — Android Studio đã cài nhưng `.idea/gradle.xml` local đang chọn `jbr-25`; Gradle 8.13 không hỗ trợ chạy bằng Java 25 (Java 25 cần Gradle 9.1+). CLI JDK 17 hiện hoạt động. Đây là cấu hình local ngoài commit app; chọn Microsoft JDK 17 làm Gradle JDK và không commit đường dẫn máy cá nhân. Nguồn: https://docs.gradle.org/current/userguide/compatibility.html
+
+Đối chiếu acceptance criteria:
+- Task 3.1: PASS phần AGP 8.13.2/API 36/JDK 17 host build theo re-QA trước; GAP phần wrapper artifacts/checksum và IDE local JBR selection cần được xử lý hoặc disposition rõ.
+- Task 3.2: FAIL phần permission matrix tĩnh API 29–31; cần corrective commit rồi re-QA trước human device matrix.
+- PENDING-HUMAN vẫn giữ nguyên cho API 23/31/34/36, grant/deny/revoke, two-phone Conversation, WalkieTalkie, SCO/headset, background/screen-lock/restart/process-recreation và UI/back-navigation.
+
+Không tạo request mới: hai code finding thuộc trực tiếp Task 3.1/3.2; cấu hình JBR thuộc môi trường local/IDE ngoài phạm vi app. Không sửa code app và không mở Cụm B.
+
+VERDICT: FAIL/BLOCKED — Cụm A cần corrective commit cho permission matrix API 29–31 (và disposition wrapper) trước khi có thể quay lại trạng thái chỉ chờ human evidence.
