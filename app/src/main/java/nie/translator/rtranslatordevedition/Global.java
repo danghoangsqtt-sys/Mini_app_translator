@@ -30,10 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 import nie.translator.rtranslatordevedition.api_management.ConsumptionsDataManager;
 import nie.translator.rtranslatordevedition.api_management.CredentialStore;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
@@ -60,22 +60,45 @@ public class Global extends Application {
     private String apiKeyFileName = "";
     private ConsumptionsDataManager databaseManager;
     private CredentialStore credentialStore;
-    private AccessToken apiToken;
     private int micSensitivity = -1;
     private int speechTimeout = -1;
     private int prevVoiceDuration = -1;
     private int amplitudeThreshold = Recorder.DEFAULT_AMPLITUDE_THRESHOLD;
     private Handler mainHandler;
-    private Thread getApiTokenThread;
-    private ArrayDeque<ApiTokenListener> apiTokenListeners = new ArrayDeque<>();
-    private static Handler mHandler = new Handler();
-    private final Object lock = new Object();
+    private Handler tokenRefreshHandler;
+    private ApiTokenCoordinator apiTokenCoordinator;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
+        tokenRefreshHandler = new Handler(Looper.getMainLooper());
         credentialStore = new CredentialStore(this);
+        apiTokenCoordinator = new ApiTokenCoordinator(new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                new Thread(command, "getAppToken").start();
+            }
+        }, new ApiTokenCoordinator.TokenFetcher() {
+            @Override
+            public AccessToken fetch() throws IOException {
+                File legacyCredential = new File(getFilesDir(), getApiKeyFileName());
+                try (InputStream stream = credentialStore.openCredential(legacyCredential)) {
+                    return GoogleCredentials.fromStream(stream).createScoped(SCOPE)
+                            .refreshAccessToken();
+                }
+            }
+        }, new ApiTokenCoordinator.Scheduler() {
+            @Override
+            public void schedule(Runnable runnable, long delayMillis) {
+                tokenRefreshHandler.postDelayed(runnable, delayMillis);
+            }
+
+            @Override
+            public void cancel(Runnable runnable) {
+                tokenRefreshHandler.removeCallbacks(runnable);
+            }
+        }, TOKEN_FETCH_MARGIN);
         recentPeersDataManager = new RecentPeersDataManager(this);
         bluetoothCommunicator = new ConversationBluetoothCommunicator(this, getName(), BluetoothCommunicator.STRATEGY_P2P_WITH_RECONNECTION);
         translator = new Translator(this);
@@ -431,116 +454,40 @@ public class Global extends Application {
 
     //api token
 
-    public synchronized void resetApiToken() {
-        apiToken = null;
+    public void resetApiToken() {
+        apiTokenCoordinator.reset();
     }
 
     public void getApiToken(final boolean recycleResult, @Nullable final ApiTokenListener responseListener) {
-        synchronized (lock) {
-            if (responseListener != null) {
-                apiTokenListeners.addLast(responseListener);
-            }
-            if (recycleResult && apiToken != null && apiToken.getExpirationTime().getTime() > System.currentTimeMillis()) {
-                //notifica del successo a tutti i listeners
-                notifyGetApiTokenSuccess();
-            } else {
-                if (getApiTokenThread == null) {
-                    getApiTokenThread = new Thread(new GetApiTokenRunnable(new ApiTokenListener() {
-                        @Override
-                        public void onSuccess(final AccessToken apiToken) {
-                            //notifica del successo a tutti i listeners
-                            notifyGetApiTokenSuccess();
-                        }
-
-                        @Override
-                        public void onFailure(final int[] reasons, final long value) {
-                            //notifica del fallimento a tutti i listeners
-                            notifyGetApiTokenFailure(reasons, value);
-                        }
-                    }), "getAppToken");
-                    getApiTokenThread.start();
-                }
-            }
-        }
-    }
-
-    private void notifyGetApiTokenSuccess() {
-        synchronized (lock) {
-            while (apiTokenListeners.peekFirst() != null) {
-                apiTokenListeners.pollFirst().onSuccess(apiToken);
-            }
-            getApiTokenThread = null;
-        }
-    }
-
-    private void notifyGetApiTokenFailure(final int[] reasons, final long value) {
-        synchronized (lock) {
-            while (apiTokenListeners.peekFirst() != null) {
-                apiTokenListeners.pollFirst().onFailure(reasons, value);
-            }
-            getApiTokenThread = null;
-        }
-    }
-
-    private class GetApiTokenRunnable implements Runnable {
-        @Nullable
-        private ApiTokenListener responseListener;
-
-        private GetApiTokenRunnable(@Nullable ApiTokenListener responseListener) {
-            this.responseListener = responseListener;
-        }
-
-        @Override
-        public void run() {
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
-                    Log.d("token", "token fetched");
-                    File legacyCredential = new File(getFilesDir(), getApiKeyFileName());
-                    try (InputStream stream = credentialStore.openCredential(legacyCredential)) {
-                        final GoogleCredentials credentials = GoogleCredentials.fromStream(stream).createScoped(SCOPE);
-                        apiToken = credentials.refreshAccessToken();
-                        if (responseListener != null) {
-                            mainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (apiToken != null) {
-                                        responseListener.onSuccess(apiToken);
-                                    } else {
-                                        responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
-                                    }
-                                }
-                            });
-                        }
-
-                        // Schedule access token refresh before it expires
-                        if (mHandler != null) {
-                            // elimination of all runnables in handlers to ensure that only one getAppToken is scheduled at a time
-                            mHandler.removeCallbacksAndMessages(null);
-                            long refreshTime = Math.max(apiToken.getExpirationTime().getTime() - System.currentTimeMillis() - TOKEN_FETCH_MARGIN, TOKEN_FETCH_MARGIN);
-                            mHandler.postDelayed(new GetApiTokenRunnable(null), refreshTime);
-                        }
-                    } catch (final IOException e) {
-                        Log.e("token", "Failed to obtain access token.");
+        apiTokenCoordinator.request(recycleResult, responseListener == null ? null
+                : new ApiTokenCoordinator.Listener() {
+                    @Override
+                    public void onSuccess(final AccessToken apiToken) {
                         mainHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                if (responseListener != null) {
-                                    if (e.getCause() instanceof UnknownHostException) {
-                                        responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
-                                    } else if (getApiKeyFileName().length() == 0) {
-                                        responseListener.onFailure(new int[]{ErrorCodes.MISSING_API_KEY}, -1);
-                                    } else {
-                                        responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
-                                    }
+                                responseListener.onSuccess(apiToken);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(final IOException exception) {
+                        Log.e("token", "Failed to obtain access token.", exception);
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (exception.getCause() instanceof UnknownHostException) {
+                                    responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
+                                } else if (getApiKeyFileName().length() == 0) {
+                                    responseListener.onFailure(new int[]{ErrorCodes.MISSING_API_KEY}, -1);
+                                } else {
+                                    responseListener.onFailure(new int[]{ErrorCodes.WRONG_API_KEY}, -1);
                                 }
                             }
                         });
                     }
-                }
-            }.start();
-        }
+                });
     }
 
     public interface ApiTokenListener {
