@@ -49,10 +49,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
@@ -61,13 +58,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -244,53 +236,6 @@ public class Tools {
         return bitmap1;
     }
 
-    public static CipherData encript(String plainText, SecretKey encryptionKey) {  //encription key of 128 bit, iv of 128 bit
-        byte[] text = Base64.decode(plainText, Base64.NO_WRAP);
-
-        return encript(text, encryptionKey);
-    }
-
-    public static CipherData encript(byte[] plaintext, SecretKey encryptionKey) {
-        byte[] encryptedData = null;
-        byte[] iv = null;
-
-        try {
-            Cipher cipher = Cipher.getInstance("AES/CTR/PKCS5PADDING");
-            cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-            iv = cipher.getIV();
-            encryptedData = cipher.doFinal(plaintext);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException e) {
-            e.printStackTrace();
-        }
-        if (encryptedData != null && iv != null) {
-            return new CipherData(encryptedData, iv);
-        } else {
-            return null;
-        }
-    }
-
-    public static String decriptToString(CipherData cipherText, SecretKey encryptionKey) {
-        byte[] text = decript(cipherText, encryptionKey);
-        if (text != null) {
-            return Base64.encodeToString(text, Base64.NO_WRAP);
-        }
-        return null;
-    }
-
-    public static byte[] decript(CipherData cipherData, SecretKey encryptionKey) {
-        byte[] data = null;
-
-        try {
-            Cipher cipher = Cipher.getInstance("AES/CTR/PKCS5PADDING");
-            cipher.init(Cipher.DECRYPT_MODE, encryptionKey, new IvParameterSpec(cipherData.getIv()));
-            data = cipher.doFinal(cipherData.getEncriptedData());
-
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        }
-        return data;
-    }
-
     public static byte[] merge(byte[]... arrays) {
         int length = 0;
         for (byte[] array : arrays) {
@@ -379,23 +324,4 @@ public class Tools {
         }
     }
 
-    public static class CipherData implements Serializable {
-        private byte[] encriptedData;
-        private byte[] iv;
-
-
-        public CipherData(byte[] encriptedData, byte[] iv) {
-            this.encriptedData = encriptedData;
-            this.iv = iv;
-        }
-
-
-        public byte[] getEncriptedData() {
-            return encriptedData;
-        }
-
-        public byte[] getIv() {
-            return iv;
-        }
-    }
 }

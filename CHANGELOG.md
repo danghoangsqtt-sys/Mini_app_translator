@@ -13,6 +13,7 @@ All notable changes to this fork will be documented in this file.
 - Propagate gRPC speech-stream failures through the service/UI error path with status mapping and stale-stream isolation.
 - Replace the recursive Downloads credential scan with a Storage Access Framework JSON picker, validate service-account content before encrypted persistence, and remove legacy external-storage access.
 - Share a single application-context Room database instance between consumption and recent-peer managers, preserving the existing database file and schema.
+- Remove unreachable, unauthenticated AES/CTR helpers so no application path can use malleable ciphertext.
 
 ### Planned
 
