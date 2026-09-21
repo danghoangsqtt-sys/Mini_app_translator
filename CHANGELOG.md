@@ -15,6 +15,8 @@ All notable changes to this fork will be documented in this file.
 - Share a single application-context Room database instance between consumption and recent-peer managers, preserving the existing database file and schema.
 - Remove unreachable, unauthenticated AES/CTR helpers so no application path can use malleable ciphertext.
 - Prevent a queued access-token callback from delivering a token for a replaced or deleted credential after reset.
+- Track each WalkieTalkie recognizer bind attempt so teardown releases the matching registrations
+  without unconditional unbinds, including false-return and partial-bind cases.
 
 ### Planned
 

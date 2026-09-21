@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Messenger;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import nie.translator.rtranslatordevedition.Global;
@@ -41,6 +42,7 @@ import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.voice.R
 
 
 public class WalkieTalkieService extends VoiceTranslationService {
+    private static final String TAG = "WalkieTalkieService";
     // commands
     public static final int CHANGE_FIRST_LANGUAGE = 22;
     public static final int CHANGE_SECOND_LANGUAGE = 23;
@@ -60,6 +62,8 @@ public class WalkieTalkieService extends VoiceTranslationService {
     private ArrayList<CloudApiResult> secondLanguageQueue = new ArrayList<>();
     private ServiceConnection firstLanguageConnection;
     private ServiceConnection secondLanguageConnection;
+    private final BindingAttemptTracker firstLanguageBindingAttempts = new BindingAttemptTracker();
+    private final BindingAttemptTracker secondLanguageBindingAttempts = new BindingAttemptTracker();
     private RecognizerService.RecognizerServiceCommunicator firstLanguageServiceCommunicator = new RecognizerService.RecognizerServiceCommunicator(0);
     private RecognizerService.RecognizerServiceCommunicator secondLanguageServiceCommunicator = new RecognizerService.RecognizerServiceCommunicator(0);
 
@@ -251,8 +255,8 @@ public class WalkieTalkieService extends VoiceTranslationService {
             intent1.putExtra("language", firstLanguage);
             intent2.putExtra("language", secondLanguage);
             //bind services
-            bindService(intent1, firstLanguageConnection, Service.BIND_AUTO_CREATE);
-            bindService(intent2, secondLanguageConnection, Service.BIND_AUTO_CREATE);
+            bindFirstLanguageRecognizer(intent1);
+            bindSecondLanguageRecognizer(intent2);
         }else{
             //change languages
             firstLanguageServiceCommunicator.changeLanguage(firstLanguage);
@@ -264,11 +268,53 @@ public class WalkieTalkieService extends VoiceTranslationService {
     @Override
     public void onDestroy() {
         //stop the two services that recognizes voice
-        firstLanguageServiceCommunicator.stopCommunication();
-        secondLanguageServiceCommunicator.stopCommunication();
-        unbindService(firstLanguageConnection);
-        unbindService(secondLanguageConnection);
+        stopFirstLanguageCommunication();
+        stopSecondLanguageCommunication();
+        releaseBindings(firstLanguageBindingAttempts, firstLanguageConnection, "first-language");
+        releaseBindings(secondLanguageBindingAttempts, secondLanguageConnection, "second-language");
         super.onDestroy();
+    }
+
+    private void bindFirstLanguageRecognizer(Intent intent) {
+        firstLanguageBindingAttempts.recordBindAttempt();
+        bindService(intent, firstLanguageConnection, Service.BIND_AUTO_CREATE);
+    }
+
+    private void bindSecondLanguageRecognizer(Intent intent) {
+        secondLanguageBindingAttempts.recordBindAttempt();
+        bindService(intent, secondLanguageConnection, Service.BIND_AUTO_CREATE);
+    }
+
+    private void stopFirstLanguageCommunication() {
+        try {
+            firstLanguageServiceCommunicator.stopCommunication();
+        } catch (RuntimeException error) {
+            Log.e(TAG, "Unable to stop first-language recognizer communication", error);
+        }
+    }
+
+    private void stopSecondLanguageCommunication() {
+        try {
+            secondLanguageServiceCommunicator.stopCommunication();
+        } catch (RuntimeException error) {
+            Log.e(TAG, "Unable to stop second-language recognizer communication", error);
+        }
+    }
+
+    private void releaseBindings(BindingAttemptTracker attempts,
+                                 final ServiceConnection connection,
+                                 final String connectionName) {
+        attempts.releaseAll(new BindingAttemptTracker.Unbinder() {
+            @Override
+            public void unbind() {
+                unbindService(connection);
+            }
+        }, new BindingAttemptTracker.FailureListener() {
+            @Override
+            public void onFailure(RuntimeException error) {
+                Log.e(TAG, "Unable to unbind " + connectionName + " recognizer", error);
+            }
+        });
     }
 
     private void
