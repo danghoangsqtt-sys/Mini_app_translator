@@ -292,3 +292,36 @@ TERRA — NEXT ACTION:
 4. Khi có bằng chứng mới, chỉ append kết quả/bằng chứng có thể truy vết vào `EXEC-LOG-TERRA.md`; không tự đánh dấu PASS. SOL sẽ đọc marker/handoff mới và quyết định gate tiếp theo.
 
 Đây là handoff tự động qua kênh file đã phê duyệt; người dùng không cần sao chép prompt này sang phiên TERRA nếu TERRA đang poll `QA-LOG-SOL.md` đúng quy ước.
+
+## [2026-09-22 15:20:38 +07:00] Cụm A device QA — API 36 first-launch crash
+
+Snapshot/app under test: `9ae921fd21748db97194c8949b7ea34ae4b42463`
+
+Bằng chứng thiết bị:
+- ADB: emulator `emulator-5554`, model `sdk_gphone16k_x86_64`, Android 16 / API 36.
+- Package: `nie.translator.rtranslatordevedition`, versionCode 13, versionName 1.1.2, targetSdk 36.
+- Installed APK SHA-256: `BF22753FF465CFB00DFB7505BC5A339DAC12D631356F5CA8B97DE44B1C92D1B7`; khớp tuyệt đối với `D:\DataAdmin\qa-a-9ae9\app\build\outputs\apk\debug\app-debug.apk`, nên evidence đúng APK QA của snapshot.
+- Trạng thái permission trước launch: `BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN`, `BLUETOOTH_ADVERTISE`, `NEARBY_WIFI_DEVICES`, `RECORD_AUDIO` đều `granted=false` như một fresh install.
+- Repro: `adb logcat -c`, `adb shell am force-stop nie.translator.rtranslatordevedition`, rồi `adb shell am start -W -n nie.translator.rtranslatordevedition/.LoadingActivity`.
+- Kết quả: **FAIL** — launcher biến mất về home vì process crash ngay khi tạo `Global`; top resumed activity trở lại Nexus Launcher.
+- Exception: `java.lang.SecurityException: Need android.permission.BLUETOOTH_CONNECT ... BtGatt.GattService.registerServer()`; stack đi qua `BluetoothManager.openGattServer` → `BluetoothConnectionServer.<init>` → `BluetoothCommunicator.initializeConnection` → `ConversationBluetoothCommunicator.<init>` → `Global.onCreate(Global.java:112)`.
+- Đối chứng: cấp riêng `adb shell pm grant nie.translator.rtranslatordevedition android.permission.BLUETOOTH_CONNECT`, force-stop và cold-launch lại. Kết quả PASS cho bước launch: app mở tới `.access.AccessActivity` trong 588 ms, không có `AndroidRuntime` crash. Điều này xác nhận nguyên nhân là khởi tạo Bluetooth communicator/GATT trước permission flow, không phải icon, emulator hay APK sai.
+- Lưu ý trạng thái emulator sau đối chứng: `BLUETOOTH_CONNECT` hiện đã được grant; cần revoke/clear app data trước lần test fresh-install tiếp theo.
+
+Đối chiếu acceptance criteria:
+- Task 3.2: **FAIL** — grant/deny/revoke phải được xử lý trước advertising/discovery/connection, nhưng fresh install API 36 crash trong `Application.onCreate()` trước khi UI có thể xin quyền. Tiêu chí “No Bluetooth or Nearby SecurityException on API 31/34/36” không đạt.
+- Task 3.1: **FAIL integrated device check** — host gates vẫn PASS nhưng integrated 3.2 device behavior không đạt.
+- Task 3.4: PASS một phần — package cài và launcher resolve đúng; launcher flow không hoàn tất do crash thuộc 3.2.
+- Task 3.5: chưa đánh giá được voice foreground-service flow vì app chết trước permission UI.
+- PENDING-HUMAN: API 23/31/34; grant/deny/revoke hoàn chỉnh; Conversation/WalkieTalkie; physical two-phone Bluetooth/SCO; screen lock/background/restart/process recreation; UI/back-navigation.
+
+TERRA — NEXT ACTION:
+1. Sửa trong Cụm A để `Global.onCreate()` không tạo communicator/mở GATT server trước khi `BLUETOOTH_CONNECT` được grant trên API 31+. Dùng lazy/deferred initialization sau permission grant; fresh install, deny và revoke phải không crash.
+2. Rà toàn bộ lifecycle để không giữ communicator chưa khởi tạo hoặc khởi tạo lặp khi quyền được cấp lại; cleanup/retry phải an toàn.
+3. Thêm regression coverage cho fresh-install/no-permission path và permission transition nếu kiến trúc test cho phép; không dùng catch-all hoặc suppression để che `SecurityException`.
+4. Re-run đủ `testDebugUnitTest lintDebug assembleDebug assembleRelease`, báo lint XML theo ID/count, rồi append commit corrective mới với `STATUS: DONE — awaiting QA`.
+5. Không bắt đầu Cụm B/C. Device matrix và physical two-phone evidence vẫn bắt buộc sau corrective commit.
+
+Không tạo BUG/ENH request mới: defect nằm trực tiếp trong phạm vi Task 3.2. Không sửa code app trong quá trình QA.
+
+VERDICT: FAIL — API 36 fresh install crash do `BLUETOOTH_CONNECT` chưa được cấp khi `Global.onCreate()` mở GATT server. Host/static PASS trước đó không thay thế device evidence. Cụm B/C tiếp tục khóa.
