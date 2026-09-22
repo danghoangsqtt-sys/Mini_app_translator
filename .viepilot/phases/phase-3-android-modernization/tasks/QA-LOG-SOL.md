@@ -184,3 +184,51 @@ Bằng chứng mới từ audit mã nguồn và tài liệu chính thức:
 Không tạo request mới: hai code finding thuộc trực tiếp Task 3.1/3.2; cấu hình JBR thuộc môi trường local/IDE ngoài phạm vi app. Không sửa code app và không mở Cụm B.
 
 VERDICT: FAIL/BLOCKED — Cụm A cần corrective commit cho permission matrix API 29–31 (và disposition wrapper) trước khi có thể quay lại trạng thái chỉ chờ human evidence.
+
+## [2026-09-22 08:05:12 +07:00] Cụm A re-QA #3 — Task(s) 3.1, 3.2, 3.4, 3.5
+Commit: `b3f76d05aa278affbf64763b50c505629b919289`
+
+Lệnh đã chạy + kết quả tóm tắt:
+- Xác minh snapshot: PASS — commit tồn tại, là hậu duệ của snapshot `0b50beff501e04bf37a3ae7ba38a44a681d30cd5`, chưa từng được QA. Working tree chính còn thay đổi ngoài phạm vi; toàn bộ kiểm tra quyết định chạy trong worktree detached sạch `D:\DataAdmin\qa-a-b3f7` đúng tại commit này.
+- Commit scope: PASS — đúng 7 file được handoff: manifest, `VoiceTranslationActivity.java`, regression test, và bốn wrapper artifacts. Không có Phase 4/5, icon, `Mo_May_Ao.bat`, `.idea`, local Gradle config hoặc log trong commit.
+- `gradlew.bat --no-daemon --max-workers=1 --console=plain testDebugUnitTest lintDebug assembleDebug assembleRelease` bằng Microsoft OpenJDK 17.0.20.1, AGP 8.13.2, Gradle 8.13: **BUILD SUCCESSFUL** trong 2 phút 13 giây; 97/97 actionable tasks executed. Hai lần chuẩn bị trước bị lỗi truyền tham số PowerShell và thiếu SDK location trong detached worktree, không phải kết quả code và không được tính verdict.
+- Unit XML: PASS — 17 suites, 43 tests, 0 failures, 0 errors, 0 skipped.
+- Artifacts/R8: PASS — debug APK (7,905,823 bytes) và unsigned release APK (2,040,108 bytes) được tạo; `minifyReleaseWithR8` hoàn tất.
+- Lint XML độc lập: **0 errors / 168 warnings**, không phải 169 warnings như EXEC handoff. Inventory giữ nguyên so với re-QA trước, ngoại trừ không có `AndroidGradlePluginVersion`: `Typos` 36, `UnusedResources` 29, `HardcodedText` 15, `ContentDescription` 13, `GradleDependency` 10, `NewerVersionAvailable` 7, `CanvasSize`/`ObsoleteSdkInt`/`SetTextI18n`/`InflateParams` mỗi ID 6, `Overdraw` 5, `UseCompatLoadingForDrawables`/`IconLocation` mỗi ID 4, `UnknownIdInLayout` 3, và các ID còn lại tổng 15. Không phát hiện mass-suppress mới; `abortOnError=false`/`checkReleaseBuilds=false` có sẵn vẫn phải được Cụm C xử lý.
+- Merged debug/release manifests: PASS — launcher `LoadingActivity` exported true; các component nội bộ quan sát được exported false; `GeneralService` không còn khai báo; chỉ `ConversationService` và `WalkieTalkieService` có `microphone|connectedDevice`; normal permissions tương ứng hiện diện.
+- Wrapper: PASS về khả năng chạy và tái lập distribution — wrapper tải/xác minh Gradle 8.13 với official distribution SHA-256 trong properties. SHA-256 của JAR và BAT khớp handoff. Hash của `gradlew` và properties sau checkout không khớp các hash text trong EXEC vì repository có `core.autocrlf=true` và không có attribute cố định EOL; đây là sai khác biểu diễn line-ending, không phải thay đổi snapshot. Handoff sau nên ghi rõ raw blob hay checkout/EOL context nếu dùng hash text làm bằng chứng.
+- `git diff --check`: PASS theo handoff; detached worktree sạch sau gate.
+
+Đối chiếu acceptance criteria:
+
+Task 3.1:
+- PASS — AGP 8.13.2 + Gradle 8.13 + JDK 17 + protobuf generation hoạt động với compile/target API 36; manifest merge, Java compile, 43 unit tests, lint, debug và release/R8 hoàn tất.
+- PASS — Wrapper artifacts/checksum đã được đồng bộ; namespace, repository/tool versions và compatibility decisions có bằng chứng host.
+- FAIL — Tiêu chí integrated permission checks chưa đạt vì nhánh API 32 của Task 3.2 sai platform contract như nêu dưới đây.
+- PENDING-HUMAN — Chưa có regression/device evidence tích hợp trên API 23/31/34/36.
+
+Task 3.2:
+- PASS — Nhánh API 23–30 và API 31 đã được sửa theo Nearby Connections; regression unit test hiện có API 23/28/29/30/31/33/36 và các permission guards tĩnh vẫn hiện diện.
+- **FAIL — API 32 bị regression.** Source dùng `sdk >= Build.VERSION_CODES.S_V2` để bỏ `ACCESS_FINE_LOCATION` và yêu cầu `android.permission.NEARBY_WIFI_DEVICES`; manifest cũng khai báo `NEARBY_WIFI_DEVICES` từ API 32 và giới hạn fine location tới API 31. Nhưng Android platform định nghĩa `NEARBY_WIFI_DEVICES` từ API 33; Android 12L/API 32 vẫn cần `ACCESS_FINE_LOCATION` cho Wi-Fi/Nearby APIs. Vì vậy trên API 32 app có thể yêu cầu một permission chưa tồn tại và không thể thỏa permission guard, làm chặn advertising/discovery. Unit matrix bỏ đúng API 32 nên không bắt được lỗi. Nguồn platform: https://developer.android.com/develop/connectivity/wifi/wifi-permissions và https://developer.android.com/reference/android/Manifest.permission
+- FAIL — Cần đổi ranh giới sang API 33+: API 32 giữ fine location (cùng Bluetooth runtime permissions phù hợp), manifest range tương ứng phải bao phủ API 32, và thêm regression test riêng cho API 32. Không được chỉ sửa test để hợp thức hóa hành vi hiện tại.
+- PENDING-HUMAN — Chưa có grant/deny/revoke, `neverForLocation`, advertising/discovery/connect/accept/disconnect evidence trên API 31/34/36; chưa có API 23 legacy device evidence.
+- PENDING-HUMAN — Chưa có two-phone Conversation và one-phone WalkieTalkie/headset/SCO smoke tests.
+
+Task 3.4:
+- PASS — Debug/release manifest merger và export-surface review đạt trên host.
+- PENDING-HUMAN — Chưa có install/launcher/UI/back-navigation evidence trên API 31/34/36.
+
+Task 3.5:
+- PASS — Static manifest/service type và pre-promotion permission checks đạt; host build/R8 hoàn tất.
+- PENDING-HUMAN — Chưa có bằng chứng không có missing-type/permission exception trong Conversation/WalkieTalkie trên API 34/36.
+- PENDING-HUMAN — Chưa có permission ordering, background restriction, screen lock, stop/restart, process recreation trên API 34/36 và compatibility API 23/31.
+- PENDING-HUMAN — Toàn bộ ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO vẫn là release blocker.
+
+Vấn đề Terra cần sửa trước lần re-QA tiếp theo:
+1. Sửa permission branch/manifest cho API 32 như trên và thêm API 32 regression test; giữ thay đổi trong Cụm A.
+2. Re-run đủ bốn Gradle gate, báo lint theo XML/ID/count thực tế (hiện QA là 0/168), rồi append commit mới với `STATUS: DONE — awaiting QA`.
+3. Không bắt đầu Cụm B/C trước khi Cụm A PASS. Human evidence vẫn bắt buộc ngay cả sau khi static fix qua gate.
+
+Không tạo BUG/ENH request mới: finding API 32 thuộc trực tiếp Task 3.2. Không sửa code app hoặc file Phase 4/5 trong quá trình QA.
+
+VERDICT: FAIL — host build, tests, lint, artifacts, wrapper và static component/service checks đều đạt, nhưng permission matrix làm hỏng API 32. Ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO tiếp tục PENDING HUMAN EVIDENCE và là release blocker.
