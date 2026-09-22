@@ -316,7 +316,7 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public static String[] getRequiredNearbyPermissionsForSdk(int sdkInt) {
-        if (sdkInt >= Build.VERSION_CODES.S_V2) {
+        if (sdkInt >= Build.VERSION_CODES.TIRAMISU) {
             return new String[]{
                     BLUETOOTH_SCAN_PERMISSION,
                     BLUETOOTH_CONNECT_PERMISSION,

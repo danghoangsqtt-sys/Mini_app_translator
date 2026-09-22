@@ -38,9 +38,9 @@ public class AndroidModernizationManifestTest {
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("29", permission(document, "android.permission.ACCESS_FINE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
-        assertEquals("31", permission(document, "android.permission.ACCESS_FINE_LOCATION")
+        assertEquals("32", permission(document, "android.permission.ACCESS_FINE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
-        assertEquals("31", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
+        assertEquals("32", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("neverForLocation", permission(document, "android.permission.BLUETOOTH_SCAN")
                 .getAttributeNS(ANDROID_NAMESPACE, "usesPermissionFlags"));
@@ -50,7 +50,7 @@ public class AndroidModernizationManifestTest {
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
         assertEquals("31", permission(document, "android.permission.BLUETOOTH_ADVERTISE")
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
-        assertEquals("32", permission(document, "android.permission.NEARBY_WIFI_DEVICES")
+        assertEquals("33", permission(document, "android.permission.NEARBY_WIFI_DEVICES")
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
     }
 
@@ -86,6 +86,7 @@ public class AndroidModernizationManifestTest {
         assertArrayEquals(fineLocation, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(29));
         assertArrayEquals(fineLocation, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(30));
         assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(31));
+        assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(32));
         assertArrayEquals(android12L, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(33));
         assertArrayEquals(android12L, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(36));
     }
