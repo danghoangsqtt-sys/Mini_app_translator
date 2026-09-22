@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -78,6 +77,10 @@ public class VoiceTranslationActivity extends GeneralActivity {
     public static final int DEFAULT_FRAGMENT = PAIRING_FRAGMENT;
     public static final int NO_PERMISSIONS = -10;
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 2;
+    private static final String BLUETOOTH_SCAN_PERMISSION = "android.permission.BLUETOOTH_SCAN";
+    private static final String BLUETOOTH_CONNECT_PERMISSION = "android.permission.BLUETOOTH_CONNECT";
+    private static final String BLUETOOTH_ADVERTISE_PERMISSION = "android.permission.BLUETOOTH_ADVERTISE";
+    private static final String NEARBY_WIFI_DEVICES_PERMISSION = "android.permission.NEARBY_WIFI_DEVICES";
     //objects
     private Global global;
     private Fragment fragment;
@@ -309,19 +312,33 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public String[] getRequiredNearbyPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        return getRequiredNearbyPermissionsForSdk(Build.VERSION.SDK_INT);
+    }
+
+    public static String[] getRequiredNearbyPermissionsForSdk(int sdkInt) {
+        if (sdkInt >= Build.VERSION_CODES.S_V2) {
             return new String[]{
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_ADVERTISE,
-                    Manifest.permission.NEARBY_WIFI_DEVICES,
+                    BLUETOOTH_SCAN_PERMISSION,
+                    BLUETOOTH_CONNECT_PERMISSION,
+                    BLUETOOTH_ADVERTISE_PERMISSION,
+                    NEARBY_WIFI_DEVICES_PERMISSION,
             };
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (sdkInt >= Build.VERSION_CODES.S) {
             return new String[]{
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    BLUETOOTH_SCAN_PERMISSION,
+                    BLUETOOTH_CONNECT_PERMISSION,
+                    BLUETOOTH_ADVERTISE_PERMISSION,
+            };
+        }
+        if (sdkInt >= Build.VERSION_CODES.Q) {
+            return new String[]{
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
             };
         }
         return new String[]{
@@ -369,11 +386,9 @@ public class VoiceTranslationActivity extends GeneralActivity {
             return;
         }
 
-        for (int grantResult : grantResults) {
-            if (grantResult == PackageManager.PERMISSION_DENIED) {
-                notifyMissingSearchPermission();
-                return;
-            }
+        if (grantResults.length == 0 || !hasNearbyPermissions()) {
+            notifyMissingSearchPermission();
+            return;
         }
         notifySearchPermissionGranted();
         //recreate();   // was called only if the grantResults were of length 0 or were neither PERMISSIONS_GRANTED nor PERMISSION_DENIED (I don't know what it is for anyway)

@@ -9,11 +9,13 @@ package nie.translator.rtranslatordevedition;
 
 import java.io.File;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationActivity;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -28,15 +30,64 @@ public class AndroidModernizationManifestTest {
 
         assertEquals("30", permission(document, "android.permission.BLUETOOTH")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
-        assertEquals("30", permission(document, "android.permission.ACCESS_FINE_LOCATION")
+        assertEquals("30", permission(document, "android.permission.BLUETOOTH_ADMIN")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
-        assertEquals("30", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
+        assertEquals("31", permission(document, "android.permission.ACCESS_WIFI_STATE")
+                .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
+        assertEquals("31", permission(document, "android.permission.CHANGE_WIFI_STATE")
+                .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
+        assertEquals("29", permission(document, "android.permission.ACCESS_FINE_LOCATION")
+                .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
+        assertEquals("31", permission(document, "android.permission.ACCESS_FINE_LOCATION")
+                .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
+        assertEquals("31", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("neverForLocation", permission(document, "android.permission.BLUETOOTH_SCAN")
                 .getAttributeNS(ANDROID_NAMESPACE, "usesPermissionFlags"));
-        assertNotNull(permission(document, "android.permission.BLUETOOTH_CONNECT"));
-        assertNotNull(permission(document, "android.permission.BLUETOOTH_ADVERTISE"));
-        assertNotNull(permission(document, "android.permission.NEARBY_WIFI_DEVICES"));
+        assertEquals("31", permission(document, "android.permission.BLUETOOTH_SCAN")
+                .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
+        assertEquals("31", permission(document, "android.permission.BLUETOOTH_CONNECT")
+                .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
+        assertEquals("31", permission(document, "android.permission.BLUETOOTH_ADVERTISE")
+                .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
+        assertEquals("32", permission(document, "android.permission.NEARBY_WIFI_DEVICES")
+                .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
+    }
+
+    @Test
+    public void nearbyPermissionRuntimeMatrix_matchesNearbyConnectionsSdkRanges() {
+        String[] legacy = {
+                "android.permission.BLUETOOTH",
+                "android.permission.BLUETOOTH_ADMIN",
+                "android.permission.ACCESS_COARSE_LOCATION"
+        };
+        String[] fineLocation = {
+                "android.permission.BLUETOOTH",
+                "android.permission.BLUETOOTH_ADMIN",
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_FINE_LOCATION"
+        };
+        String[] android12 = {
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_FINE_LOCATION",
+                "android.permission.BLUETOOTH_SCAN",
+                "android.permission.BLUETOOTH_CONNECT",
+                "android.permission.BLUETOOTH_ADVERTISE"
+        };
+        String[] android12L = {
+                "android.permission.BLUETOOTH_SCAN",
+                "android.permission.BLUETOOTH_CONNECT",
+                "android.permission.BLUETOOTH_ADVERTISE",
+                "android.permission.NEARBY_WIFI_DEVICES"
+        };
+
+        assertArrayEquals(legacy, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(23));
+        assertArrayEquals(legacy, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(28));
+        assertArrayEquals(fineLocation, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(29));
+        assertArrayEquals(fineLocation, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(30));
+        assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(31));
+        assertArrayEquals(android12L, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(33));
+        assertArrayEquals(android12L, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(36));
     }
 
     @Test
