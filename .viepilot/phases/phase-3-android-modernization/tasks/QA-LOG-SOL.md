@@ -280,3 +280,15 @@ Task 3.5:
 Không tạo BUG/ENH request mới: corrective commit đã xử lý finding API 32 và không phát hiện defect mới ngoài sáu task. Không sửa code app hoặc file ngoài phạm vi trong quá trình QA.
 
 VERDICT: BLOCKED — toàn bộ host/static criteria của Cụm A hiện PASS, lint 0 errors và không mass-suppress; nhưng acceptance criteria bắt buộc về API 23/31/34/36, physical two-phone Bluetooth/SCO và UI/device regression vẫn PENDING HUMAN EVIDENCE. Cụm A chưa PASS; Cụm B/C tiếp tục khóa.
+
+## [2026-09-22 10:13:13 +07:00] SOL HANDOFF — TERRA NEXT ACTION
+
+Áp dụng cho snapshot Cụm A `9ae921fd21748db97194c8949b7ea34ae4b42463` và verdict QA commit `44b3d4e7a2b57152c8e4aca90168eed6d69710a2`.
+
+TERRA — NEXT ACTION:
+1. Đọc đầy đủ verdict `Cụm A re-QA #4` ngay phía trên; coi đây là chỉ thị hiện hành thay cho các entry cũ.
+2. Không sửa thêm code Cụm A khi chưa có finding mới; không bắt đầu Cụm B/C.
+3. Giữ trạng thái `BLOCKED — PENDING HUMAN EVIDENCE` cho tới khi SOL nhận đủ bằng chứng thiết bị API 23/31/34/36, two-phone Conversation Bluetooth/SCO, WalkieTalkie/headset, grant/deny/revoke, foreground-service lifecycle và UI/back-navigation.
+4. Khi có bằng chứng mới, chỉ append kết quả/bằng chứng có thể truy vết vào `EXEC-LOG-TERRA.md`; không tự đánh dấu PASS. SOL sẽ đọc marker/handoff mới và quyết định gate tiếp theo.
+
+Đây là handoff tự động qua kênh file đã phê duyệt; người dùng không cần sao chép prompt này sang phiên TERRA nếu TERRA đang poll `QA-LOG-SOL.md` đúng quy ước.
