@@ -232,3 +232,51 @@ Vấn đề Terra cần sửa trước lần re-QA tiếp theo:
 Không tạo BUG/ENH request mới: finding API 32 thuộc trực tiếp Task 3.2. Không sửa code app hoặc file Phase 4/5 trong quá trình QA.
 
 VERDICT: FAIL — host build, tests, lint, artifacts, wrapper và static component/service checks đều đạt, nhưng permission matrix làm hỏng API 32. Ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO tiếp tục PENDING HUMAN EVIDENCE và là release blocker.
+
+## [2026-09-22 08:43:02 +07:00] Cụm A re-QA #4 — Task(s) 3.1, 3.2, 3.4, 3.5
+Commit: `9ae921fd21748db97194c8949b7ea34ae4b42463`
+
+Lệnh đã chạy + kết quả tóm tắt:
+- Xác minh snapshot: PASS — commit tồn tại, parent trực tiếp là SOL QA-doc commit `75be7974e8afd76bd74685fb46f35cddcf063eee`, chưa từng được QA và EXEC có marker `STATUS: DONE — awaiting QA`. Commit chỉ đổi manifest, `VoiceTranslationActivity.java` và regression test; không chứa Phase 4/5, IDE, ảnh hoặc local config.
+- Working tree chính còn thay đổi ngoài phạm vi; toàn bộ kiểm tra quyết định chạy trong detached worktree sạch `D:\DataAdmin\qa-a-9ae9` đúng tại commit này.
+- `gradlew.bat --no-daemon --max-workers=1 --console=plain testDebugUnitTest lintDebug assembleDebug assembleRelease` bằng Microsoft OpenJDK 17.0.20.1, AGP 8.13.2, Gradle 8.13: **BUILD SUCCESSFUL** trong 2 phút 14 giây; 97/97 actionable tasks executed.
+- Unit XML: PASS — 17 suites, 43 tests, 0 failures, 0 errors, 0 skipped.
+- Artifacts/R8: PASS — debug APK 7,905,835 bytes và unsigned release APK 2,040,112 bytes được tạo; `minifyReleaseWithR8` hoàn tất.
+- Lint XML độc lập: **0 errors / 168 warnings**. Chênh 1 warning so với EXEC `0/169` là `AndroidGradlePluginVersion` phụ thuộc online version lookup; không có thay đổi suppression/config trong corrective commit. Inventory QA: `Typos` 36, `UnusedResources` 29, `HardcodedText` 15, `ContentDescription` 13, `GradleDependency` 10, `NewerVersionAvailable` 7, bốn ID có 6 warnings, `Overdraw` 5, hai ID có 4, `UnknownIdInLayout` 3, bốn ID có 2 và chín ID có 1; tổng 168.
+- API 32 correction: PASS tĩnh — runtime boundary đổi sang `Build.VERSION_CODES.TIRAMISU`; API 31–32 yêu cầu coarse/fine location cùng Bluetooth scan/connect/advertise; API 33+ dùng Bluetooth trio cùng `NEARBY_WIFI_DEVICES`. Manifest fine/coarse max API 32, Nearby Wi-Fi min API 33. Unit regression thêm assertion API 32 bằng permission array API 31.
+- Merged debug/release manifests: PASS — permission ranges sau merge hiện diện; launcher exported true; components nội bộ quan sát được false; chỉ `ConversationService` và `WalkieTalkieService` có `microphone|connectedDevice`.
+- `git diff --check`: PASS; detached worktree sạch sau gate. Không phát hiện mass-suppress hoặc defect mới ngoài sáu task Phase 3.
+
+Đối chiếu acceptance criteria:
+
+Task 3.1:
+- PASS — Compatibility spike/toolchain API 36, protobuf generation, manifest merge, test, lint, debug, release và R8 đều đạt bằng JDK 17.
+- PASS — Wrapper/checksum, namespace, repository/tool versions và compatibility decisions đã có bằng chứng host.
+- PASS — Integrated static/build checks của 3.2/3.4/3.5 đạt trong cùng chuỗi Cụm A.
+- PENDING-HUMAN — Chưa có integrated regression/device matrix API 23/31/34/36.
+
+Task 3.2:
+- PASS — Corrective API 32 sửa đúng ranh giới runtime/manifest và có regression unit test; static permission declarations/guards đạt, lint không có `MissingPermission` hoặc `CoarseFineLocation`.
+- PENDING-HUMAN — Chưa có bằng chứng grant/deny/revoke, `neverForLocation`, hoặc advertising/discovery/connect/accept/disconnect không ném `SecurityException` trên API 31/34/36.
+- PENDING-HUMAN — Chưa có API 23 legacy location/Wi-Fi/Bluetooth evidence.
+- PENDING-HUMAN — Chưa có two-phone Conversation và one-phone WalkieTalkie/headset/SCO smoke tests.
+
+Task 3.4:
+- PASS — Debug/release manifest merger và external component surface review đạt trên host.
+- PENDING-HUMAN — Chưa có install/launcher evidence trên API 31/34/36.
+- PENDING-HUMAN — Chưa có Settings/API-key/file-picker, toolbar/system/predictive-back regression evidence sau các sửa lint trước đó.
+
+Task 3.5:
+- PASS — Hai foreground voice services có đúng type/normal permissions và static pre-promotion permission checks; recognizer services vẫn bound-only.
+- PENDING-HUMAN — Chưa có bằng chứng không có missing-type/permission exception trong Conversation/WalkieTalkie trên API 34/36.
+- PENDING-HUMAN — Chưa có permission ordering, background start restriction, screen lock, stop/restart, process recreation trên API 34/36 và compatibility API 23/31.
+- PENDING-HUMAN — Ma trận API 23/31/34/36 và physical two-phone Bluetooth/SCO là release blocker bắt buộc.
+
+Điều kiện để gỡ BLOCKED:
+1. Cung cấp log/video/checklist định danh rõ thiết bị và API cho toàn bộ device matrix và flow Bluetooth/SCO nêu trên.
+2. Cung cấp UI/back-navigation regression evidence cho các flow đã bị tác động trong Cụm A.
+3. Cụm B/C chưa được bắt đầu cho tới khi Cụm A có verdict PASS.
+
+Không tạo BUG/ENH request mới: corrective commit đã xử lý finding API 32 và không phát hiện defect mới ngoài sáu task. Không sửa code app hoặc file ngoài phạm vi trong quá trình QA.
+
+VERDICT: BLOCKED — toàn bộ host/static criteria của Cụm A hiện PASS, lint 0 errors và không mass-suppress; nhưng acceptance criteria bắt buộc về API 23/31/34/36, physical two-phone Bluetooth/SCO và UI/device regression vẫn PENDING HUMAN EVIDENCE. Cụm A chưa PASS; Cụm B/C tiếp tục khóa.
