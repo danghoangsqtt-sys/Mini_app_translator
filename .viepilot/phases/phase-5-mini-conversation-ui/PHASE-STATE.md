@@ -15,4 +15,4 @@
 | 5.3 — Material theme and design tokens | `ENH-019` | done |
 | 5.4 — Refresh core screens | `ENH-019` | done |
 | 5.5 — Accessibility and responsive layout | `ENH-019` | done |
-| 5.6 — Visual, accessibility, and device QA | `ENH-019` | not started |
+| 5.6 — Visual, accessibility, and device QA | `ENH-019` | in_progress |
