@@ -8,6 +8,7 @@ All notable changes to this fork will be documented in this file.
 
 - Renamed product from Mini Translator to Mini Conversation across all user-facing strings, docs, and notifications (`ENH-018`).
 - Replaced launcher icons with a clean circular legacy/round set and an adaptive icon (background/foreground/monochrome layers) derived from `images/icon.png` (`ENH-018`).
+- Switched `Theme.Speech` from `Theme.AppCompat.Light.DarkActionBar` to `Theme.MaterialComponents.DayNight.NoActionBar` with semantic color tokens and a `values-night/colors.xml` dark palette (`ENH-019`).
 
 ### Fixed
 

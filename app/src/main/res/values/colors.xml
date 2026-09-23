@@ -42,4 +42,18 @@
     <color name="green">#00c853</color>
     <color name="ocean_deep">#003366</color>
     <color name="ocean_wave">#0097A7</color>
+
+    <!-- Material semantic color roles (Light theme) -->
+    <color name="colorPrimary">#0277BD</color>
+    <color name="colorPrimaryVariant">#01579B</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorSecondary">#00BCD4</color>
+    <color name="colorSecondaryVariant">#006064</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSurface">#FAFAFA</color>
+    <color name="colorOnSurface">#212121</color>
+    <color name="colorError">#D50000</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorOnBackground">#212121</color>
 </resources>
