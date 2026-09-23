@@ -4,8 +4,8 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 8 — Release Readiness & Project Closure (`in_progress`; Task 8.1 accepted the local Phase 7 baseline); Phase 3 — Android Modernization and Phase 5 — Mini Conversation Rebrand & UI remain `in_progress` with their human validation gates open. Phase 6 and Phase 7 are complete locally.
-- **Current task**: 8.2 — Resolve source-of-truth and repository hygiene (local sanitized candidate validated; canonical switch/push pending)
-- **Branch**: primary worktree remains unchanged on `master`; clean candidate is `codex/phase8-sanitized-history` from `origin/master`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
+- **Current task**: 8.3 — Capture pre-refresh device baseline (Pixel emulator evidence exists; physical two-phone matrix pending)
+- **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
 
@@ -26,7 +26,7 @@
 | 5 — Mini Conversation Rebrand & UI | in_progress | 5/6 tasks (6th partially — code done, device/release QA PENDING HUMAN) |
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
-| 8 — Release Readiness & Project Closure | in_progress | 1/7 tasks (8.2 local work complete; persistence pending) |
+| 8 — Release Readiness & Project Closure | in_progress | 2/7 tasks (8.3 next; physical device evidence pending) |
 | 9 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -58,7 +58,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | in_progress (Phase 3, task 3.4 — code committed, device QA pending) |
 | BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | in_progress (Phase 3, task 3.5 — code committed, device QA pending) |
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | planned (Phase 5, task 5.1) |
-| BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; `cf43257`) |
+| BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; canonical `688f395`) |
 | BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | resolved (Phase 7, task 7.2; local tag `mini-app-translator-vp-p6-complete`) |
 | BUG-019 | 🐛 | Stale project/architecture docs after Phases 3, 5, and 6 | Low | resolved (Phase 7, task 7.3; current/historical docs separated) |
 | BUG-020 | 🐛 | Machine-specific JDK path committed in `gradle.properties` | High | resolved (Phase 7, task 7.4; portable JDK configuration verified) |
@@ -77,8 +77,8 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ENH-013 | 🔧 | Near-zero automated test coverage | Medium | new |
 | ENH-014 | 🔧 | Unrestricted Java deserialization in `Tools.objToByte/byteToObj` | Low | new |
 | ENH-015 | 🔧 | Review fork `master` against upstream `v3.00` before porting large changes | Medium | new (branch ambiguity resolved) |
-| ENH-016 | 🔧 | `.idea/*.xml` committed to git | Low | resolved on sanitized candidate; adoption pending |
-| ENH-017 | 🔧 | Unrelated `.agents/skills/` content found at repo root | Low | resolved on sanitized candidate; adoption pending |
+| ENH-016 | 🔧 | `.idea/*.xml` committed to git | Low | resolved on canonical sanitized `master` |
+| ENH-017 | 🔧 | Unrelated `.agents/skills/` content found at repo root | Low | resolved on canonical sanitized `master` |
 | BUG-021 | 🐛 | Onboarding states an obsolete Google Cloud `$300`/one-year offer | Medium | new (vp-audit runtime finding) |
 | BUG-022 | 🐛 | Onboarding still displays the legacy RTranslator logo after rebrand | Low | new (vp-audit runtime finding) |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | planned (Phase 5, tasks 5.1–5.2) |
@@ -100,9 +100,10 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-23**: `/vp-audit` auto-logged `BUG-017` (HANDOFF drift), `BUG-018` (missing Phase 6 completion tag), `BUG-019` (stale project/architecture docs), and `BUG-020` (committed machine-specific JDK path). It also re-detected `ENH-012`, `ENH-016`, and `ENH-017` with current evidence.
 - **2026-09-23**: `/vp-evolve BUG-017 BUG-018 BUG-019 BUG-020` created Phase 7 — Operational State & Build Portability (four planned tasks). This planning pass did not change application code or `versionName`/`versionCode`; Phase 3 and Phase 5 human QA gates remain open.
 - **2026-09-23**: `/vp-evolve` created Phase 8 — Release Readiness & Project Closure. It consumes (but does not duplicate) the Phase 7 delivery, then sequences repository hygiene, a pre-refresh device baseline, incremental Phase 3.3 dependency upgrades, Phase 3/5 device and accessibility QA, a blocking signed-release gate, and final tags/push/worktree archival. The Wi-Fi Hotspot feature moved from the reserved Phase 7 label to proposed Phase 9 so it cannot start before `1.2.0` is verified and published. No application code or version changed during planning.
-- **2026-09-23**: Phase 8 Task 8.1 accepted the local Phase 7 baseline at `76d30b5` with annotated tag `mini-app-translator-vp-p7-complete`. The portable build evidence remains 47/47 unit tests, lint 0 errors / 139 warnings, and a debug APK; Phase 3/5 human QA gates remain open. Task 8.2 is awaiting PM direction and has not started.
+- **2026-09-23**: Phase 8 Task 8.1 accepted the Phase 7 baseline, now mapped canonically to `dffa145` with annotated tag `mini-app-translator-vp-p7-complete`. The portable build evidence remains 47/47 unit tests, lint 0 errors, and a debug APK; Phase 3/5 human QA gates remain open.
 - **2026-09-23**: `/vp-audit` deep scan ran `clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest`: 47 JVM tests and 7 Pixel 7a API 36 instrumentation tests passed; cold launch completed without crash/ANR. It auto-logged `BUG-021` (obsolete Google Cloud trial/pricing claim) and `BUG-022` (legacy RTranslator onboarding logo). Existing release-gate, dependency, repo-hygiene, and legacy-code findings were deduplicated against Phase 8/`ENH-*` scope.
 - **2026-09-23**: Task 8.2 prepared `codex/phase8-sanitized-history` from `origin/master` without changing or pushing `master`. The candidate replays 44 source commits as 43 clean commits, contains no `.agents` objects, retains only shared `.idea/codeStyles/Project.xml`, preserves an identical `app/` tree, and records tag relocation. Adoption/push and worktree deletion remain explicit approval gates.
+- **2026-09-23**: With explicit maintainer approval, Task 8.2 advanced canonical `master`/`origin/master` to the sanitized history, pushed the mapped Phase 5–8.1 tags, and retained the former history in local backup branch `codex/backup-master-pre-sanitize-20260923`. No worktree was deleted. Task 8.2 is complete; Task 8.3 is next.
 
 ## Version info
 

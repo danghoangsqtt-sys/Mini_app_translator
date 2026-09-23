@@ -1,8 +1,8 @@
 # Phase State — Phase 8: Release Readiness & Project Closure
 
 - **Status**: in_progress
-- **Tasks**: 1/7 complete
-- **Current task**: 8.2 — Resolve source-of-truth and repository hygiene (local clean candidate ready; adoption/push pending)
+- **Tasks**: 2/7 complete
+- **Current task**: 8.3 — Capture pre-refresh device baseline (physical two-phone evidence pending)
 - **Created**: 2026-09-23 via `/vp-evolve`
 - **Target release**: `1.2.0` (`versionCode 15`); no planning-time version bump
 - **Sequenced after**: Phase 7 — Operational State & Build Portability
@@ -10,9 +10,9 @@
 
 | Task | Status | Blocking condition |
 |---|---|---|
-| 8.1 — Accept Phase 7 delivery and freeze baseline | done | Accepted local baseline `76d30b5` / `mini-app-translator-vp-p7-complete` |
-| 8.2 — Resolve source-of-truth and repo hygiene | in_progress — local candidate validated | Approval to replace/push `master`; no destructive worktree cleanup yet |
-| 8.3 — Capture pre-refresh device baseline | planned | Two physical phones + emulator/device matrix |
+| 8.1 — Accept Phase 7 delivery and freeze baseline | done | Canonical mapped baseline `dffa145` / `mini-app-translator-vp-p7-complete` |
+| 8.2 — Resolve source-of-truth and repo hygiene | done | Sanitized `master` and Phase 5–8.1 tags persisted to `origin`; no worktree deletion |
+| 8.3 — Capture pre-refresh device baseline | planned — next | Two physical phones + emulator/device matrix |
 | 8.4 — Refresh dependencies incrementally | planned | 8.3 baseline complete |
 | 8.5 — Complete Phase 3/5 device and UI QA | planned | 8.4 complete; devices available |
 | 8.6 — Enforce release gate and verify signed artifact | planned | External signing material |
@@ -21,7 +21,7 @@
 ## Notes
 
 - The separate Phase 7 task was assigned the implementation of `BUG-017`–`BUG-020`; Phase 8 consumes the accepted local delivery rather than reimplementing those changes in parallel.
-- Task 8.1 accepted `76d30b5a05d6457bf62b10f3e79aa4e2f44bba2b` (`docs(phase7): finalize audited closeout`) and its annotated tag `mini-app-translator-vp-p7-complete`. The Phase 7 baseline remains local; no push was performed.
-- Task 8.2 local work is implemented on `codex/phase8-sanitized-history`: 44 source commits became 43 sanitized commits, `.agents` is absent from the candidate history, only `.idea/codeStyles/Project.xml` remains shared, and the application tree is unchanged. It cannot be marked complete until the candidate is approved and remotely persisted as canonical `master`.
+- Task 8.1's canonical mapped commit is `dffa145e2dbaa2b29f98a5001112c25e78f44e1a` (`docs(phase7): finalize audited closeout`); annotated tag `mini-app-translator-vp-p7-complete` peels to that commit on the remote.
+- Task 8.2 is complete: 44 source commits were replayed as 43 sanitized commits plus one audited hygiene commit; `.agents` is absent from canonical history, only `.idea/codeStyles/Project.xml` remains shared, the application tree is unchanged, and `origin/master` plus mapped Phase 5–8.1 tags are persisted.
 - Five detached QA worktrees were inventoried. Their commits are ancestors of source `master`; `qa-a-3b66` is dirty with four untracked JVM crash/replay logs, so no worktree was deleted.
 - Wi-Fi Hotspot work must not begin until this release gate closes.

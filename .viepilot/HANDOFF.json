@@ -19,19 +19,19 @@
       "note": "Tasks 5.1-5.5 are done and 5.6 code/static verification is done at app 1.2.0/versionCode 15; device matrix, connected tests, signing, screenshot baselines, TalkBack, and two-phone Bluetooth checks remain PENDING HUMAN."
     }
   },
-  "current_task": "8.2 — Resolve source-of-truth and repository hygiene (sanitized candidate ready; canonical switch/push pending)",
+  "current_task": "8.3 — Capture pre-refresh device baseline (physical two-phone evidence pending)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
   },
   "branch": {
-    "checked_out": "codex/phase8-sanitized-history (isolated candidate worktree; primary worktree remains master)",
+    "checked_out": "master (sanitized canonical history, synchronized with origin/master)",
     "origin_tracking": "origin/master",
     "upstream_default": "upstream/v3.00",
     "mismatch_flagged": false,
     "lineage_review_requested": true,
     "tracking_request": "ENH-015",
-    "sanitized_candidate": "43 replayed commits from origin/master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved"
+    "sanitized_candidate": "adopted as canonical master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved; old history retained in local backup branch"
   },
   "requests": {
     "bug_count": 22,
@@ -46,5 +46,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 8 Task 8.2 has a validated local candidate at codex/phase8-sanitized-history. It replays 44 local source commits as 43 sanitized commits from origin/master, excludes unrelated .agents and local IDE state, preserves the app tree, and has not been pushed or substituted for primary master. Existing phase tags still point to the old history; use tasks/8.2-history-map.md before any approved tag move. Five detached QA worktrees remain; qa-a-3b66 is dirty with four untracked crash/replay logs, so no worktree was deleted. The deep audit passed 47 JVM and 7 Pixel 7a API 36 tests and logged BUG-021/BUG-022 for onboarding. Phase 3 and Phase 5 physical/two-phone/accessibility/signing gates remain open."
+  "resume_hint": "Phase 8 Tasks 8.1 and 8.2 are complete. Sanitized master and mapped Phase 5–8.1 tags are synchronized with origin; old history is retained locally at codex/backup-master-pre-sanitize-20260923. No worktree was deleted; qa-a-3b66 remains dirty with four untracked crash/replay logs. The deep audit and sanitized rerun passed 47 JVM and 7 Pixel 7a API 36 tests and logged BUG-021/BUG-022 for onboarding. Continue with Task 8.3: capture the remaining physical two-phone Bluetooth/SCO/device matrix before dependency refresh. Phase 3 and Phase 5 physical/accessibility/signing gates remain open."
 }

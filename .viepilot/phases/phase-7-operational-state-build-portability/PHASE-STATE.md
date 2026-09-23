@@ -9,7 +9,7 @@
 | Task | Request | Status |
 |---|---|---|
 | 7.1 — Synchronize handoff state | `BUG-017` | done — HANDOFF synchronized and JSON-validated 2026-09-23 |
-| 7.2 — Restore Phase 6 completion trace | `BUG-018` | done — verified tag on `294ec56` |
+| 7.2 — Restore Phase 6 completion trace | `BUG-018` | done — canonical mapped tag on `85a2d69` |
 | 7.3 — Refresh current-state documentation | `BUG-019` | done — current facts and historical baselines separated |
 | 7.4 — Remove committed JDK path | `BUG-020` | done — removed machine-specific Gradle JDK path; `clean testDebugUnitTest lintDebug assembleDebug` passed (47 tests, lint 0 errors, debug APK produced) |
 
@@ -26,5 +26,5 @@
 
 ## Closeout audit evidence
 
-- 2026-09-23: `/vp-audit --tier1 --tier2 --no-autolog` report-only follow-up found no recurrence of `BUG-017` through `BUG-020`: HANDOFF state is complete with no current task; annotated Phase 6 tag peels to `294ec56dc50b799422776e1e35ec3a2d7d0883e6`; current-state facts are present; and `gradle.properties` has no machine-specific Gradle JDK path.
+- 2026-09-23: `/vp-audit --tier1 --tier2 --no-autolog` report-only follow-up found no recurrence of `BUG-017` through `BUG-020`. After Task 8.2 sanitization, the annotated Phase 6 tag canonically peels to `85a2d698d6cb9b96250cd788ceef5f050cf13043`; current-state facts remain present and `gradle.properties` has no machine-specific Gradle JDK path.
 - This audit did not close the separate Phase 3 Bluetooth/SCO or Phase 5 device/release human-validation gates.

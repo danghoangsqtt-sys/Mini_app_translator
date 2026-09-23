@@ -28,5 +28,5 @@
 
 ## Completion trace
 
-- 2026-09-23: verified canonical implementation commit `294ec56dc50b799422776e1e35ec3a2d7d0883e6` (`fix(phase6): resolve lint warnings, fix InflateParams build break, add DataExtractionRules`). Local annotated tag `mini-app-translator-vp-p6-complete` points to this commit.
+- 2026-09-23: verified sanitized canonical implementation commit `85a2d698d6cb9b96250cd788ceef5f050cf13043` (`fix(phase6): resolve lint warnings, fix InflateParams build break, add DataExtractionRules`). Annotated tag `mini-app-translator-vp-p6-complete` points to this commit on the remote.
 - Per-task Phase 6 tags were not created during the original sprint. This closeout trace preserves the verified phase boundary without rewriting history to manufacture retroactive checkpoints.
