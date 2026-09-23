@@ -110,6 +110,25 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 
 **Final gate (2026-09-23)**: `testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL; `lintDebug` → **0 errors, 136 warnings** (below the `<160` target). During the sprint a build-breaking regression in the `InflateParams` fix (undefined `parent` symbol in three list adapters) was found and corrected to use the `viewGroup` parameter.
 
+**Completion trace**: local annotated tag `mini-app-translator-vp-p6-complete` points to verified canonical implementation commit `294ec56dc50b799422776e1e35ec3a2d7d0883e6`; the original sprint did not create per-task tags, which is documented in the Phase 6 state rather than rewritten retrospectively.
+
+## Phase 7 ? Operational State & Build Portability (in_progress; 2/4 tasks complete)
+
+**Evolved via `/vp-evolve BUG-017 BUG-018 BUG-019 BUG-020` (2026-09-23)** ? see `.viepilot/phases/phase-7-operational-state-build-portability/SPEC.md`.
+
+| Task | Request | Priority |
+|---|---|---|
+| 7.1 | Synchronize HANDOFF state with active phases and app 1.2.0/versionCode 15 | `BUG-017` | Medium |
+| 7.2 | Add the verified Phase 6 completion tag and closeout trace | `BUG-018` | Medium |
+| 7.3 | Refresh current-state architecture/project documents and related request statuses | `BUG-019` | Low |
+| 7.4 | Remove committed machine-specific JDK configuration and verify portable JDK 17 build setup | `BUG-020` | High |
+
+**Acceptance criteria (phase-level)**:
+- [ ] State files consistently represent Phase 3/5 pending human evidence and app 1.2.0/versionCode 15.
+- [ ] Phase 6 has a verified project-scoped completion tag and an auditable closeout trace.
+- [ ] Current-state documentation is accurate without erasing dated historical evidence.
+- [ ] No personal JDK path is committed; a portable JDK 17 environment passes the planned Gradle checks.
+
 ## Progress Summary
 
 | Phase | Status | Tasks Done | Tasks Total |
@@ -122,3 +141,4 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
 
 Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 is deferred to a dedicated `/vp-evolve`. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`. Phase 5 is `in_progress`: tasks 5.1–5.5 are done and 5.6's code/build-verification portion is done (app bumped to `1.2.0`/`versionCode 15`; 0 lint errors / 139 warnings, 47/47 unit tests); its device matrix, `assembleRelease` signing, and manual QA remain PENDING HUMAN. Phase 4 remains an independently schedulable hygiene backlog.
+| 7 ? Operational State & Build Portability | in_progress | 2 | 4 |

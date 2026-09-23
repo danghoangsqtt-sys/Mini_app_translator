@@ -25,3 +25,8 @@
 - `gradlew.bat testDebugUnitTest assembleDebug` → **BUILD SUCCESSFUL** (unit tests pass; debug APK produced).
 - `gradlew.bat lintDebug` → **0 errors, 136 warnings** (down from the 174-warning entry baseline; target `<160` met).
 - Compile-breaking regression found and fixed during this sprint: `Task 6.5` had referenced an undefined `parent` in `LanguageListAdapter`, `FileListAdapter`, and `PeerListAdapter`; corrected to the `viewGroup` parameter.
+
+## Completion trace
+
+- 2026-09-23: verified canonical implementation commit `294ec56dc50b799422776e1e35ec3a2d7d0883e6` (`fix(phase6): resolve lint warnings, fix InflateParams build break, add DataExtractionRules`). Local annotated tag `mini-app-translator-vp-p6-complete` points to this commit.
+- Per-task Phase 6 tags were not created during the original sprint. This closeout trace preserves the verified phase boundary without rewriting history to manufacture retroactive checkpoints.
