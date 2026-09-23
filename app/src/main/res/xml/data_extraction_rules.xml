@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+) backup and device-transfer rules.
+
+  Mirrors backup_scheme.xml for the new dataExtractionRules contract: cloud
+  backups and device-to-device (D2D) transfers are configured separately.
+
+  Credentials live in files/gcp_credentials.v1. Excluding the whole files
+  domain also protects a legacy plaintext credential whose filename was
+  selected by the user and therefore cannot be listed here safely.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Do not include any credential or device-specific file in cloud backups. -->
+        <exclude domain="file" path="." />
+        <exclude domain="sharedpref" path="nie.translator.rtranslatordevedition_preferences.xml" />
+        <exclude domain="sharedpref" path="AccessTokenLoader.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <!-- Device-to-device transfers must not leak stored credentials. -->
+        <exclude domain="file" path="." />
+        <exclude domain="sharedpref" path="nie.translator.rtranslatordevedition_preferences.xml" />
+        <exclude domain="sharedpref" path="AccessTokenLoader.xml" />
+    </device-transfer>
+</data-extraction-rules>

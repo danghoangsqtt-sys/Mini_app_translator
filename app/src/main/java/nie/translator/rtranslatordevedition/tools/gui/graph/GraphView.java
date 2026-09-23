@@ -166,6 +166,7 @@ public class GraphView extends View {
 
     /**
      * Initialize the GraphView view
+     * 
      * @param context
      */
     public GraphView(Context context) {
@@ -238,6 +239,7 @@ public class GraphView extends View {
     /**
      * Add a new series to the graph. This will
      * automatically redraw the graph.
+     * 
      * @param s the series to be added
      */
     public void addSeries(Series s) {
@@ -263,8 +265,10 @@ public class GraphView extends View {
      * recalculate the viewport.
      * This will be called when a new series
      * was added or removed and when data
-     * was appended via {@link com.google.cloud.android.speech.tools.gui.graph.series.BaseSeries#appendData(com.google.cloud.android.speech.tools.gui.graph.series.DataPointInterface, boolean, int)}
-     * or {@link com.google.cloud.android.speech.tools.gui.graph.series.BaseSeries#resetData(com.google.cloud.android.speech.tools.gui.graph.series.DataPointInterface[])}.
+     * was appended via
+     * {@link com.google.cloud.android.speech.tools.gui.graph.series.BaseSeries#appendData(com.google.cloud.android.speech.tools.gui.graph.series.DataPointInterface, boolean, int)}
+     * or
+     * {@link com.google.cloud.android.speech.tools.gui.graph.series.BaseSeries#resetData(com.google.cloud.android.speech.tools.gui.graph.series.DataPointInterface[])}.
      *
      * @param keepLabelsSize true if you don't want
      *                       to recalculate the size of
@@ -272,10 +276,10 @@ public class GraphView extends View {
      *                       to use "true" because this will
      *                       improve performance and prevent
      *                       a flickering.
-     * @param keepViewport true if you don't want that
-     *                     the viewport will be recalculated.
-     *                     It is recommended to use "true" for
-     *                     performance.
+     * @param keepViewport   true if you don't want that
+     *                       the viewport will be recalculated.
+     *                       It is recommended to use "true" for
+     *                       performance.
      */
     public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
         // adjustSteps grid system
@@ -330,7 +334,8 @@ public class GraphView extends View {
     protected void onDraw(Canvas canvas) {
         if (isInEditMode()) {
             canvas.drawColor(Color.rgb(200, 200, 200));
-            canvas.drawText("GraphView: No Preview available", getWidth()/2, getHeight()/2, mPreviewPaint);
+            canvas.drawText("GraphView: No Preview available", getWidth() / 2, getHeight() / 2,
+                    mPreviewPaint);
         } else {
             drawGraphElements(canvas);
         }
@@ -344,11 +349,11 @@ public class GraphView extends View {
      * @param canvas Canvas
      */
     protected void drawTitle(Canvas canvas) {
-        if (mTitle != null && mTitle.length()>0) {
+        if (mTitle != null && mTitle.length() > 0) {
             mPaintTitle.setColor(mStyles.titleColor);
             mPaintTitle.setTextSize(mStyles.titleTextSize);
             mPaintTitle.setTextAlign(Paint.Align.CENTER);
-            float x = getWidth()/2;
+            float x = getWidth() / 2;
             float y = mPaintTitle.getTextSize();
             canvas.drawText(mTitle, x, y, mPaintTitle);
         }
@@ -357,12 +362,12 @@ public class GraphView extends View {
     /**
      * Calculates the height of the title.
      *
-     * @return  the actual size of the title.
-     *          if there is no title, 0 will be
-     *          returned.
+     * @return the actual size of the title.
+     *         if there is no title, 0 will be
+     *         returned.
      */
     protected int getTitleHeight() {
-        if (mTitle != null && mTitle.length()>0) {
+        if (mTitle != null && mTitle.length() > 0) {
             return (int) mPaintTitle.getTextSize();
         } else {
             return 0;
@@ -394,21 +399,21 @@ public class GraphView extends View {
     }
 
     /**
-     * @return  the space on the left side of the
-     *          view from the left border to the
-     *          beginning of the graph viewport.
+     * @return the space on the left side of the
+     *         view from the left border to the
+     *         beginning of the graph viewport.
      */
     public int getGraphContentLeft() {
         int border = getGridLabelRenderer().getStyles().horizontalPadding;
-        int verticalLabelWidth=getGridLabelRenderer().getLabelVerticalWidth();
-        int verticalTitleWidth=getGridLabelRenderer().getVerticalAxisTitleWidth();
-        return border + verticalLabelWidth+verticalTitleWidth;
+        int verticalLabelWidth = getGridLabelRenderer().getLabelVerticalWidth();
+        int verticalTitleWidth = getGridLabelRenderer().getVerticalAxisTitleWidth();
+        return border + verticalLabelWidth + verticalTitleWidth;
     }
 
     /**
-     * @return  the space on the top of the
-     *          view from the top border to the
-     *          beginning of the graph viewport.
+     * @return the space on the top of the
+     *         view from the top border to the
+     *         beginning of the graph viewport.
      */
     public int getGraphContentTop() {
         int border = getGridLabelRenderer().getStyles().verticalPadding + getTitleHeight();
@@ -416,17 +421,18 @@ public class GraphView extends View {
     }
 
     /**
-     * @return  the height of the graph viewport.
+     * @return the height of the graph viewport.
      */
     public int getGraphContentHeight() {
         int border = getGridLabelRenderer().getStyles().verticalPadding;
-        int graphheight = getHeight() - (2 * border) - getGridLabelRenderer().getLabelHorizontalHeight() - getTitleHeight();
+        int graphheight = getHeight() - (2 * border) - getGridLabelRenderer().getLabelHorizontalHeight()
+                - getTitleHeight();
         graphheight -= getGridLabelRenderer().getHorizontalAxisTitleHeight();
         return graphheight;
     }
 
     /**
-     * @return  the width of the graph viewport.
+     * @return the width of the graph viewport.
      */
     public int getGraphContentWidth() {
         int border = getGridLabelRenderer().getStyles().horizontalPadding;
@@ -491,8 +497,8 @@ public class GraphView extends View {
     }
 
     /**
-     * @return  the title that will be shown
-     *          above the graph.
+     * @return the title that will be shown
+     *         above the graph.
      */
     public String getTitle() {
         return mTitle;

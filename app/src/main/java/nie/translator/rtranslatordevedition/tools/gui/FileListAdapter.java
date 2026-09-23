@@ -61,7 +61,7 @@ public class FileListAdapter extends BaseAdapter {
         final Object item = getItem(position);
         File file = ((File) item);
         if (view == null) {
-            view = inflater.inflate(R.layout.component_row_key_file, parent, false);
+            view = inflater.inflate(R.layout.component_row_key_file, viewGroup, false);
         }
         ((TextView) view.findViewById(R.id.file_name)).setText(file.getName());
         try {
@@ -69,14 +69,14 @@ public class FileListAdapter extends BaseAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //date set
-        String dateAndTimeString = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(file.lastModified()));
+        // date set
+        String dateAndTimeString = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+                .format(new Date(file.lastModified()));
         String dateString = dateAndTimeString.substring(0, dateAndTimeString.length() - 10);
         String timeString = dateAndTimeString.substring(dateAndTimeString.length() - 5);
         dateAndTimeString = dateString + timeString;
 
         ((TextView) view.findViewById(R.id.time)).setText(dateAndTimeString);
-
 
         return view;
     }

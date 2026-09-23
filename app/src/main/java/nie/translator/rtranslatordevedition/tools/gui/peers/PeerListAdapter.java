@@ -117,20 +117,21 @@ public class PeerListAdapter extends BaseAdapter {
         if (itemType == HEADER) {
             String headerText = ((Header) item).getText();
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row_header, parent, false);
+                view = inflater.inflate(R.layout.component_row_header, viewGroup, false);
             }
             ((TextView) view.findViewById(R.id.header_text)).setText(headerText);
         } else if (itemType == HOST_CONNECTED) {
             GuiPeer guiPeer = (GuiPeer) item;
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row_connected, parent, false);
+                view = inflater.inflate(R.layout.component_row_connected, viewGroup, false);
             }
             Bitmap image = guiPeer.getUserImage();
             if (image != null) {
-                RoundedBitmapDrawable circlularImage = RoundedBitmapDrawableFactory.create(activity.getResources(), image);
+                RoundedBitmapDrawable circlularImage = RoundedBitmapDrawableFactory.create(activity.getResources(),
+                        image);
                 circlularImage.setCircular(true);
                 ((ImageView) view.findViewById(R.id.user_image)).setImageDrawable(circlularImage);
-            }else{
+            } else {
                 ((ImageView) view.findViewById(R.id.user_image)).setImageResource(R.drawable.user_icon);
             }
             view.findViewById(R.id.exit_button).setOnClickListener(new ExitClickListener(guiPeer));
@@ -142,17 +143,18 @@ public class PeerListAdapter extends BaseAdapter {
             ((TextView) view.findViewById(R.id.textRowConnected)).setText(guiPeer.getName());
 
         } else if (itemType == HOST) {
-            GuiPeer guiPeer= (GuiPeer) item;
+            GuiPeer guiPeer = (GuiPeer) item;
             String peerName = ((Peer) item).getName();
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row, parent, false);
+                view = inflater.inflate(R.layout.component_row, viewGroup, false);
             }
             Bitmap image = guiPeer.getUserImage();
             if (image != null) {
-                RoundedBitmapDrawable circlularImage = RoundedBitmapDrawableFactory.create(activity.getResources(), image);
+                RoundedBitmapDrawable circlularImage = RoundedBitmapDrawableFactory.create(activity.getResources(),
+                        image);
                 circlularImage.setCircular(true);
                 ((ImageView) view.findViewById(R.id.user_image_list)).setImageDrawable(circlularImage);
-            }else{
+            } else {
                 ((ImageView) view.findViewById(R.id.user_image_list)).setImageResource(R.drawable.user_icon);
             }
             ((TextView) view.findViewById(R.id.textRow)).setText(peerName);
@@ -161,16 +163,17 @@ public class PeerListAdapter extends BaseAdapter {
             final RecentPeer recentPeer = (RecentPeer) item;
             String peerName = recentPeer.getName();
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row_recent, parent, false);
+                view = inflater.inflate(R.layout.component_row_recent, viewGroup, false);
                 // if you don't set it to false then clicking on the whole row won't work
                 ((ImageButton) view.findViewById(R.id.threeDotsButton)).setFocusable(false);
             }
             Bitmap image = recentPeer.getUserImage();
             if (image != null) {
-                RoundedBitmapDrawable circlularImage = RoundedBitmapDrawableFactory.create(activity.getResources(), image);
+                RoundedBitmapDrawable circlularImage = RoundedBitmapDrawableFactory.create(activity.getResources(),
+                        image);
                 circlularImage.setCircular(true);
                 ((ImageView) view.findViewById(R.id.user_image_recent)).setImageDrawable(circlularImage);
-            }else{
+            } else {
                 ((ImageView) view.findViewById(R.id.user_image_recent)).setImageResource(R.drawable.user_icon);
             }
             ((ImageButton) view.findViewById(R.id.threeDotsButton)).setOnClickListener(new View.OnClickListener() {
@@ -211,7 +214,7 @@ public class PeerListAdapter extends BaseAdapter {
         return array.indexOf(object);
     }
 
-    public int indexOfPeer(String uniqueName){
+    public int indexOfPeer(String uniqueName) {
         for (int i = 0; i < array.size(); i++) {
             Listable listable = array.get(i);
             if (listable instanceof GuiPeer) {
@@ -232,9 +235,11 @@ public class PeerListAdapter extends BaseAdapter {
         for (int i = 0; i < array.size(); i++) {
             Listable listable = array.get(i);
             if (listable instanceof RecentPeer) {
-                if(((RecentPeer) listable).getPeer().getDevice()!=null && ((RecentPeer) listable).getPeer().getDevice().getAddress()!=null){
-                    if(peer.getDevice()!=null && peer.getDevice().getAddress()!=null){
-                        if(((RecentPeer) listable).getPeer().getDevice().getAddress().equals(peer.getDevice().getAddress())){
+                if (((RecentPeer) listable).getPeer().getDevice() != null
+                        && ((RecentPeer) listable).getPeer().getDevice().getAddress() != null) {
+                    if (peer.getDevice() != null && peer.getDevice().getAddress() != null) {
+                        if (((RecentPeer) listable).getPeer().getDevice().getAddress()
+                                .equals(peer.getDevice().getAddress())) {
                             return i;
                         }
                     }
@@ -311,7 +316,8 @@ public class PeerListAdapter extends BaseAdapter {
                 recentPeersDataManager.deleteRecentPeer(peer);
                 // deleting the peer from the listView
                 remove(peer);
-                // insertion of the peer among the peers found for the case in which the recent device is available
+                // insertion of the peer among the peers found for the case in which the recent
+                // device is available
                 if (peer.isAvailable()) {
                     add(new GuiPeer(peer.getPeer(), null));
                 }

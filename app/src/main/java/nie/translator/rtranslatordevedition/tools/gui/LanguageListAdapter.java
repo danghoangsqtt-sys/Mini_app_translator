@@ -50,18 +50,20 @@ public class LanguageListAdapter extends BaseAdapter {
         return languages.get(position);
     }
 
-    /*public String getItemCode(int position) {
-        return languageCodes.get(position);
-    }
-
-    public String getItemCode(String item) {
-        int index = languageNames.indexOf(item);
-        if (index != -1) {
-            return languageCodes.get(index);
-        } else {
-            return "";
-        }
-    }*/
+    /*
+     * public String getItemCode(int position) {
+     * return languageCodes.get(position);
+     * }
+     * 
+     * public String getItemCode(String item) {
+     * int index = languageNames.indexOf(item);
+     * if (index != -1) {
+     * return languageCodes.get(index);
+     * } else {
+     * return "";
+     * }
+     * }
+     */
 
     @Override
     public long getItemId(int position) {
@@ -72,7 +74,7 @@ public class LanguageListAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup viewGroup) {
         final CustomLocale item = (CustomLocale) getItem(position);
         if (view == null) {
-            view = inflater.inflate(R.layout.component_row_language, parent, false);
+            view = inflater.inflate(R.layout.component_row_language, viewGroup, false);
         }
         if (item.equals(selectedLanguage)) {
             view.findViewById(R.id.isSelected).setVisibility(View.VISIBLE);

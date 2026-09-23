@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
@@ -45,16 +46,17 @@ import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.CloudAp
 import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.CloudApiResult;
 import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.voice.Recognizer;
 
-
-public class Translator extends CloudApi {  // separate thread for internet translation
+public class Translator extends CloudApi { // separate thread for internet translation
     public static final float COST_PER_CHAR = 0.00002f;
     private Translate translator;
     private TTS tts;
     private Thread getSupportedLanguageThread;
     private ArrayDeque<SupportedLanguagesListener> supportedLanguagesListeners = new ArrayDeque<>();
     private final Object lock = new Object();
-    private android.os.Handler mainHandler;   // handler that can be used to post to the main thread
-    private ArrayList<CustomLocale> fullySupportedLanguages= new ArrayList<>();  // here are the languages in which country can be used as well as just the language
+    private android.os.Handler mainHandler; // handler that can be used to post to the main thread
+    private ArrayList<CustomLocale> fullySupportedLanguages = new ArrayList<>(); // here are the languages in which
+                                                                                 // country can be used as well as just
+                                                                                 // the language
 
     public Translator(@NonNull Global global) {
         this.global = global;
@@ -73,13 +75,14 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         global.getApiToken(true, apiTokenListener);
 
         translator = new Translate.Builder(
-                com.google.api.client.extensions.android.http.AndroidHttp.newCompatibleTransport()
-                , com.google.api.client.json.jackson2.JacksonFactory.getDefaultInstance(), null)
+                com.google.api.client.extensions.android.http.AndroidHttp.newCompatibleTransport(),
+                com.google.api.client.json.jackson2.JacksonFactory.getDefaultInstance(), null)
                 .setApplicationName("speechGoogle")
                 .build();
     }
 
-    public void translate(final String textToTranslate, final CustomLocale languageOutput, final TranslateListener responseListener) {  // what the thread does
+    public void translate(final String textToTranslate, final CustomLocale languageOutput,
+            final TranslateListener responseListener) { // what the thread does
         final Thread t = new Thread("textTranslation") {
             public void run() {
                 final float cost = calculateCreditConsumption(textToTranslate.length());
@@ -114,7 +117,9 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         void onTranslatedText(String text, CustomLocale languageOfText);
     }
 
-    public void translateMessage(final ConversationMessage conversationMessageToTranslate, final CustomLocale languageOutput, final TranslateMessageListener responseListener) {  // what the thread does
+    public void translateMessage(final ConversationMessage conversationMessageToTranslate,
+            final CustomLocale languageOutput, final TranslateMessageListener responseListener) { // what the thread
+                                                                                                  // does
         Thread t = new Thread("messageTranslationPerformer") {
             public void run() {
                 final String text = conversationMessageToTranslate.getPayload().getText();
@@ -122,13 +127,15 @@ public class Translator extends CloudApi {  // separate thread for internet tran
                 final CustomLocale languageInput = conversationMessageToTranslate.getPayload().getLanguage();
                 if (!languageInput.equals(languageOutput)) {
                     if (apiToken != null && apiToken.getExpirationTime().getTime() > System.currentTimeMillis()) {
-                        performMessageTranslation(conversationMessageToTranslate, languageInput, languageOutput, cost, responseListener);
+                        performMessageTranslation(conversationMessageToTranslate, languageInput, languageOutput, cost,
+                                responseListener);
                     } else {
                         global.getApiToken(true, new Global.ApiTokenListener() {
                             @Override
                             public void onSuccess(AccessToken apiToken) {
                                 apiTokenListener.onSuccess(apiToken);
-                                performMessageTranslation(conversationMessageToTranslate, languageInput, languageOutput, cost, responseListener);
+                                performMessageTranslation(conversationMessageToTranslate, languageInput, languageOutput,
+                                        cost, responseListener);
                             }
 
                             @Override
@@ -143,7 +150,7 @@ public class Translator extends CloudApi {  // separate thread for internet tran
                             }
                         });
                     }
-                } else {  // means that the language to be translated corresponds to ours
+                } else { // means that the language to be translated corresponds to ours
                     responseListener.onTranslatedMessage(conversationMessageToTranslate);
                 }
             }
@@ -190,23 +197,25 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         void onDetectedText(CloudApiResult result);
     }
 
-    public void getSupportedLanguages(final CustomLocale languageReturned, @Nullable final SupportedLanguagesListener responseListener) {
+    public void getSupportedLanguages(final CustomLocale languageReturned,
+            @Nullable final SupportedLanguagesListener responseListener) {
         synchronized (lock) {
             if (responseListener != null) {
                 supportedLanguagesListeners.addLast(responseListener);
             }
             if (getSupportedLanguageThread == null) {
-                getSupportedLanguageThread = new Thread(new GetSupportedLanguageRunnable(languageReturned, new SupportedLanguagesListener() {
-                    @Override
-                    public void onLanguagesListAvailable(ArrayList<CustomLocale> languages) {
-                        notifyGetSupportedLanguagesSuccess(languages);
-                    }
+                getSupportedLanguageThread = new Thread(
+                        new GetSupportedLanguageRunnable(languageReturned, new SupportedLanguagesListener() {
+                            @Override
+                            public void onLanguagesListAvailable(ArrayList<CustomLocale> languages) {
+                                notifyGetSupportedLanguagesSuccess(languages);
+                            }
 
-                    @Override
-                    public void onFailure(int[] reasons, long value) {
-                        notifyGetSupportedLanguagesFailure(reasons, value);
-                    }
-                }), "getSupportedLanguagePerformer");
+                            @Override
+                            public void onFailure(int[] reasons, long value) {
+                                notifyGetSupportedLanguagesFailure(reasons, value);
+                            }
+                        }), "getSupportedLanguagePerformer");
                 getSupportedLanguageThread.start();
             }
         }
@@ -234,7 +243,8 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         private CustomLocale languageReturned;
         private SupportedLanguagesListener responseListener;
 
-        private GetSupportedLanguageRunnable(final CustomLocale languageReturned, final SupportedLanguagesListener responseListener) {
+        private GetSupportedLanguageRunnable(final CustomLocale languageReturned,
+                final SupportedLanguagesListener responseListener) {
             this.languageReturned = languageReturned;
             this.responseListener = responseListener;
         }
@@ -266,10 +276,12 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         void onLanguagesListAvailable(ArrayList<CustomLocale> languages);
     }
 
-    private void performTextTranslation(final String textToTranslate, @Nullable final CustomLocale inputLanguage, final CustomLocale outputLanguage, final float cost, final TranslateListener responseListener) {
+    private void performTextTranslation(final String textToTranslate, @Nullable final CustomLocale inputLanguage,
+            final CustomLocale outputLanguage, final float cost, final TranslateListener responseListener) {
         new Thread("textTranslationPerformer") {
             public void run() {
-                final String translatedText = translateSimply(textToTranslate, inputLanguage, outputLanguage, responseListener);
+                final String translatedText = translateSimply(textToTranslate, inputLanguage, outputLanguage,
+                        responseListener);
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -282,7 +294,9 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         }.start();
     }
 
-    private void performMessageTranslation(final ConversationMessage conversationMessageToTranslate, final CustomLocale inputLanguage, final CustomLocale outputLanguage, final float cost, final TranslateMessageListener responseListener) {
+    private void performMessageTranslation(final ConversationMessage conversationMessageToTranslate,
+            final CustomLocale inputLanguage, final CustomLocale outputLanguage, final float cost,
+            final TranslateMessageListener responseListener) {
         new Thread("messageTranslationPerformer") {
             public void run() {
                 final String text = conversationMessageToTranslate.getPayload().getText();
@@ -301,14 +315,18 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         }.start();
     }
 
-    private void performLanguageDetection(final CloudApiResult result, final float cost, final DetectLanguageListener responseListener) {
+    private void performLanguageDetection(final CloudApiResult result, final float cost,
+            final DetectLanguageListener responseListener) {
         new Thread("languageDetectionPerformer") {
             public void run() {
                 DetectionsListResponse response = null;
                 List<String> parameters = new ArrayList<>();
                 parameters.add(result.getText());
                 try {
-                    Translate.Detections.List list = translator.new Detections().list(parameters); //Pass in list of strings to be translated and the target language
+                    Translate.Detections.List list = translator.new Detections().list(parameters); // Pass in list of
+                                                                                                   // strings to be
+                                                                                                   // translated and the
+                                                                                                   // target language
                     list.setAccessToken(apiToken.getTokenValue());
                     response = list.execute();
                     result.setLanguage(CustomLocale.getInstance(response.getDetections().get(0).get(0).getLanguage()));
@@ -326,7 +344,7 @@ public class Translator extends CloudApi {  // separate thread for internet tran
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, 0);
+                            responseListener.onFailure(new int[] { ErrorCodes.MISSED_CONNECTION }, 0);
                         }
                     });
                 }
@@ -334,27 +352,31 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         }.start();
     }
 
-    private void performGetSupportedLanguages(final CustomLocale languageReturned, final SupportedLanguagesListener responseListener) {
+    private void performGetSupportedLanguages(final CustomLocale languageReturned,
+            final SupportedLanguagesListener responseListener) {
         new Thread("getSupportedLanguagePerformer") {
             public void run() {
                 ArrayList<CustomLocale> listLanguages = new ArrayList<>();
                 LanguagesListResponse response = null;
                 String localLanguage = languageReturned.getLanguage();
                 try {
-                    Translate.Languages.List list = translator.new Languages().list();  //Pass in list of strings to be translated and the target language
+                    Translate.Languages.List list = translator.new Languages().list(); // Pass in list of strings to be
+                                                                                       // translated and the target
+                                                                                       // language
                     list.setTarget(localLanguage);
                     list.setAccessToken(apiToken.getTokenValue());
                     response = list.execute();
                     List<LanguagesResource> languages = response.getLanguages();
                     for (int i = 0; i < languages.size(); i++) {
-                        listLanguages.add(CustomLocale.getInstance(languages.get(i).getLanguage().toLowerCase()));
+                        listLanguages.add(CustomLocale.getInstance(
+                                languages.get(i).getLanguage().toLowerCase(Locale.ROOT)));
                     }
                     filterAndSendLanguages(listLanguages, responseListener);
                 } catch (IOException e) {
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, 0);
+                            responseListener.onFailure(new int[] { ErrorCodes.MISSED_CONNECTION }, 0);
                         }
                     });
                     e.printStackTrace();
@@ -363,7 +385,8 @@ public class Translator extends CloudApi {  // separate thread for internet tran
         }.start();
     }
 
-    private String translateSimply(String text, @Nullable final CustomLocale inputLanguage, final CustomLocale outputLanguage, final TranslatorListener responseListener) {
+    private String translateSimply(String text, @Nullable final CustomLocale inputLanguage,
+            final CustomLocale outputLanguage, final TranslatorListener responseListener) {
         TranslationsListResponse response = null;
         String inputLanguageCode = null;
         String outputLanguageCode;
@@ -380,33 +403,37 @@ public class Translator extends CloudApi {  // separate thread for internet tran
             outputLanguageCode = outputLanguage.getLanguage();
         }
         try {
-            Translate.Translations.List list = translator.new Translations().list(Arrays.asList(text), outputLanguageCode); //Pass in list of strings to be translated and the target language
+            Translate.Translations.List list = translator.new Translations().list(Arrays.asList(text),
+                    outputLanguageCode); // Pass in list of strings to be translated and the target language
             if (inputLanguageCode != null) {
                 list.setSource(inputLanguageCode);
             }
             list.setAccessToken(apiToken.getTokenValue());
             response = list.execute();
             List<TranslationsResource> tr = response.getTranslations();
-            return Html.fromHtml(tr.get(0).getTranslatedText()).toString();   // serves to transform &#39; in apostrophe
+            return Html.fromHtml(tr.get(0).getTranslatedText()).toString(); // serves to transform &#39; in apostrophe
         } catch (Exception e) {
             e.printStackTrace();
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, 0);
+                    responseListener.onFailure(new int[] { ErrorCodes.MISSED_CONNECTION }, 0);
                 }
             });
         }
         return null;
     }
 
-    private void filterAndSendLanguages(final ArrayList<CustomLocale> translatorLanguages, final SupportedLanguagesListener responseListener) {
-        tts = new TTS((global), new TTS.InitListener() {    // tts initialization (to be improved, automatic package installation)
+    private void filterAndSendLanguages(final ArrayList<CustomLocale> translatorLanguages,
+            final SupportedLanguagesListener responseListener) {
+        tts = new TTS((global), new TTS.InitListener() { // tts initialization (to be improved, automatic package
+                                                         // installation)
             @Override
             public void onInit() {
                 ArrayList<CustomLocale> ttsLanguages = new ArrayList<>();
                 Set<Voice> set = tts.getVoices();
-                SharedPreferences sharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(global);
+                SharedPreferences sharedPreferences = android.preference.PreferenceManager
+                        .getDefaultSharedPreferences(global);
                 boolean qualityLow = sharedPreferences.getBoolean("languagesQualityLow", false);
                 int quality;
                 if (qualityLow) {
@@ -415,7 +442,8 @@ public class Translator extends CloudApi {  // separate thread for internet tran
                     quality = Voice.QUALITY_HIGH;
                 }
                 if (set != null) {
-                    // we filter the languages ​​that have a tts that reflects the characteristics we want
+                    // we filter the languages ​​that have a tts that reflects the characteristics
+                    // we want
                     for (Voice aSet : set) {
                         if (aSet.getQuality() >= quality && !aSet.getFeatures().contains("legacySetLanguageVoice")) {
                             CustomLocale language = new CustomLocale(aSet.getLocale());
@@ -424,12 +452,19 @@ public class Translator extends CloudApi {  // separate thread for internet tran
                     }
                     ArrayList<CustomLocale> recognizerLanguages = Recognizer.getSupportedLanguages(global);
 
-                    // the languages ​​are filtered so that they are compatible with both the Recognizer and the Translator and with the TTS
+                    // the languages ​​are filtered so that they are compatible with both the
+                    // Recognizer and the Translator and with the TTS
                     fullySupportedLanguages.clear();
                     final ArrayList<CustomLocale> compatibleLanguages = new ArrayList<>();
-                    ArrayList<CustomLocale> compatibleTranslatorLanguages = new ArrayList<>();   // the list of compatible languages, later it will be used to get all the variants from the recognizerLanguages
+                    ArrayList<CustomLocale> compatibleTranslatorLanguages = new ArrayList<>(); // the list of compatible
+                                                                                               // languages, later it
+                                                                                               // will be used to get
+                                                                                               // all the variants from
+                                                                                               // the
+                                                                                               // recognizerLanguages
                     for (CustomLocale translatorLanguage : translatorLanguages) {
-                        if (CustomLocale.containsLanguage(ttsLanguages, translatorLanguage) && CustomLocale.containsLanguage(recognizerLanguages, translatorLanguage)) {
+                        if (CustomLocale.containsLanguage(ttsLanguages, translatorLanguage)
+                                && CustomLocale.containsLanguage(recognizerLanguages, translatorLanguage)) {
                             if (!translatorLanguage.getCountry().isEmpty()) {
                                 fullySupportedLanguages.add(translatorLanguage);
                             }
@@ -463,7 +498,7 @@ public class Translator extends CloudApi {  // separate thread for internet tran
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        responseListener.onFailure(new int[]{reason}, 0);
+                        responseListener.onFailure(new int[] { reason }, 0);
                     }
                 });
             }
