@@ -114,6 +114,8 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 
 ## Phase 7 — Operational State & Build Portability (complete; 4/4 tasks complete)
 
+**Completed locally**: accepted baseline `76d30b5` with annotated tag `mini-app-translator-vp-p7-complete`; no remote push or release claim was made.
+
 **Evolved via `/vp-evolve BUG-017 BUG-018 BUG-019 BUG-020` (2026-09-23)** — see `.viepilot/phases/phase-7-operational-state-build-portability/SPEC.md`.
 
 | Task | Request | Priority |
@@ -129,6 +131,34 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 - [ ] Current-state documentation is accurate without erasing dated historical evidence.
 - [ ] No personal JDK path is committed; a portable JDK 17 environment passes the planned Gradle checks.
 
+## Phase 8 — Release Readiness & Project Closure (in_progress; 1/7 tasks complete)
+
+**Mode**: Refactor / release hardening
+**Execution spec**: `.viepilot/phases/phase-8-release-readiness/SPEC.md`
+**Sequenced after**: Phase 7 accepted locally at `76d30b5` / `mini-app-translator-vp-p7-complete`
+**Target release**: `1.2.0` (`versionCode 15`); no planning-time version bump
+
+| Task | Description | Gate |
+|---|---|---|
+| 8.1 | Accept Phase 7 delivery and freeze the canonical baseline | done — `76d30b5` accepted locally |
+| 8.2 | Resolve primary source-of-truth, `.agents`/`.idea`, branch and worktree hygiene | Maintainer decision before destructive cleanup |
+| 8.3 | Capture pre-refresh API 23/31/34/36 and two-phone Bluetooth/SCO baseline | Human devices |
+| 8.4 | Execute Phase 3 Task 3.3 dependency refresh incrementally | Baseline complete |
+| 8.5 | Complete Phase 3/5 device, visual and accessibility QA | Post-refresh build + devices |
+| 8.6 | Make lint/release checks blocking and verify a signed artifact | External signing material |
+| 8.7 | Close phases, tag/push `1.2.0`, then safely archive obsolete worktrees | All gates pass + maintainer approval |
+
+**Acceptance criteria (phase-level)**:
+- [ ] `master` is the single clean, remotely persisted source of truth.
+- [ ] Phase 3 dependency, lint and physical-device gates are complete.
+- [ ] Phase 5 visual/accessibility/device/release gates are complete.
+- [ ] Signed `1.2.0` installs and passes core Conversation/WalkieTalkie smoke tests.
+- [ ] State/docs/tags identify the exact verified release commit.
+
+## Phase 9 — Wi-Fi Hotspot Connection (proposed, not started)
+
+Reserved for `ENH-020` after the `1.2.0` release closes. The planned `ConnectionTransport` abstraction, NSD/mDNS discovery, TCP/WebSocket transport, selection UI and two-phone Hotspot validation remain unchanged in product intent; implementation must not begin while Phase 8 release gates are open.
+
 ## Progress Summary
 
 | Phase | Status | Tasks Done | Tasks Total |
@@ -139,6 +169,8 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 4 — Remaining Hygiene Backlog | proposed | 0 | 5 |
 | 5 — Mini Conversation Rebrand & UI | in_progress (device/release QA PENDING HUMAN) | 5 (+1 partial) | 6 |
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
+| 7 — Operational State & Build Portability | complete | 4 | 4 |
+| 8 — Release Readiness & Project Closure | in_progress | 1 | 7 |
+| 9 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
 
-Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 is deferred to a dedicated `/vp-evolve`. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`. Phase 5 is `in_progress`: tasks 5.1–5.5 are done and 5.6's code/build-verification portion is done (app bumped to `1.2.0`/`versionCode 15`; 0 lint errors / 139 warnings, 47/47 unit tests); its device matrix, `assembleRelease` signing, and manual QA remain PENDING HUMAN. Phase 4 remains an independently schedulable hygiene backlog.
-| 7 ? Operational State & Build Portability | in_progress | 2 | 4 |
+Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 remains deferred. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). Phase 5 is `in_progress`: tasks 5.1–5.5 and the 1.2.0 code/build portion are done, while its device/release gate remains PENDING HUMAN. Phase 7 was completed locally at `76d30b5` with `mini-app-translator-vp-p7-complete`; its completion does not close the Phase 3/5 human gates. Phase 8 Task 8.1 accepted that baseline, while Task 8.2 awaits a PM decision. Phase 9 reserves the Wi-Fi Hotspot feature until the release is closed. Phase 4 remains an independently schedulable hygiene backlog.

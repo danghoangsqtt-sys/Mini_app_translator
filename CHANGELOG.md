@@ -35,8 +35,13 @@ All notable changes to this fork will be documented in this file.
   lifecycle behavior.
 - Prevent stale Conversation SCO reconnect callbacks from restarting Bluetooth after service
   teardown or from an old service instance.
+- Synchronize project handoff/closeout records, current-state documentation, and portable JDK 17 build setup (`BUG-017` through `BUG-020`); no application release version change was made by this metadata-only phase.
+- Accept the local Phase 7 baseline at `76d30b5` / `mini-app-translator-vp-p7-complete` for Phase 8 release-readiness planning; this does not certify device QA, a signed release, or remote persistence.
 
 ### Planned
+
+- Complete the `1.2.0` release-readiness gate: accept Phase 7, establish a clean source of truth, capture real-device baselines, refresh dependencies incrementally, finish Bluetooth/SCO and accessibility QA, enable blocking lint/release checks, verify a signed artifact, and persist the release commit/tags.
+- Defer Wi-Fi Hotspot transport (`ENH-020`) to Phase 9 / `1.3.0`, after `1.2.0` is signed and published.
 
 - Security and stability hardening for credentials, storage, audio capture, and cloud streaming.
 - Correctness fixes for Room instance ownership, token/service lifecycles, and any reachable unauthenticated crypto or GraphView path (reachability checks come first).

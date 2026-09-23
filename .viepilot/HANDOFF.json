@@ -4,9 +4,9 @@
   "mode": "brownfield",
   "project_name": "Mini Conversation",
   "upstream_project_name": "RTranslator",
-  "current_phase": 7,
-  "current_phase_name": "Operational State & Build Portability",
-  "current_phase_status": "complete",
+  "current_phase": 8,
+  "current_phase_name": "Release Readiness & Project Closure",
+  "current_phase_status": "in_progress",
   "multi_phase_active": {
     "phase_3": {
       "name": "Android Modernization",
@@ -19,7 +19,7 @@
       "note": "Tasks 5.1-5.5 are done and 5.6 code/static verification is done at app 1.2.0/versionCode 15; device matrix, connected tests, signing, screenshot baselines, TalkBack, and two-phone Bluetooth checks remain PENDING HUMAN."
     }
   },
-  "current_task": null,
+  "current_task": "8.2 — Resolve source-of-truth and repository hygiene (awaiting PM decision)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -45,5 +45,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 7 is complete locally: BUG-017 through BUG-020 were addressed, including removal of the committed personal JDK path without a replacement path; clean testDebugUnitTest lintDebug assembleDebug passed (47 tests, lint 0 errors, debug APK produced). Phase 6 has local annotated completion tag mini-app-translator-vp-p6-complete on verified commit 294ec56dc50b799422776e1e35ec3a2d7d0883e6. Phase 3 remains in progress: Cluster A static PASS is committed, but two-phone Bluetooth/SCO device evidence is PENDING HUMAN; Task 3.3 dependency refresh remains deferred and must not start without new authorization. Phase 5 remains in progress: app 1.2.0/versionCode 15 is built and host-verified, while the device matrix, connected tests, signed release, screenshot baselines, TalkBack, and Bluetooth checks are PENDING HUMAN."
+  "resume_hint": "Phase 8 Task 8.1 accepted the local Phase 7 baseline at 76d30b5a05d6457bf62b10f3e79aa4e2f44bba2b with annotated tag mini-app-translator-vp-p7-complete; no push was performed. Task 8.2 is the next step but is not started and awaits PM direction on .agents, .idea, branch, and worktree hygiene. Phase 3 remains in progress: Cluster A static PASS is committed, but two-phone Bluetooth/SCO device evidence is PENDING HUMAN; Task 3.3 dependency refresh remains deferred. Phase 5 remains in progress: app 1.2.0/versionCode 15 is built and host-verified, while the device matrix, connected tests, signed release, screenshot baselines, TalkBack, and Bluetooth checks are PENDING HUMAN."
 }
