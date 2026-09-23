@@ -120,4 +120,26 @@
     <string name="preference_description_tts">Impostazioni di sistema del tts</string>
     <string name="preference_description_speech_timeout">Seleziona il tempo che deve trascorrere dopo aver smesso di parlare per inviare il testo trascritto</string>
     <string name="preference_description_prev_voice_duration">Seleziona la durata della registrazione precedente a quando si inizia a parlare che verrà inclusa nel riconoscimento vocale</string>
+
+    <!-- Accessibility content descriptions for icon-only controls -->
+    <string name="cd_app_logo">Logo dell\'app</string>
+    <string name="cd_google_cloud_logo">Logo Google Cloud</string>
+    <string name="cd_user_photo">Foto profilo utente</string>
+    <string name="cd_disconnect">Disconnetti</string>
+    <string name="cd_offline_status">Offline</string>
+    <string name="cd_selected_language">Selezionata</string>
+    <string name="cd_more_options">Altre opzioni</string>
+    <string name="cd_exit">Esci</string>
+    <string name="cd_previous_period">Periodo precedente</string>
+    <string name="cd_next_period">Periodo successivo</string>
+    <string name="cd_delete_key_file">Elimina il file chiave delle credenziali</string>
+    <string name="cd_choose_key_file">Scegli il file chiave delle credenziali</string>
+    <string name="cd_language_dropdown">Seleziona lingua</string>
+    <string name="cd_edit_name">Modifica nome</string>
+    <string name="cd_keyboard_input">Passa alla tastiera</string>
+    <string name="cd_toggle_sound">Attiva o disattiva l\'audio</string>
+    <string name="cd_microphone">Microfono</string>
+    <string name="cd_search_cancel">Cerca dispositivi o annulla la ricerca</string>
+    <string name="cd_start_pairing">Avvia l\'accoppiamento</string>
+    <string name="cd_reset_value">Ripristina il valore predefinito</string>
 </resources>

@@ -125,4 +125,26 @@
     <string name="preference_description_speech_timeout">Select the time after you stop talking to send the transcribed text</string>
     <string name="preference_description_prev_voice_duration">Select the length of the recording before you start speaking that will be included in the voice recognition</string>
 
+    <!-- Accessibility content descriptions for icon-only controls -->
+    <string name="cd_app_logo">App logo</string>
+    <string name="cd_google_cloud_logo">Google Cloud logo</string>
+    <string name="cd_user_photo">User profile photo</string>
+    <string name="cd_disconnect">Disconnect</string>
+    <string name="cd_offline_status">Offline</string>
+    <string name="cd_selected_language">Selected</string>
+    <string name="cd_more_options">More options</string>
+    <string name="cd_exit">Exit</string>
+    <string name="cd_previous_period">Previous period</string>
+    <string name="cd_next_period">Next period</string>
+    <string name="cd_delete_key_file">Delete credential key file</string>
+    <string name="cd_choose_key_file">Choose credential key file</string>
+    <string name="cd_language_dropdown">Select language</string>
+    <string name="cd_edit_name">Edit name</string>
+    <string name="cd_keyboard_input">Switch to keyboard input</string>
+    <string name="cd_toggle_sound">Toggle voice output</string>
+    <string name="cd_microphone">Microphone</string>
+    <string name="cd_search_cancel">Search for devices or cancel search</string>
+    <string name="cd_start_pairing">Start pairing</string>
+    <string name="cd_reset_value">Reset to default value</string>
+
 </resources>
