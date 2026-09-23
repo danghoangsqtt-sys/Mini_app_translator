@@ -131,22 +131,22 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 - [ ] Current-state documentation is accurate without erasing dated historical evidence.
 - [ ] No personal JDK path is committed; a portable JDK 17 environment passes the planned Gradle checks.
 
-## Phase 8 — Release Readiness & Project Closure (in_progress; 2/7 tasks complete)
+## Phase 8 — Release Readiness & Project Closure (blocked / NO-GO for 1.2.0; 2/7 historical tasks complete)
 
 **Mode**: Refactor / release hardening
 **Execution spec**: `.viepilot/phases/phase-8-release-readiness/SPEC.md`
 **Sequenced after**: Phase 7 canonical baseline `dffa145` / `mini-app-translator-vp-p7-complete`
-**Target release**: `1.2.0` (`versionCode 15`); no planning-time version bump
+**Release decision**: **NO-GO** for the unsigned `1.2.0` (`versionCode 15`) candidate after physical-device usability findings. Tasks 8.1–8.2 remain valid historical repository gates; the remaining product/device/release gates move to Phase 9 and its `1.3.0` candidate.
 
 | Task | Description | Gate |
 |---|---|---|
 | 8.1 | Accept Phase 7 delivery and freeze the canonical baseline | done — mapped canonical `dffa145` |
 | 8.2 | Resolve primary source-of-truth, `.agents`/`.idea`, branch and worktree hygiene | done — sanitized `master`, tags, and remote persistence verified |
-| 8.3 | Capture pre-refresh API 23/31/34/36 and two-phone Bluetooth/SCO baseline | Human devices |
-| 8.4 | Execute Phase 3 Task 3.3 dependency refresh incrementally | Baseline complete |
-| 8.5 | Complete Phase 3/5 device, visual and accessibility QA | Post-refresh build + devices |
-| 8.6 | Make lint/release checks blocking and verify a signed artifact | External signing material |
-| 8.7 | Close phases, tag/push `1.2.0`, then safely archive obsolete worktrees | All gates pass + maintainer approval |
+| 8.3 | Capture pre-refresh API 23/31/34/36 and two-phone Bluetooth/SCO baseline | superseded by Phase 9.7 matrix |
+| 8.4 | Execute Phase 3 Task 3.3 dependency refresh incrementally | deferred until no-key engine seams are stable |
+| 8.5 | Complete Phase 3/5 device, visual and accessibility QA | superseded by Phase 9.1/9.7 |
+| 8.6 | Make lint/release checks blocking and verify a signed artifact | transferred to Phase 9.7 |
+| 8.7 | Close phases, tag/push `1.2.0`, then safely archive obsolete worktrees | cancelled for `1.2.0`; no tag/release |
 
 **Acceptance criteria (phase-level)**:
 - [x] `master` is the single clean, remotely persisted source of truth.
@@ -155,9 +155,27 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 - [ ] Signed `1.2.0` installs and passes core Conversation/WalkieTalkie smoke tests.
 - [ ] State/docs/tags identify the exact verified release commit.
 
-## Phase 9 — Wi-Fi Hotspot Connection (proposed, not started)
+## Phase 9 — No-Key On-Device Translation (in_progress; 0/7 tasks complete)
 
-Reserved for `ENH-020` after the `1.2.0` release closes. The planned `ConnectionTransport` abstraction, NSD/mDNS discovery, TCP/WebSocket transport, selection UI and two-phone Hotspot validation remain unchanged in product intent; implementation must not begin while Phase 8 release gates are open.
+**Execution spec**: `.viepilot/phases/phase-9-no-key-translation/SPEC.md`
+**Target**: `1.3.0`; no versionCode change until release-candidate approval
+**Source**: confirmed 2026-09-23 brainstorm, `ENH-021`, `BUG-021`–`BUG-023`
+
+| Task | Description | Status |
+|---|---|---|
+| 9.1 | Stabilize launch/onboarding and Bluetooth capability handling | in_progress — assigned to TERRA |
+| 9.2 | Introduce speech/translation/output engine contracts and capability model | planned |
+| 9.3 | Implement ML Kit translation and model management | planned |
+| 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | planned |
+| 9.5 | Integrate default engines into Conversation and WalkieTalkie | planned |
+| 9.6 | Make legacy Cloud opt-in and finish migration/privacy UX | planned |
+| 9.7 | Run full automated/device regression and release-candidate gate | planned |
+
+**Release rule**: `1.2.0` must not be published. Phase 9 must prove a credential-free speech → translation → TTS path and clear the physical-device gates before any release claim.
+
+## Phase 10 — Wi-Fi Hotspot Connection (proposed, not started)
+
+Reserved for `ENH-020` after Phase 9. The planned `ConnectionTransport` abstraction, NSD/mDNS discovery, TCP/WebSocket transport, selection UI and two-phone Hotspot validation remain unchanged in product intent; implementation must not be mixed with the engine migration.
 
 ## Progress Summary
 
@@ -170,7 +188,8 @@ Reserved for `ENH-020` after the `1.2.0` release closes. The planned `Connection
 | 5 — Mini Conversation Rebrand & UI | in_progress (device/release QA PENDING HUMAN) | 5 (+1 partial) | 6 |
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
 | 7 — Operational State & Build Portability | complete | 4 | 4 |
-| 8 — Release Readiness & Project Closure | in_progress | 1 | 7 |
-| 9 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
+| 8 — Release Readiness & Project Closure | blocked / 1.2.0 NO-GO | 2 | 7 |
+| 9 — No-Key On-Device Translation | in_progress | 0 | 7 |
+| 10 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
 
-Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 remains deferred. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). Phase 5 is `in_progress`: tasks 5.1–5.5 and the 1.2.0 code/build portion are done, while its device/release gate remains PENDING HUMAN. Phase 7 is canonical at `dffa145` with `mini-app-translator-vp-p7-complete`; its completion does not close the Phase 3/5 human gates. Phase 8 Tasks 8.1–8.2 are complete and remotely persisted; Task 8.3 physical-device baseline is next. Phase 9 reserves the Wi-Fi Hotspot feature until the release is closed. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 is now the active implementation phase: remove key-required onboarding, introduce on-device-first speech/translation engines, and produce a verifiable `1.3.0` candidate. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.

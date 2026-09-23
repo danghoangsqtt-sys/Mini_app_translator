@@ -3,8 +3,8 @@
 ## Current state
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
-- **Current phase**: Phase 8 — Release Readiness & Project Closure (`in_progress`; Task 8.1 accepted the local Phase 7 baseline); Phase 3 — Android Modernization and Phase 5 — Mini Conversation Rebrand & UI remain `in_progress` with their human validation gates open. Phase 6 and Phase 7 are complete locally.
-- **Current task**: 8.3 — Capture pre-refresh device baseline (Pixel emulator evidence exists; physical two-phone matrix pending)
+- **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
+- **Current task**: 9.1 — Stabilize launch/onboarding and Bluetooth capability handling; assigned to TERRA with a mandatory PM review stop.
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -26,8 +26,9 @@
 | 5 — Mini Conversation Rebrand & UI | in_progress | 5/6 tasks (6th partially — code done, device/release QA PENDING HUMAN) |
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
-| 8 — Release Readiness & Project Closure | in_progress | 2/7 tasks (8.3 next; physical device evidence pending) |
-| 9 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
+| 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
+| 9 — No-Key On-Device Translation | in_progress | 0/7 tasks; 9.1 assigned |
+| 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
 `assembleDebug`, and 7/7 API 36 instrumentation tests passed; lint had only the three
@@ -79,10 +80,13 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ENH-015 | 🔧 | Review fork `master` against upstream `v3.00` before porting large changes | Medium | new (branch ambiguity resolved) |
 | ENH-016 | 🔧 | `.idea/*.xml` committed to git | Low | resolved on canonical sanitized `master` |
 | ENH-017 | 🔧 | Unrelated `.agents/skills/` content found at repo root | Low | resolved on canonical sanitized `master` |
-| BUG-021 | 🐛 | Onboarding states an obsolete Google Cloud `$300`/one-year offer | Medium | new (vp-audit runtime finding) |
-| BUG-022 | 🐛 | Onboarding still displays the legacy RTranslator logo after rebrand | Low | new (vp-audit runtime finding) |
+| BUG-021 | 🐛 | Onboarding states an obsolete Google Cloud `$300`/one-year offer | Medium | in_progress (Phase 9, task 9.1) |
+| BUG-022 | 🐛 | Onboarding still displays the legacy RTranslator logo after rebrand | Low | in_progress (Phase 9, task 9.1) |
+| BUG-023 | 🐛 | False BLE capability gate blocks valid physical phones | High | in_progress (Phase 9, task 9.1) |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | planned (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | planned (Phase 5, tasks 5.3–5.6) |
+| ENH-020 | 🔧 | Add Wi-Fi Hotspot transport alongside Bluetooth | Medium | proposed (Phase 10) |
+| ENH-021 | 🔧 | No-key, on-device-first speech and translation architecture | Critical | in_progress (Phase 9) |
 
 ## Decision log
 
@@ -104,10 +108,11 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-23**: `/vp-audit` deep scan ran `clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest`: 47 JVM tests and 7 Pixel 7a API 36 instrumentation tests passed; cold launch completed without crash/ANR. It auto-logged `BUG-021` (obsolete Google Cloud trial/pricing claim) and `BUG-022` (legacy RTranslator onboarding logo). Existing release-gate, dependency, repo-hygiene, and legacy-code findings were deduplicated against Phase 8/`ENH-*` scope.
 - **2026-09-23**: Task 8.2 prepared `codex/phase8-sanitized-history` from `origin/master` without changing or pushing `master`. The candidate replays 44 source commits as 43 clean commits, contains no `.agents` objects, retains only shared `.idea/codeStyles/Project.xml`, preserves an identical `app/` tree, and records tag relocation. Adoption/push and worktree deletion remain explicit approval gates.
 - **2026-09-23**: With explicit maintainer approval, Task 8.2 advanced canonical `master`/`origin/master` to the sanitized history, pushed the mapped Phase 5–8.1 tags, and retained the former history in local backup branch `codex/backup-master-pre-sanitize-20260923`. No worktree was deleted. Task 8.2 is complete; Task 8.3 is next.
+- **2026-09-23**: Product owner approved the no-key architecture after reviewing `vp-pdf`. `/vp-crystallize` + `/vp-evolve` created Phase 9 with seven gated tasks: launch/Bluetooth stabilization, engine contracts, ML Kit translation, Android SpeechRecognizer, mode integration, optional legacy Cloud migration, and full device/release QA. The current `1.2.0` candidate is a release NO-GO; target is `1.3.0`, while Wi-Fi Hotspot moved to Phase 10. `translate.google.com/m` scraping and copying AGPL code from `vp-pdf` are forbidden.
 
 ## Version info
 
 - App version at import: `1.1.2` (versionCode 13) — on the stale `master` branch only.
-- Current app version: `1.2.0` (versionCode 15), bumped 2026-09-23 for Phase 5 (`app/build.gradle`). Not yet cut as a signed release artifact — see Phase 5 task 5.6 device/release QA gap.
-- Phase 8 keeps `1.2.0`/15 as the unreleased release candidate; select a new versionCode only if another distributable build is cut after the first signed `1.2.0` artifact.
+- Current app version in source: `1.2.0` (versionCode 15), bumped 2026-09-23 for Phase 5 (`app/build.gradle`). This candidate is a release NO-GO and must not be tagged or published.
+- Phase 9 targets `1.3.0`; assign the next versionCode only at the reviewed release-candidate gate in Task 9.7.
 - If a bug-fix-only release is cut before the planned feature release, propose a PATCH version (for example `1.1.3`) and increment `versionCode` at release time; this plan does not bump either value.

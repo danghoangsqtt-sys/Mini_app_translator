@@ -18,6 +18,14 @@ All notable changes to this fork will be documented in this file.
 
 ## [Unreleased]
 
+### Planned — 1.3.0
+
+- Replace key-required Google Cloud onboarding with an on-device-first engine architecture (`ENH-021`).
+- Correct the false Bluetooth Low Energy capability gate and make unsupported states recoverable (`BUG-023`).
+- Remove obsolete `$300`/one-year Cloud messaging and legacy RTranslator active branding (`BUG-021`, `BUG-022`).
+- Keep legacy Cloud configuration optional; do not use undocumented Google Translate web scraping.
+- Do not publish or tag the current `1.2.0` candidate; it is a release NO-GO pending Phase 9.
+
 ### Fixed
 
 - Encrypt the Google Cloud service-account credential at rest with an Android Keystore-backed AES-GCM key, including safe migration from the former plaintext file.
@@ -42,7 +50,7 @@ All notable changes to this fork will be documented in this file.
 ### Planned
 
 - Complete the remaining `1.2.0` release-readiness gates: capture real-device baselines, refresh dependencies incrementally, finish Bluetooth/SCO and accessibility QA, enable blocking lint/release checks, and verify a signed artifact.
-- Defer Wi-Fi Hotspot transport (`ENH-020`) to Phase 9 / `1.3.0`, after `1.2.0` is signed and published.
+- Defer Wi-Fi Hotspot transport (`ENH-020`) to Phase 10 / `1.4.0`, after Phase 9 no-key migration.
 
 - Security and stability hardening for credentials, storage, audio capture, and cloud streaming.
 - Correctness fixes for Room instance ownership, token/service lifecycles, and any reachable unauthenticated crypto or GraphView path (reachability checks come first).

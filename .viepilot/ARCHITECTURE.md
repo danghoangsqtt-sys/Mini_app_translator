@@ -11,6 +11,16 @@ RTranslator is a native Android app (Java) that provides real-time speech transl
 
 Credentials are user-supplied: the user provides their own Google Cloud service-account JSON key (loaded via `api_management/KeyFileContainer`), scoped for Speech-to-Text + Translation billing on their own GCP account.
 
+> **Migration state (Phase 9)**: this describes the legacy implementation, not the target default. The approved target is on-device-first: Android SpeechRecognizer → ML Kit Translation → Android TextToSpeech. User-supplied Cloud credentials become optional legacy/advanced configuration; no shared credential may be bundled in the APK. Undocumented `translate.google.com/m` scraping is forbidden.
+
+## Target engine boundaries (Phase 9)
+
+- UI/services depend on `SpeechRecognitionEngine`, `TextTranslationEngine`, and `SpeechOutputEngine` contracts rather than constructing Cloud clients directly.
+- Capability selection is explicit and recoverable: missing on-device recognizer, missing ML Kit model, permission denial, and network fallback are distinct states.
+- API 31 on-device recognizer calls are guarded while API 23 remains supported.
+- ML Kit model download/removal is user-visible; downloaded models support offline translation.
+- Legacy Cloud adapters remain opt-in only during migration. A managed backend is a separate future decision.
+
 ## ViePilot organization context
 
 None — no `~/.viepilot/profiles/` binding configured for this project.

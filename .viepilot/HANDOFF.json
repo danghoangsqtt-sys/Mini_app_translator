@@ -4,8 +4,8 @@
   "mode": "brownfield",
   "project_name": "Mini Conversation",
   "upstream_project_name": "RTranslator",
-  "current_phase": 8,
-  "current_phase_name": "Release Readiness & Project Closure",
+  "current_phase": 9,
+  "current_phase_name": "No-Key On-Device Translation",
   "current_phase_status": "in_progress",
   "multi_phase_active": {
     "phase_3": {
@@ -17,9 +17,14 @@
       "name": "Mini Conversation Rebrand & UI",
       "status": "in_progress",
       "note": "Tasks 5.1-5.5 are done and 5.6 code/static verification is done at app 1.2.0/versionCode 15; device matrix, connected tests, signing, screenshot baselines, TalkBack, and two-phone Bluetooth checks remain PENDING HUMAN."
+    },
+    "phase_8": {
+      "name": "Release Readiness & Project Closure",
+      "status": "blocked_no_go",
+      "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "8.3 — Capture pre-refresh device baseline (physical two-phone evidence pending)",
+  "current_task": "9.1 — Stabilize launch/onboarding and Bluetooth capability handling (TERRA assigned; PM review stop)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -34,8 +39,8 @@
     "sanitized_candidate": "adopted as canonical master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved; old history retained in local backup branch"
   },
   "requests": {
-    "bug_count": 22,
-    "enh_count": 20,
+    "bug_count": 23,
+    "enh_count": 21,
     "source": "vp-audit 2026-09-19 through 2026-09-23",
     "status": "mixed: resolved, in_progress, planned, and new"
   },
@@ -46,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 8 Tasks 8.1 and 8.2 are complete. Sanitized master and mapped Phase 5–8.1 tags are synchronized with origin; old history is retained locally at codex/backup-master-pre-sanitize-20260923. No worktree was deleted; qa-a-3b66 remains dirty with four untracked crash/replay logs. The deep audit and sanitized rerun passed 47 JVM and 7 Pixel 7a API 36 tests and logged BUG-021/BUG-022 for onboarding. Continue with Task 8.3: capture the remaining physical two-phone Bluetooth/SCO/device matrix before dependency refresh. Phase 3 and Phase 5 physical/accessibility/signing gates remain open."
+  "resume_hint": "Phase 9 is active after the product owner approved a no-key, on-device-first architecture. Current task 9.1 is assigned to TERRA: stabilize first launch/onboarding, remove obsolete $300/RTranslator presentation, and correct the false BLE capability gate. Terra must stop after a local task commit and evidence report; no push/tag/version bump and no Task 9.2. The 1.2.0 candidate is NO-GO. Phase 3/5 physical gates remain open and are consolidated into Task 9.7; Wi-Fi Hotspot is Phase 10."
 }

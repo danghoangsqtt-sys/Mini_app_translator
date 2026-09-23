@@ -1,9 +1,11 @@
 # Phase 8 — Release Readiness & Project Closure
 
 **Mode**: Refactor / release hardening
-**Target release**: Mini Conversation `1.2.0` (`versionCode 15`)
+**Target release**: Mini Conversation `1.2.0` (`versionCode 15`) — **NO-GO / must not be published**
 **Depends on**: Phase 7 delivery accepted; physical Android test devices/emulators; external signing material
-**Future feature**: Wi-Fi Hotspot transport remains out of scope and is reserved for Phase 9 (`ENH-020`).
+**Superseding phase**: Phase 9 — No-Key On-Device Translation. Wi-Fi Hotspot is now Phase 10 (`ENH-020`).
+
+> Rebaseline decision (2026-09-23): physical-device feedback exposed a misleading Cloud onboarding flow, stale branding, false BLE capability blocking, and an unacceptable customer requirement to supply Google Cloud credentials. Tasks 8.1–8.2 remain complete; do not execute 8.7 or publish/tag `1.2.0`. Remaining release evidence is consolidated into Phase 9.7 after the engine migration.
 
 ## Goal
 

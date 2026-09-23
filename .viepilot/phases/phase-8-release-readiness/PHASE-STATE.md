@@ -1,12 +1,12 @@
 # Phase State — Phase 8: Release Readiness & Project Closure
 
-- **Status**: in_progress
+- **Status**: blocked / release NO-GO; superseded by Phase 9 before publication
 - **Tasks**: 2/7 complete
-- **Current task**: 8.3 — Capture pre-refresh device baseline (physical two-phone evidence pending)
+- **Current task**: none — remaining release gates transferred to Phase 9.7
 - **Created**: 2026-09-23 via `/vp-evolve`
-- **Target release**: `1.2.0` (`versionCode 15`); no planning-time version bump
+- **Target release**: `1.2.0` (`versionCode 15`) cancelled as a publication candidate; no tag/release
 - **Sequenced after**: Phase 7 — Operational State & Build Portability
-- **Reserves next feature phase**: Phase 9 — Wi-Fi Hotspot Connection (`ENH-020`)
+- **Superseded by**: Phase 9 — No-Key On-Device Translation; Wi-Fi Hotspot moved to Phase 10
 
 | Task | Status | Blocking condition |
 |---|---|---|
