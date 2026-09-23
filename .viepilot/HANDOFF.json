@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.1 — Stabilize launch/onboarding and Bluetooth capability handling (TERRA assigned; PM review stop)",
+  "current_task": "9.2 — Introduce engine contracts and capability model (planned; assignment pending persistence verification)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 is active after the product owner approved a no-key, on-device-first architecture. Current task 9.1 is assigned to TERRA: stabilize first launch/onboarding, remove obsolete $300/RTranslator presentation, and correct the false BLE capability gate. Terra must stop after a local task commit and evidence report; no push/tag/version bump and no Task 9.2. The 1.2.0 candidate is NO-GO. Phase 3/5 physical gates remain open and are consolidated into Task 9.7; Wi-Fi Hotspot is Phase 10."
+  "resume_hint": "Phase 9 Task 9.1 is implemented at 8a0a97a and passed PM automated/API 36 emulator review: 54 JVM tests, 7 instrumentation tests, lint 0 errors/136 warnings, keyless onboarding, permission deny/grant/relaunch and pairing search. Physical phone/two-phone evidence remains due in 9.7. Verify origin persistence, then assign Task 9.2 only; no release tag/version bump. The 1.2.0 candidate remains NO-GO and Wi-Fi Hotspot remains Phase 10."
 }

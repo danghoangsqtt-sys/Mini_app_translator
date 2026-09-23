@@ -85,3 +85,13 @@ Expected:
 
 Stop after the local commit and report to PM. Do not start Task 9.2.
 
+## Result
+
+**Status**: PASS for implementation, automated checks, and API 36 emulator; physical-device confirmation deferred to Task 9.7 by PM.
+
+- Commit: `8a0a97a8627f2839487cf56a3cfba8f63f781092`
+- 54/54 JVM tests passed.
+- Lint: 0 errors, 136 warnings.
+- 7/7 connected instrumentation tests passed on Pixel 7a API 36 emulator.
+- Fresh keyless onboarding, permission denial, permission grant/relaunch, and pairing search passed without crash/ANR.
+- Legacy RTranslator/Google Cloud onboarding images were removed after verifying they had no remaining references.
