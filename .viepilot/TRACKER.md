@@ -58,7 +58,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | in_progress (Phase 3, task 3.4 — code committed, device QA pending) |
 | BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | in_progress (Phase 3, task 3.5 — code committed, device QA pending) |
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | planned (Phase 5, task 5.1) |
-| BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; local commit pending) |
+| BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; `cf43257`) |
 | BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | resolved (Phase 7, task 7.2; local tag `mini-app-translator-vp-p6-complete`) |
 | BUG-019 | 🐛 | Stale project/architecture docs after Phases 3, 5, and 6 | Low | resolved (Phase 7, task 7.3; current/historical docs separated) |
 | BUG-020 | 🐛 | Machine-specific JDK path committed in `gradle.properties` | High | resolved (Phase 7, task 7.4; portable JDK configuration verified) |

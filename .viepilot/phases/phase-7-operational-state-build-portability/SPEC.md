@@ -26,8 +26,8 @@ Make the repository resumable and reproducible without representing pending devi
 
 ## Phase acceptance criteria
 
-- [ ] `HANDOFF.json`, `TRACKER.md`, phase states, and `app/build.gradle` agree on active work and app `1.2.0` / versionCode `15`.
-- [ ] `mini-app-translator-vp-p6-complete` points to the verified Phase 6 closeout commit, with a written explanation for the absent per-task tags.
-- [ ] Current-state docs identify AGP 8.13.2, Gradle 8.13, compile/target SDK 36, Mini Conversation, and the outstanding human QA gates.
-- [ ] `gradle.properties` contains no personal JDK path; a JDK 17 environment can run `testDebugUnitTest`, `lintDebug`, and `assembleDebug`.
-- [ ] A follow-up audit no longer detects `BUG-017` through `BUG-020`.
+- [x] `HANDOFF.json`, `TRACKER.md`, phase states, and `app/build.gradle` agree on active work and app `1.2.0` / versionCode `15`.
+- [x] `mini-app-translator-vp-p6-complete` points to the verified Phase 6 closeout commit, with a written explanation for the absent per-task tags.
+- [x] Current-state docs identify AGP 8.13.2, Gradle 8.13, compile/target SDK 36, Mini Conversation, and the outstanding human QA gates.
+- [x] `gradle.properties` contains no personal JDK path; a JDK 17 environment can run `testDebugUnitTest`, `lintDebug`, and `assembleDebug`.
+- [x] A follow-up audit no longer detects `BUG-017` through `BUG-020`.

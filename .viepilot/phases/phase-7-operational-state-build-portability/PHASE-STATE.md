@@ -23,3 +23,8 @@
 
 - Each task's acceptance criteria and the Phase 7 criteria in `SPEC.md` pass.
 - Run `vp-audit` after implementation; unresolved external device/release gates must remain explicit rather than converted to a false pass.
+
+## Closeout audit evidence
+
+- 2026-09-23: `/vp-audit --tier1 --tier2 --no-autolog` report-only follow-up found no recurrence of `BUG-017` through `BUG-020`: HANDOFF state is complete with no current task; annotated Phase 6 tag peels to `294ec56dc50b799422776e1e35ec3a2d7d0883e6`; current-state facts are present; and `gradle.properties` has no machine-specific Gradle JDK path.
+- This audit did not close the separate Phase 3 Bluetooth/SCO or Phase 5 device/release human-validation gates.
