@@ -387,7 +387,9 @@ public class ConversationBluetoothCommunicator {
 
 
     public void addCallback(final Callback callback) {
-        clientCallbacks.add(callback);
+        if (!clientCallbacks.contains(callback)) {
+            clientCallbacks.add(callback);
+        }
     }
 
     public void removeCallback(Callback callback) {

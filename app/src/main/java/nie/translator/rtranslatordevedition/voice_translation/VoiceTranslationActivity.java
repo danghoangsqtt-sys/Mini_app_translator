@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.activity.OnBackPressedCallback;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NotificationCompat;
@@ -254,24 +255,27 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public int startSearch() {
-        if (global.getBluetoothCommunicator().isBluetoothLeSupported()) {
-            if (hasNearbyPermissions()) {
-                return global.getBluetoothCommunicator().startSearch();
-            } else {
-                requestNearbyPermissions();
-                return NO_PERMISSIONS;
-            }
-        } else {
+        if (!ensureNearbyPermissions()) {
+            return NO_PERMISSIONS;
+        }
+        ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
+        if (communicator == null) {
+            return NO_PERMISSIONS;
+        }
+        if (!communicator.isBluetoothLeSupported()) {
             return BluetoothCommunicator.BLUETOOTH_LE_NOT_SUPPORTED;
         }
+        return communicator.startSearch();
     }
 
     public int stopSearch(boolean tryRestoreBluetoothStatus) {
-        return global.getBluetoothCommunicator().stopSearch(tryRestoreBluetoothStatus);
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        return communicator == null ? NO_PERMISSIONS : communicator.stopSearch(tryRestoreBluetoothStatus);
     }
 
     public boolean isSearching() {
-        return global.getBluetoothCommunicator().isSearching();
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        return communicator != null && communicator.isSearching();
     }
 
     public void connect(Peer peer) {
@@ -279,36 +283,56 @@ public class VoiceTranslationActivity extends GeneralActivity {
             return;
         }
         stopSearch(false);
-        global.getBluetoothCommunicator().connect(peer);
+        ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.connect(peer);
+        }
     }
 
     public void acceptConnection(Peer peer) {
         if (!ensureNearbyPermissions()) {
             return;
         }
-        global.getBluetoothCommunicator().acceptConnection(peer);
+        ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.acceptConnection(peer);
+        }
     }
 
     public void rejectConnection(Peer peer) {
         if (!ensureNearbyPermissions()) {
             return;
         }
-        global.getBluetoothCommunicator().rejectConnection(peer);
+        ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.rejectConnection(peer);
+        }
     }
 
     public ArrayList<GuiPeer> getConnectedPeersList() {
-        return global.getBluetoothCommunicator().getConnectedPeersList();
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        return communicator == null ? new ArrayList<GuiPeer>() : communicator.getConnectedPeersList();
     }
 
     public ArrayList<Peer> getConnectingPeersList() {
-        return global.getBluetoothCommunicator().getConnectingPeers();
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        return communicator == null ? new ArrayList<Peer>() : communicator.getConnectingPeers();
+    }
+
+    @Nullable
+    public android.bluetooth.BluetoothAdapter getBluetoothAdapter() {
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        return communicator == null ? null : communicator.getBluetoothAdapter();
     }
 
     public void disconnect(Peer peer) {
         if (!ensureNearbyPermissions()) {
             return;
         }
-        global.getBluetoothCommunicator().disconnect(peer);
+        ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.disconnect(peer);
+        }
     }
 
     public String[] getRequiredNearbyPermissions() {
@@ -365,6 +389,11 @@ public class VoiceTranslationActivity extends GeneralActivity {
         return false;
     }
 
+    @Nullable
+    private ConversationBluetoothCommunicator initializeBluetoothCommunicator() {
+        return hasNearbyPermissions() ? global.initializeBluetoothCommunicatorIfPermitted() : null;
+    }
+
 
 
     /*@Override
@@ -390,6 +419,11 @@ public class VoiceTranslationActivity extends GeneralActivity {
             notifyMissingSearchPermission();
             return;
         }
+        if (initializeBluetoothCommunicator() == null) {
+            notifyMissingSearchPermission();
+            return;
+        }
+        attachCallbacksToBluetoothCommunicator();
         notifySearchPermissionGranted();
         //recreate();   // was called only if the grantResults were of length 0 or were neither PERMISSIONS_GRANTED nor PERMISSION_DENIED (I don't know what it is for anyway)
     }
@@ -442,8 +476,9 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public void exitFromVoiceTranslation() {
-        if (global.getBluetoothCommunicator().getConnectedPeersList().size() > 0) {
-            global.getBluetoothCommunicator().disconnectFromAll();
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null && communicator.getConnectedPeersList().size() > 0) {
+            communicator.disconnectFromAll();
         } else {
             setFragment(VoiceTranslationActivity.DEFAULT_FRAGMENT);
         }
@@ -616,14 +651,32 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
 
     public void addCallback(Callback callback) {
-        // in this way the listener will listen to both this activity and the communicator
-        global.getBluetoothCommunicator().addCallback(callback);
-        clientsCallbacks.add(callback);
+        boolean added = false;
+        if (!clientsCallbacks.contains(callback)) {
+            clientsCallbacks.add(callback);
+            added = true;
+        }
+        ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
+        if (added && communicator != null) {
+            communicator.addCallback(callback);
+        }
     }
 
     public void removeCallback(Callback callback) {
-        global.getBluetoothCommunicator().removeCallback(callback);
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.removeCallback(callback);
+        }
         clientsCallbacks.remove(callback);
+    }
+
+    private void attachCallbacksToBluetoothCommunicator() {
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null) {
+            for (Callback callback : clientsCallbacks) {
+                communicator.addCallback(callback);
+            }
+        }
     }
 
     private void notifyMissingSearchPermission() {

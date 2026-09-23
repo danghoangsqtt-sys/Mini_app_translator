@@ -17,13 +17,17 @@
 package nie.translator.rtranslatordevedition;
 
 import android.app.Application;
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import java.io.File;
@@ -54,7 +58,7 @@ public class Global extends Application {
     private CustomLocale firstLanguage;
     private CustomLocale secondLanguage;
     private RecentPeersDataManager recentPeersDataManager;
-    private ConversationBluetoothCommunicator bluetoothCommunicator;
+    private BluetoothCommunicatorLifecycle<ConversationBluetoothCommunicator> bluetoothCommunicatorLifecycle;
     private Translator translator;
     private String name = "";
     private String apiKeyFileName = "";
@@ -109,24 +113,54 @@ public class Global extends Application {
             }
         }, TOKEN_FETCH_MARGIN);
         recentPeersDataManager = new RecentPeersDataManager(this);
-        bluetoothCommunicator = new ConversationBluetoothCommunicator(this, getName(), BluetoothCommunicator.STRATEGY_P2P_WITH_RECONNECTION);
+        bluetoothCommunicatorLifecycle = new BluetoothCommunicatorLifecycle<>(
+                new BluetoothCommunicatorLifecycle.PermissionGate() {
+                    @Override
+                    public boolean isGranted() {
+                        return hasBluetoothConnectPermission();
+                    }
+                },
+                new BluetoothCommunicatorLifecycle.Factory<ConversationBluetoothCommunicator>() {
+                    @Override
+                    public ConversationBluetoothCommunicator create() {
+                        return new ConversationBluetoothCommunicator(Global.this, getName(), BluetoothCommunicator.STRATEGY_P2P_WITH_RECONNECTION);
+                    }
+                },
+                new BluetoothCommunicatorLifecycle.Destroyer<ConversationBluetoothCommunicator>() {
+                    @Override
+                    public void destroy(ConversationBluetoothCommunicator communicator, final Runnable onDestroyed) {
+                        communicator.destroy(new BluetoothCommunicator.DestroyCallback() {
+                            @Override
+                            public void onDestroyed() {
+                                onDestroyed.run();
+                            }
+                        });
+                    }
+                });
         translator = new Translator(this);
         databaseManager = new ConsumptionsDataManager(this);
         getMicSensitivity();
     }
 
 
+    @Nullable
     public ConversationBluetoothCommunicator getBluetoothCommunicator() {
-        return bluetoothCommunicator;
+        return bluetoothCommunicatorLifecycle.getIfPermitted();
+    }
+
+    @Nullable
+    public ConversationBluetoothCommunicator initializeBluetoothCommunicatorIfPermitted() {
+        return bluetoothCommunicatorLifecycle.initializeIfPermitted();
     }
 
     public void resetBluetoothCommunicator() {
-        bluetoothCommunicator.destroy(new BluetoothCommunicator.DestroyCallback() {
-            @Override
-            public void onDestroyed() {
-                bluetoothCommunicator = new ConversationBluetoothCommunicator(Global.this, getName(), BluetoothCommunicator.STRATEGY_P2P_WITH_RECONNECTION);
-            }
-        });
+        bluetoothCommunicatorLifecycle.resetIfPermitted();
+    }
+
+    private boolean hasBluetoothConnectPermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     public void getLanguages(final boolean recycleResult, final GetLocalesListListener responseListener) {
@@ -385,7 +419,10 @@ public class Global extends Application {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("name", savedName);
         editor.apply();
-        getBluetoothCommunicator().setName(savedName);  //si aggiorna il nome anche per il comunicator
+        ConversationBluetoothCommunicator communicator = getBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.setName(savedName);  //si aggiorna il nome anche per il communicator
+        }
     }
 
     public Peer getMyPeer() {

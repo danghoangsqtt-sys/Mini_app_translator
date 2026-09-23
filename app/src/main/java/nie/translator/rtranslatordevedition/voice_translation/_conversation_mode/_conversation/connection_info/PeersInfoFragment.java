@@ -157,7 +157,10 @@ public class PeersInfoFragment extends Fragment {
                 super.onPeerFound(peer);
                 synchronized (lock) {
                     if (listView != null) {
-                        BluetoothAdapter bluetoothAdapter = global.getBluetoothCommunicator().getBluetoothAdapter();
+                        BluetoothAdapter bluetoothAdapter = activity.getBluetoothAdapter();
+                        if (bluetoothAdapter == null) {
+                            return;
+                        }
                         int index = listView.indexOfPeer(peer.getUniqueName());
                         if (index == -1) {
                             listView.add(peer);

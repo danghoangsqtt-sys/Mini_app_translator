@@ -233,7 +233,10 @@ public class ConversationService extends VoiceTranslationService {
                 }
             }
         };
-        global.getBluetoothCommunicator().addCallback(communicationCallback);
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.addCallback(communicationCallback);
+        }
 
         // speech recognition and translation initialization
         translator = new Translator((Global) getApplication());
@@ -268,7 +271,10 @@ public class ConversationService extends VoiceTranslationService {
 
     private void sendMessage(ConversationMessage conversationMessage) {
         String languageCode = conversationMessage.getPayload().getLanguage().getCode();
-        global.getBluetoothCommunicator().sendMessage(new Message(global, conversationMessage.getPayload().getText() + languageCode + languageCode.length()));
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.sendMessage(new Message(global, conversationMessage.getPayload().getText() + languageCode + languageCode.length()));
+        }
     }
 
     public String getMyPeerName() {
@@ -334,7 +340,10 @@ public class ConversationService extends VoiceTranslationService {
         //stop Bluetooth helper
         mBluetoothHelper.stop();
         super.onDestroy();
-        global.getBluetoothCommunicator().removeCallback(communicationCallback);
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null) {
+            communicator.removeCallback(communicationCallback);
+        }
         //release wake lock
         resetWakeLockReactivationTimer();
         if (screenWakeLock != null) {

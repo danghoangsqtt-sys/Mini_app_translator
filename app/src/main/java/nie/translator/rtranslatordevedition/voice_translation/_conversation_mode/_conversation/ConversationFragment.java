@@ -117,12 +117,12 @@ public class ConversationFragment extends PairingToolbarFragment {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 if (position == 0 && positionOffset == 0 && pagerPosition == 1) {
                     pagerPosition = 0;
-                    global.getBluetoothCommunicator().removeCallback(communicatorCallback);
+                    activity.removeCallback(communicatorCallback);
                     ((PeersInfoFragment) pagerAdapter.getFragment(1)).onDeselected();
                     buttonSearch.setVisible(false,null);
                 } else if (position == 1 && positionOffset == 0 && pagerPosition == 0) {
                     pagerPosition = 1;
-                    global.getBluetoothCommunicator().addCallback(communicatorCallback);
+                    activity.addCallback(communicatorCallback);
                     ((PeersInfoFragment) pagerAdapter.getFragment(1)).onSelected();
                     if(!isLoadingVisible) {
                         buttonSearch.setVisible(true, null);
@@ -165,7 +165,7 @@ public class ConversationFragment extends PairingToolbarFragment {
     public void onResume() {
         super.onResume();
         if (pagerPosition == 1) {
-            global.getBluetoothCommunicator().addCallback(communicatorCallback);
+            activity.addCallback(communicatorCallback);
         }
     }
 
@@ -173,7 +173,7 @@ public class ConversationFragment extends PairingToolbarFragment {
     public void onPause() {
         super.onPause();
         if (pagerPosition == 1) {
-            global.getBluetoothCommunicator().removeCallback(communicatorCallback);
+            activity.removeCallback(communicatorCallback);
         }
     }
 

@@ -162,7 +162,10 @@ public class PairingFragment extends PairingToolbarFragment {
                     if (listView != null) {
                         int recentIndex = listView.indexOfRecentPeer(peer.getUniqueName());
                         if (recentIndex == -1) {
-                            BluetoothAdapter bluetoothAdapter = global.getBluetoothCommunicator().getBluetoothAdapter();
+                            BluetoothAdapter bluetoothAdapter = activity.getBluetoothAdapter();
+                            if (bluetoothAdapter == null) {
+                                return;
+                            }
                             GuiPeer guiPeer = new GuiPeer(peer, null);
                             int index = listView.indexOfPeer(guiPeer.getUniqueName());
                             if (index == -1) {
