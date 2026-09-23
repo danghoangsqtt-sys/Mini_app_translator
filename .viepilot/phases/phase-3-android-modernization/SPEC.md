@@ -19,10 +19,10 @@ This phase is **one dedicated, highest-blast-radius mechanical upgrade** — seq
 
 Individual execution contracts are in `tasks/3.1-*` through `tasks/3.6-*`. Tasks 3.1, 3.2, 3.4 and 3.5 form one integrated target-SDK change; task 3.6 closes the phase quality gate rather than relying on a build that ignores lint errors.
 
-## Entry Baseline and Integrated Cluster
+## Historical Entry Baseline and Integrated Cluster
 
-- Phase 3 is planned, 0/6, with no active task. This document does not authorize implementation.
-- The compatibility-spike candidate is AGP 8.13.2, Gradle 8.13, JDK 17 to run Gradle, `compileSdk`/`targetSdk` 36, `minSdk` 23, and Java 8 source/target compatibility for the first migration step. The candidate protobuf Gradle plugin is 0.10.0, subject to a generated-source smoke test; it is not a completed dependency decision.
+- Historical entry state: Phase 3 was planned, 0/6, with no active task. This was its pre-execution contract.
+- Current state: tasks 3.1, 3.2, 3.4, and 3.5 are implemented as a static-pass Cluster A on AGP 8.13.2, Gradle 8.13, JDK 17, `compileSdk`/`targetSdk` 36, `minSdk` 23, and Java 8 source/target compatibility. Task 3.3 dependency refresh is deliberately deferred; task 3.6 is partially addressed (0 lint errors / 136 warnings at the Phase 6 baseline). Two-phone Bluetooth/SCO device evidence remains pending, so Phase 3 is not complete.
 - Remove the legacy `buildToolsVersion 28.0.3` only during implementation and let AGP select its supported default. Do not commit `org.gradle.java.home`, a personal JDK path, debug-keystore path, signing password, keystore, or other signing secret.
 - Tasks 3.1, 3.2, 3.4, and 3.5 are one integrated change. A protobuf/codegen compatibility spike belongs at its start because the legacy plugin can block the AGP/Gradle upgrade; the full dependency refresh remains Task 3.3.
 - The PM-confirmed lint baseline is 5 errors/121 warnings: three `ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core:1.11.0`. The historical 5/119 result is provenance only. Task 3.6 compares ID, source, and count; Gradle exit code and broad suppression are insufficient.
@@ -40,7 +40,7 @@ Physical two-phone Nearby Connections and SCO/headset tests are required phase-e
 
 ## Task 3.1 — Toolchain / targetSdk upgrade (`ENH-011`)
 
-**Current state**: AGP 3.6.1, Gradle wrapper 5.6.4, `compileSdkVersion 29`, `buildToolsVersion 28.0.3`, `targetSdkVersion 29` (`app/build.gradle:28,32`, root `build.gradle:12`).
+**Current state**: implemented with AGP 8.13.2, Gradle wrapper 8.13 (distribution checksum pinned), `compileSdk 36`, `targetSdk 36`, and no explicit legacy Build Tools pin. Host verification passed; device evidence remains pending.
 
 **Acceptance criteria**:
 - [ ] App builds cleanly on a current Android Studio / AGP / Gradle version
@@ -49,7 +49,7 @@ Physical two-phone Nearby Connections and SCO/headset tests are required phase-e
 
 ## Task 3.2 — Bluetooth runtime permissions (`BUG-013`)
 
-**Why it's here and not standalone**: with `targetSdkVersion` still at 29, the app runs under Android's legacy Bluetooth permission model even on API 31+ devices — it does not crash today. The moment task 3.1 lands, the OS stops honoring the legacy permissions for Bluetooth scan/connect, and every `BluetoothCommunicator`/`BluetoothAdapter` call in Conversation mode throws `SecurityException` unless this task ships in the same change.
+**Historical rationale and current state**: this task was coupled to the target-SDK upgrade because API 31+ changes the Bluetooth permission model. It is now implemented with manifest declarations and SDK-gated runtime permission flow; physical device validation remains required before Phase 3 closes.
 
 **Acceptance criteria**:
 - [ ] `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT` (and `BLUETOOTH_ADVERTISE` if the app becomes discoverable) declared in the manifest with correct `usesPermissionFlags`

@@ -3,8 +3,8 @@
 ## Current state
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
-- **Current phase**: Multi-phase active — Phase 3 — Android Modernization (`in_progress`; static PASS, device evidence BLOCKED), Phase 5 — Mini Conversation Rebrand & UI (`in_progress`; code complete 1.2.0/versionCode 15, device/release QA PENDING HUMAN), and Phase 7 — Operational State & Build Portability (`in_progress`, 2/4 tasks); Phase 6 — Bug Fix Sprint is complete (10/10 tasks).
-- **Current task**: 7.3 — Refresh current-state documentation
+- **Current phase**: Multi-phase active — Phase 3 — Android Modernization (`in_progress`; static PASS, device evidence BLOCKED), Phase 5 — Mini Conversation Rebrand & UI (`in_progress`; code complete 1.2.0/versionCode 15, device/release QA PENDING HUMAN), and Phase 7 — Operational State & Build Portability (`in_progress`, 3/4 tasks); Phase 6 — Bug Fix Sprint is complete (10/10 tasks).
+- **Current task**: 7.4 — Remove committed JDK path
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -25,7 +25,7 @@
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
 | 5 — Mini Conversation Rebrand & UI | in_progress | 5/6 tasks (6th partially — code done, device/release QA PENDING HUMAN) |
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
-| 7 — Operational State & Build Portability | in_progress | 2/4 tasks |
+| 7 — Operational State & Build Portability | in_progress | 3/4 tasks |
 | 8 — Release Readiness & Project Closure | planned / blocked on Phase 7 + human prerequisites | 0/7 tasks |
 | 9 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
@@ -60,10 +60,8 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | planned (Phase 5, task 5.1) |
 | BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; local commit pending) |
 | BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | resolved (Phase 7, task 7.2; local tag `mini-app-translator-vp-p6-complete`) |
-| BUG-019 | 🐛 | Stale project/architecture docs after Phases 3, 5, and 6 | Low | in_progress (Phase 7, task 7.3) |
-| BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | planned (Phase 7, task 7.2) |
-| BUG-019 | 🐛 | Stale project/architecture docs after Phases 3, 5, and 6 | Low | planned (Phase 7, task 7.3) |
-| BUG-020 | 🐛 | Machine-specific JDK path committed in `gradle.properties` | High | planned (Phase 7, task 7.4) |
+| BUG-019 | 🐛 | Stale project/architecture docs after Phases 3, 5, and 6 | Low | resolved (Phase 7, task 7.3; current/historical docs separated) |
+| BUG-020 | 🐛 | Machine-specific JDK path committed in `gradle.properties` | High | in_progress (Phase 7, task 7.4) |
 | ENH-001 | 🔧 | No app-layer encryption for Bluetooth conversation payloads | Medium | new |
 | ENH-002 | 🔧 | Contact photo stored as unencrypted BLOB | Medium | new |
 | ENH-003 | 🔧 | Dead code with leak-prone patterns (`FileManager`, `EncryptionKey`) | Low | new |

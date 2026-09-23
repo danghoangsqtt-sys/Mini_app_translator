@@ -112,9 +112,9 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 
 **Completion trace**: local annotated tag `mini-app-translator-vp-p6-complete` points to verified canonical implementation commit `294ec56dc50b799422776e1e35ec3a2d7d0883e6`; the original sprint did not create per-task tags, which is documented in the Phase 6 state rather than rewritten retrospectively.
 
-## Phase 7 ? Operational State & Build Portability (in_progress; 2/4 tasks complete)
+## Phase 7 — Operational State & Build Portability (in_progress; 3/4 tasks complete)
 
-**Evolved via `/vp-evolve BUG-017 BUG-018 BUG-019 BUG-020` (2026-09-23)** ? see `.viepilot/phases/phase-7-operational-state-build-portability/SPEC.md`.
+**Evolved via `/vp-evolve BUG-017 BUG-018 BUG-019 BUG-020` (2026-09-23)** — see `.viepilot/phases/phase-7-operational-state-build-portability/SPEC.md`.
 
 | Task | Request | Priority |
 |---|---|---|

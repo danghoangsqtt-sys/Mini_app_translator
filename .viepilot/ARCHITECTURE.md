@@ -1,6 +1,6 @@
-# Architecture — RTranslator
+# Architecture — Mini Conversation
 
-> Planned product identity: **Mini Conversation**. The Android `applicationId` and Java package remain unchanged during the Phase 5 name/UI release to preserve upgrade compatibility.
+> Current runtime identity: **Mini Conversation** (Phase 5 code complete at version 1.2.0/versionCode 15). The Android `applicationId` and Java package remain unchanged to preserve upgrade compatibility and upstream lineage.
 
 ## System overview
 
@@ -34,11 +34,11 @@ None — no `~/.viepilot/profiles/` binding configured for this project.
 4. Translated text sent to the peer phone over Bluetooth (`ConversationBluetoothCommunicator`, backed by the external `BluetoothCommunicator` library).
 5. Peer phone converts translated text to speech via Android TTS and plays it.
 
-## Planned UI architecture (Phase 5)
+## UI architecture (Phase 5 implementation)
 
-Phase 5 keeps the existing Java + XML Views architecture and business/service boundaries. It introduces a shared Material theme layer and refreshes layouts in place, preserving view IDs where practical so the rebrand does not become a behavior rewrite.
+Phase 5 kept the existing Java + XML Views architecture and business/service boundaries. It introduced a shared Material DayNight theme layer and refreshed layouts in place, preserving view IDs where practical so the rebrand did not become a behavior rewrite. Device, accessibility, signed-release, and two-phone Bluetooth evidence remain pending human validation.
 
-| Layer | Planned responsibility |
+| Layer | Implemented responsibility |
 |---|---|
 | Product identity | `app_name`, user-visible copy, README/privacy branding, notification labels, upstream attribution |
 | Launcher identity | Legacy density icons plus adaptive foreground/background, round icon, and optional monochrome resource sourced from `images/icon.png` |
@@ -61,7 +61,7 @@ The product-name change does not rename `applicationId` or the Java package. Pac
 
 ## Technology decisions (as found — not proposed by ViePilot)
 
-- **Android SDK**: compileSdk 29 / targetSdk 29 / minSdk 23, AGP 3.6.1, Gradle 5.6.4 — dated (2020-era); see `.viepilot/requests/ENH-011.md`.
+- **Android SDK**: compileSdk 36 / targetSdk 36 / minSdk 23, AGP 8.13.2, Gradle 8.13, with JDK 17 used to run Gradle; Java source/target compatibility remains 8. See `.viepilot/requests/ENH-011.md` for the remaining device-validation gate.
 - **Persistence**: Room 2.1.0 over SQLite, no migrations defined (`version = 1`).
 - **Transport**: Bluetooth via third-party `com.github.niedev:BluetoothCommunicator:1.0.6` (not audited here — see `.viepilot/requests/ENH-001.md`).
 - **Cloud APIs**: gRPC 1.11.0 + Protobuf for Speech-to-Text (v1/v1beta1/v1p1beta1 protos vendored under `app/src/main/proto/google/`); REST/OAuth2 for Translation and credential refresh.
@@ -69,3 +69,7 @@ The product-name change does not rename `applicationId` or the Java package. Pac
 ## Known architectural risk areas (from audit, tracked individually)
 
 See `.viepilot/requests/` — highest-risk areas are credential storage (`api_management/`) and the Bluetooth/gRPC streaming lifecycle (`voice_translation/`).
+
+## Current validation boundary
+
+Phase 3 Cluster A (toolchain, Bluetooth permissions, exported components, and foreground-service types) is implemented and static-pass verified, but its two-phone Bluetooth/SCO device evidence remains pending. Phase 5 code is implemented at app 1.2.0/versionCode 15, while its device matrix, TalkBack, screenshot-baseline, signing, and release QA remain pending. These are release blockers, not evidence of a shipped signed release.

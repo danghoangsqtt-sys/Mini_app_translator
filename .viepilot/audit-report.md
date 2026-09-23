@@ -1,4 +1,6 @@
-# ViePilot Audit Report — Mini Conversation / RTranslator
+# ViePilot Audit Report — Mini Conversation / RTranslator (historical snapshot)
+
+> **Historical evidence only:** this 2026-09-22 report records a pre-Phase-3/5 baseline. Its references to API 29, blocked local builds, planned Phase 3/5 work, and the Ocean Blue UI are not current-state guidance. For live facts, use `TRACKER.md`, `HANDOFF.json`, `app/build.gradle`, and the Phase 3/5 state files.
 
 **Date**: 2026-09-22 (re-audit; original: 2026-09-20)  
 **Scope**: Cả 2 workspace — `Mini_app_Translator` (master) và `Mini_app_Translator-phase3` (compatibility spike); Android/Java source, resources, documentation, ViePilot state  

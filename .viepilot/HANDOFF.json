@@ -19,7 +19,7 @@
       "note": "Tasks 5.1-5.5 are done and 5.6 code/static verification is done at app 1.2.0/versionCode 15; device matrix, connected tests, signing, screenshot baselines, TalkBack, and two-phone Bluetooth checks remain PENDING HUMAN."
     }
   },
-  "current_task": "7.3 — Refresh current-state documentation",
+  "current_task": "7.4 — Remove committed JDK path",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -45,5 +45,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 7 Task 7.3 is in progress to refresh current-state documentation. Phase 6 has local annotated completion tag mini-app-translator-vp-p6-complete on verified commit 294ec56dc50b799422776e1e35ec3a2d7d0883e6. Phase 3 remains in progress: Cluster A static PASS is committed, but two-phone Bluetooth/SCO device evidence is PENDING HUMAN; Task 3.3 dependency refresh remains deferred and must not start without new authorization. Phase 5 remains in progress: app 1.2.0/versionCode 15 is built and host-verified, while the device matrix, connected tests, signed release, screenshot baselines, TalkBack, and Bluetooth checks are PENDING HUMAN."
+  "resume_hint": "Phase 7 Task 7.4 is in progress to remove the committed personal JDK path and verify a portable JDK 17 build. Phase 6 has local annotated completion tag mini-app-translator-vp-p6-complete on verified commit 294ec56dc50b799422776e1e35ec3a2d7d0883e6. Phase 3 remains in progress: Cluster A static PASS is committed, but two-phone Bluetooth/SCO device evidence is PENDING HUMAN; Task 3.3 dependency refresh remains deferred and must not start without new authorization. Phase 5 remains in progress: app 1.2.0/versionCode 15 is built and host-verified, while the device matrix, connected tests, signed release, screenshot baselines, TalkBack, and Bluetooth checks are PENDING HUMAN."
 }

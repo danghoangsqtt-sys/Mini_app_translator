@@ -1,7 +1,7 @@
 # Project Metadata
 
-- **Current runtime name**: RTranslator
-- **Planned product name**: Mini Conversation (Phase 5)
+- **Current runtime name**: Mini Conversation (Phase 5 code complete; app 1.2.0/versionCode 15)
+- **Upstream product name**: RTranslator
 - **Fork repository name**: Mini App Translator
 - **Description**: World's first open-source real-time translation app — Bluetooth-based Conversation mode and WalkieTalkie mode, using Google Cloud Speech-to-Text and Translation APIs.
 - **Package base ID**: `nie.translator.rtranslatordevedition`
@@ -10,7 +10,7 @@
 - **License**: Apache License 2.0 (`LICENSE.txt`)
 - **Inception**: 2020-03-30 (first commit)
 - **Primary language**: Java (Android)
-- **Build system**: Gradle 5.6.4 / Android Gradle Plugin 3.6.1
+- **Build system**: Gradle 8.13 / Android Gradle Plugin 8.13.2 / JDK 17 runtime; Java 8 source/target compatibility
 
 ## Origin note
 

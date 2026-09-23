@@ -1,6 +1,8 @@
-# Remediation plan — audit follow-up (2026-09-20)
+# Remediation plan — audit follow-up (historical baseline 2026-09-20)
 
-## Baseline and scope
+> **Current-state update (2026-09-23):** this document preserves the original baseline below. The current app is Mini Conversation 1.2.0/versionCode 15 on AGP 8.13.2, Gradle 8.13, compile/target SDK 36. Phase 3 Cluster A and Phase 5 code are implemented, while their physical-device, accessibility, signing, and release gates remain pending human validation. See `TRACKER.md` and the phase states for live status.
+
+## Historical baseline and scope
 
 - Current Android runtime is `1.1.2` (`versionCode 13`, target SDK 29). Phase 1 task 1.6 is implemented; no runtime version or release tag has changed.
 - `testDebugUnitTest`, `lintDebug`, `assembleDebug`, and `assembleRelease` completed on 2026-09-20. Fourteen local unit tests passed after task 1.6. Lint still reports 5 errors and 119 warnings because `abortOnError` is disabled; the release artifact is unsigned.

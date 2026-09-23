@@ -1,8 +1,8 @@
 # Phase State — Phase 7: Operational State & Build Portability
 
 - **Status**: in_progress
-- **Tasks**: 2/4 complete
-- **Current task**: 7.3 — Refresh current-state documentation
+- **Tasks**: 3/4 complete
+- **Current task**: 7.4 — Remove committed JDK path
 - **Created**: 2026-09-23 via `/vp-evolve BUG-017 BUG-018 BUG-019 BUG-020`
 - **Sequenced alongside**: Phase 3 and Phase 5, which remain in progress because their device/release evidence is pending human validation.
 
@@ -10,8 +10,8 @@
 |---|---|---|
 | 7.1 — Synchronize handoff state | `BUG-017` | done — HANDOFF synchronized and JSON-validated 2026-09-23 |
 | 7.2 — Restore Phase 6 completion trace | `BUG-018` | done — verified tag on `294ec56` |
-| 7.3 — Refresh current-state documentation | `BUG-019` | in_progress |
-| 7.4 — Remove committed JDK path | `BUG-020` | planned |
+| 7.3 — Refresh current-state documentation | `BUG-019` | done — current facts and historical baselines separated |
+| 7.4 — Remove committed JDK path | `BUG-020` | in_progress |
 
 ## Entry gate
 
