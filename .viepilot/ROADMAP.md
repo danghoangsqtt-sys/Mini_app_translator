@@ -141,7 +141,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | Task | Description | Gate |
 |---|---|---|
 | 8.1 | Accept Phase 7 delivery and freeze the canonical baseline | done — `76d30b5` accepted locally |
-| 8.2 | Resolve primary source-of-truth, `.agents`/`.idea`, branch and worktree hygiene | Maintainer decision before destructive cleanup |
+| 8.2 | Resolve primary source-of-truth, `.agents`/`.idea`, branch and worktree hygiene | in_progress — clean candidate ready; canonical switch/push pending |
 | 8.3 | Capture pre-refresh API 23/31/34/36 and two-phone Bluetooth/SCO baseline | Human devices |
 | 8.4 | Execute Phase 3 Task 3.3 dependency refresh incrementally | Baseline complete |
 | 8.5 | Complete Phase 3/5 device, visual and accessibility QA | Post-refresh build + devices |
@@ -173,4 +173,4 @@ Reserved for `ENH-020` after the `1.2.0` release closes. The planned `Connection
 | 8 — Release Readiness & Project Closure | in_progress | 1 | 7 |
 | 9 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
 
-Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 remains deferred. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). Phase 5 is `in_progress`: tasks 5.1–5.5 and the 1.2.0 code/build portion are done, while its device/release gate remains PENDING HUMAN. Phase 7 was completed locally at `76d30b5` with `mini-app-translator-vp-p7-complete`; its completion does not close the Phase 3/5 human gates. Phase 8 Task 8.1 accepted that baseline, while Task 8.2 awaits a PM decision. Phase 9 reserves the Wi-Fi Hotspot feature until the release is closed. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 remains deferred. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). Phase 5 is `in_progress`: tasks 5.1–5.5 and the 1.2.0 code/build portion are done, while its device/release gate remains PENDING HUMAN. Phase 7 was completed locally at `76d30b5` with `mini-app-translator-vp-p7-complete`; its completion does not close the Phase 3/5 human gates. Phase 8 Task 8.1 accepted that baseline; Task 8.2 has a validated local sanitized candidate but still awaits canonical switch/push approval. Phase 9 reserves the Wi-Fi Hotspot feature until the release is closed. Phase 4 remains an independently schedulable hygiene backlog.

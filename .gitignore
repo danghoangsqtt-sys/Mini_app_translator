@@ -1,12 +1,14 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# Keep only the shared XML formatting rules. All machine/user Android Studio
+# state is local and must not become part of release history.
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/codeStyles/Project.xml
+
+# Agent/plugin payloads are workstation tooling, not application source.
+/.agents/
 .DS_Store
 /build
 /captures

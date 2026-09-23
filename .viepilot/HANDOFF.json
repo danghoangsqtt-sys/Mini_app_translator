@@ -19,21 +19,22 @@
       "note": "Tasks 5.1-5.5 are done and 5.6 code/static verification is done at app 1.2.0/versionCode 15; device matrix, connected tests, signing, screenshot baselines, TalkBack, and two-phone Bluetooth checks remain PENDING HUMAN."
     }
   },
-  "current_task": "8.2 — Resolve source-of-truth and repository hygiene (awaiting PM decision)",
+  "current_task": "8.2 — Resolve source-of-truth and repository hygiene (sanitized candidate ready; canonical switch/push pending)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
   },
   "branch": {
-    "checked_out": "master",
+    "checked_out": "codex/phase8-sanitized-history (isolated candidate worktree; primary worktree remains master)",
     "origin_tracking": "origin/master",
     "upstream_default": "upstream/v3.00",
     "mismatch_flagged": false,
     "lineage_review_requested": true,
-    "tracking_request": "ENH-015"
+    "tracking_request": "ENH-015",
+    "sanitized_candidate": "43 replayed commits from origin/master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved"
   },
   "requests": {
-    "bug_count": 20,
+    "bug_count": 22,
     "enh_count": 20,
     "source": "vp-audit 2026-09-19 through 2026-09-23",
     "status": "mixed: resolved, in_progress, planned, and new"
@@ -45,5 +46,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 8 Task 8.1 accepted the local Phase 7 baseline at 76d30b5a05d6457bf62b10f3e79aa4e2f44bba2b with annotated tag mini-app-translator-vp-p7-complete; no push was performed. Task 8.2 is the next step but is not started and awaits PM direction on .agents, .idea, branch, and worktree hygiene. Phase 3 remains in progress: Cluster A static PASS is committed, but two-phone Bluetooth/SCO device evidence is PENDING HUMAN; Task 3.3 dependency refresh remains deferred. Phase 5 remains in progress: app 1.2.0/versionCode 15 is built and host-verified, while the device matrix, connected tests, signed release, screenshot baselines, TalkBack, and Bluetooth checks are PENDING HUMAN."
+  "resume_hint": "Phase 8 Task 8.2 has a validated local candidate at codex/phase8-sanitized-history. It replays 44 local source commits as 43 sanitized commits from origin/master, excludes unrelated .agents and local IDE state, preserves the app tree, and has not been pushed or substituted for primary master. Existing phase tags still point to the old history; use tasks/8.2-history-map.md before any approved tag move. Five detached QA worktrees remain; qa-a-3b66 is dirty with four untracked crash/replay logs, so no worktree was deleted. The deep audit passed 47 JVM and 7 Pixel 7a API 36 tests and logged BUG-021/BUG-022 for onboarding. Phase 3 and Phase 5 physical/two-phone/accessibility/signing gates remain open."
 }

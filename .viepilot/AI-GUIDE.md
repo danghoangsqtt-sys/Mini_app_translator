@@ -35,4 +35,4 @@ app/src/main/java/nie/translator/rtranslatordevedition/
 
 - No CI/CD is configured. The implemented toolchain is AGP 8.13.2 / Gradle 8.13 / compileSdk 36 / targetSdk 36 and requires JDK 17 to run Gradle; device evidence is still required before release.
 - Automated coverage remains limited (`ENH-013`), even though focused regression tests exist. Any new fix should add focused coverage where feasible without claiming broad end-to-end coverage.
-- `.agents/skills/` at repo root is untracked and appears to be unrelated content (a different project's skill files) — do not treat it as part of this app's source; do not read it for context on RTranslator itself.
+- `.agents/` is excluded from the sanitized release history and ignored because it contained unrelated workstation/plugin payloads — do not treat it as application source or read it for Mini Conversation context.
