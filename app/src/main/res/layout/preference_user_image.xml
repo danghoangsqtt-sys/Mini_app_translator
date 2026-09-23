@@ -31,7 +31,7 @@
         android:scaleType="fitXY"
         android:src="@drawable/user_icon"
         android:contentDescription="@string/app_name"
-        app:tint="#5F5F5F"
+        app:tint="@color/very_dark_gray"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

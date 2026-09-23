@@ -106,9 +106,7 @@
     <string name="description_notice">Mini Conversation è gratuito solo per i primi 300 dollari spesi durante il primo anno dalla creazione dell\'account Google Cloud; inoltre, deve essere configurato per funzionare, per sapere come fare, conoscere i prezzi e le funzionalità di Mini Conversation visita il progetto GitHub dell\'app <a href="https://github.com/niedev/RTranslator">qui</a></string>
 
     <string name="preference_header_language">Lingua</string>
-    <string name="preference_header_output">Output</string>
-    <string name="preference_header_input">Input</string>
-    <string name="preference_header_advanced">Avanzate</string>
+    <string name="preference_header_audio">Audio</string>
 
     <string name="preference_title_mic_sensitivity">Sensibilità microfono</string>
     <string name="preference_title_support_tts_quality">Supporto lingue con tts a bassa qualità</string>
