@@ -1,12 +1,12 @@
-# Tracker — Mini Conversation modernization (current runtime: RTranslator)
+# Tracker — Mini Conversation modernization (runtime app_name is now Mini Conversation as of Phase 5; applicationId/package remain `nie.translator.rtranslatordevedition` from upstream RTranslator)
 
 ## Current state
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
-- **Current phase**: Multi-phase active — Phase 3 — Android Modernization (`in_progress`; static PASS, device evidence BLOCKED) and Phase 6 — Bug Fix Sprint (`complete`, 10/10 tasks)
+- **Current phase**: Multi-phase active — Phase 3 — Android Modernization (`in_progress`; static PASS, device evidence BLOCKED), Phase 5 — Mini Conversation Rebrand & UI (`in_progress`; code complete 1.2.0/versionCode 15, device/release QA PENDING HUMAN), and Phase 6 — Bug Fix Sprint (`complete`, 10/10 tasks)
 - **Current task**: none
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
-- **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
+- **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
 
 ## Brownfield Import
@@ -23,7 +23,7 @@
 | 2 — Correctness & Robustness | complete / PASS | 6/6 tasks |
 | 3 — Android Modernization | in_progress | 4/6 static (device evidence BLOCKED) |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
-| 5 — Mini Conversation Rebrand & UI | planned | 0/6 tasks |
+| 5 — Mini Conversation Rebrand & UI | in_progress | 5/6 tasks (6th partially — code done, device/release QA PENDING HUMAN) |
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -87,9 +87,10 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-22**: Created Phase 6 — Bug Fix Sprint (`.viepilot/phases/phase-6-bug-fix-sprint/{SPEC.md,PHASE-STATE.md}`) from the `/vp-audit` lint baseline (174 warnings, 0 errors). Scope: fix all non-dependency lint warnings; no dependency upgrades.
 - **2026-09-23**: Completed Phase 6 (10/10 tasks) and resolved a build-breaking regression where Task 6.5 referred to an undefined `parent` symbol in three list adapters (`LanguageListAdapter`, `FileListAdapter`, `PeerListAdapter`). Bumped the app to `1.1.3` (`versionCode 14`). Verification: `testDebugUnitTest assembleDebug` BUILD SUCCESSFUL; `lintDebug` 0 errors / 136 warnings. Phase 3 remains `in_progress` (Cluster A static PASS; two-phone Bluetooth/SCO device evidence still PENDING HUMAN).
 - **2026-09-23**: `/vp-evolve` (Add Feature) enriched Phase 5's SPEC with concrete, execution-ready detail per a user-supplied prescriptive brief: exact `values/colors.xml` and new `values-night/colors.xml` hex tokens, `Theme.Speech` → `Theme.MaterialComponents.DayNight.NoActionBar` wiring, adaptive-icon XML/asset breakdown, a per-screen task list for 5.4 (onboarding/pairing/Conversation/WalkieTalkie/API/settings), and the exact 5.6 version bump (`versionCode 15`, `versionName '1.2.0'`) plus build-verification commands. No new phase created — Phase 5 (0/6 tasks, `planned`) already covered this scope from the 2026-09-20 evolve pass; this pass only sharpened task contracts. Still sequenced after Phase 3, whose static work (3.1/3.2/3.4/3.5) is on `master` but device evidence remains PENDING HUMAN — Phase 5 code changes do not require that device evidence to start, but Phase 3 should be formally closed before Phase 5's own device/release QA (task 5.6) is treated as final. No application code or version changed by this planning pass.
+- **2026-09-23**: `/vp-auto --from phase-5` executed Phase 5 tasks 5.1–5.6 (code portion). 5.1: renamed product to Mini Conversation in `strings.xml`/`values-it/strings.xml`/README/privacy docs/CHANGELOG, preserving `applicationId`/package and upstream credit. 5.2: generated a clean circular legacy/round launcher icon set from `images/icon.png` via Pillow (removing the noisy glow halo) plus a redrawn flat adaptive-icon foreground/monochrome pair and a gradient background drawable; removed the superseded per-density foreground PNGs and flat-color resource. 5.3: migrated `Theme.Speech` to `Theme.MaterialComponents.DayNight.NoActionBar` with new semantic color tokens in `values/colors.xml` and a new `values-night/colors.xml`, plus a `materialVersion` ext bumping Material to 1.9.0 without touching the shared `supportLibraryVersion` used by cardview/recyclerview. 5.4: refreshed all 6 named screens (MaterialButton/MaterialCheckBox on onboarding; MaterialCardView device rows + icon empty state on pairing; MaterialCardView message bubbles with new `colorPrimaryContainer`/`colorOnPrimaryContainer` tokens + 56dp mic on conversation; larger language labels on WalkieTalkie; MaterialCardView groups on API management; consolidated Language+Audio `PreferenceCategory` on settings) and swept remaining hardcoded hex colors across all 32 layout files. 5.5: added real `contentDescription` strings (EN+IT) for 28 icon controls (7 had none, 21 reused the `app_name` placeholder) and enlarged 15 sub-48dp touch targets to 48×48dp. 5.6: bumped `app/build.gradle` to `versionCode 15`/`versionName '1.2.0'` and cut a `## [1.2.0]` CHANGELOG section; ran `./gradlew clean testDebugUnitTest lintDebug assembleDebug` — BUILD SUCCESSFUL, 47/47 unit tests passing, 0 lint errors (139 warnings, up from 136 at the Phase 6 baseline). Device matrix, `connectedDebugAndroidTest`, `assembleRelease` signing, screenshot baselines, and TalkBack/two-phone Bluetooth checks remain PENDING HUMAN — no Android device/emulator or signing keystore is available in this environment, mirroring Phase 3's existing device-evidence gap. All work is committed on `master` with per-task `mini-app-translator-vp-p5-t{N}`/`-done` tags; `master` has unpushed local commits (already the case before this pass) — pushing to `origin/master` was not performed and needs explicit confirmation before it happens.
 
 ## Version info
 
 - App version at import: `1.1.2` (versionCode 13) — on the stale `master` branch only.
-- Planned feature release after Phase 5: `1.2.0`; select the next `versionCode` during implementation/release, not during planning.
+- Current app version: `1.2.0` (versionCode 15), bumped 2026-09-23 for Phase 5 (`app/build.gradle`). Not yet cut as a signed release artifact — see Phase 5 task 5.6 device/release QA gap.
 - If a bug-fix-only release is cut before the planned feature release, propose a PATCH version (for example `1.1.3`) and increment `versionCode` at release time; this plan does not bump either value.

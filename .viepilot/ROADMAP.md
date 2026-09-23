@@ -1,4 +1,4 @@
-# Roadmap — Mini Conversation (current runtime: RTranslator)
+# Roadmap — Mini Conversation (runtime app_name is now Mini Conversation as of Phase 5; applicationId/package remain `nie.translator.rtranslatordevedition` from upstream RTranslator)
 
 ## Phase 1 — Security & Stability Hardening
 
@@ -65,27 +65,27 @@
 
 Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-013` (test coverage buildout), `ENH-014` (unrestricted deserialization), `ENH-015` (selective comparison/porting from upstream `v3.00`), `ENH-016` (`.idea/*.xml` committed), `ENH-017` (unrelated `.agents/skills/` content at repo root). Run `/vp-evolve` again against these when ready to sequence them.
 
-## Phase 5 — Mini Conversation Rebrand & UI (planned, not started)
+## Phase 5 — Mini Conversation Rebrand & UI (in_progress — code complete, device/release QA pending)
 
 **Execution spec**: `.viepilot/phases/phase-5-mini-conversation-ui/SPEC.md`  
 **Sequenced after**: Phase 3 Android Modernization  
-**Target release**: 1.2.0 (runtime version remains 1.1.2 until implementation/release)
+**Target release**: 1.2.0 — shipped in code as `versionCode 15`/`versionName '1.2.0'` on 2026-09-23; not yet cut as a signed release artifact
 
-| Task | Request | Priority |
-|---|---|---|
-| 5.1 | Rename user-visible product/docs to Mini Conversation and replace broken README screenshots | `ENH-018`, `BUG-016` |
-| 5.2 | Generate legacy, round, adaptive, and optional monochrome launcher icons from `images/icon.png` | `ENH-018` |
-| 5.3 | Introduce Material DayNight design tokens based on the new icon palette | `ENH-019` |
-| 5.4 | Refresh onboarding, pairing, Conversation, WalkieTalkie, API, and settings screens | `ENH-019` |
-| 5.5 | Fix touch targets, accessibility labels, contrast, font scaling, and responsive layouts | `ENH-019` |
-| 5.6 | Run visual/accessibility/device QA and verify a signed release on API 23/31/34/36 | `ENH-019`, 2026-09-20 `vp-audit` |
+| Task | Request | Priority | Status |
+|---|---|---|---|
+| 5.1 | Rename user-visible product/docs to Mini Conversation and replace broken README screenshots | `ENH-018`, `BUG-016` | done |
+| 5.2 | Generate legacy, round, adaptive, and optional monochrome launcher icons from `images/icon.png` | `ENH-018` | done |
+| 5.3 | Introduce Material DayNight design tokens based on the new icon palette | `ENH-019` | done |
+| 5.4 | Refresh onboarding, pairing, Conversation, WalkieTalkie, API, and settings screens | `ENH-019` | done |
+| 5.5 | Fix touch targets, accessibility labels, contrast, font scaling, and responsive layouts | `ENH-019` | done |
+| 5.6 | Run visual/accessibility/device QA and verify a signed release on API 23/31/34/36 | `ENH-019`, 2026-09-20 `vp-audit` | in_progress — version bump + `clean testDebugUnitTest lintDebug assembleDebug` done (BUILD SUCCESSFUL, 47/47 tests, 0 lint errors); device matrix/`connectedDebugAndroidTest`/`assembleRelease` signing/screenshot baselines/TalkBack/two-phone Bluetooth PENDING HUMAN |
 
 **Acceptance criteria (phase-level)**:
-- [ ] Installed app and first-party documentation use Mini Conversation consistently
-- [ ] Application ID/package remain stable and upstream attribution is preserved
-- [ ] Launcher icon passes adaptive mask and splash-screen checks
-- [ ] Core conversation behavior passes automated and manual regression gates
-- [ ] No unresolved High/Critical defect, missing device evidence, or unsigned artifact is represented as release-ready
+- [x] Installed app and first-party documentation use Mini Conversation consistently
+- [x] Application ID/package remain stable and upstream attribution is preserved
+- [ ] Launcher icon passes adaptive mask and splash-screen checks (needs device/emulator verification)
+- [ ] Core conversation behavior passes automated and manual regression gates (unit tests pass; manual/device gates pending)
+- [ ] No unresolved High/Critical defect, missing device evidence, or unsigned artifact is represented as release-ready (device/release QA still open — do not represent this phase as release-ready yet)
 
 ## Phase 6 — Bug Fix Sprint (complete)
 
@@ -118,7 +118,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 2 — Correctness & Robustness | complete / PASS | 6 | 6 |
 | 3 — Android Modernization | in_progress (device evidence BLOCKED) | 4 (static) | 6 |
 | 4 — Remaining Hygiene Backlog | proposed | 0 | 5 |
-| 5 — Mini Conversation Rebrand & UI | planned | 0 | 6 |
+| 5 — Mini Conversation Rebrand & UI | in_progress (device/release QA PENDING HUMAN) | 5 (+1 partial) | 6 |
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
 
-Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 is deferred to a dedicated `/vp-evolve`. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`; Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 is deferred to a dedicated `/vp-evolve`. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`. Phase 5 is `in_progress`: tasks 5.1–5.5 are done and 5.6's code/build-verification portion is done (app bumped to `1.2.0`/`versionCode 15`; 0 lint errors / 139 warnings, 47/47 unit tests); its device matrix, `assembleRelease` signing, and manual QA remain PENDING HUMAN. Phase 4 remains an independently schedulable hygiene backlog.
