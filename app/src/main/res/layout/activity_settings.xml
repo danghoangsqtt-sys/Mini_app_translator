@@ -49,13 +49,16 @@
         android:layout_marginBottom="8dp"
         android:indeterminateTint="@color/white"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_settings_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1"/>
 
+    <!-- fragment_settings_container is the correct host for SettingsFragment in this activity.
+         Note: fragment_container lives in activity_main.xml (VoiceTranslationActivity host).
+         Lint may incorrectly flag cross-activity ID references as UnknownIdInLayout. -->
     <FrameLayout
         android:id="@+id/fragment_settings_container"
         android:layout_width="0dp"

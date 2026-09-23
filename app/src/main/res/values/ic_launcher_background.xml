@@ -16,5 +16,6 @@
     *-->
 
 <resources>
-    <color name="ic_launcher_background">#43A047</color>
+    <!-- Ocean Blue launcher background -->
+    <color name="ic_launcher_background">#0277BD</color>
 </resources>

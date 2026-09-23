@@ -16,15 +16,16 @@
     *-->
 
 <resources>
-    <color name="primary">#43a047</color>
-    <color name="primary_dark">#388e3c</color>
-    <color name="primary_lite">#66bb6a</color>
-    <color name="accent">#36b024</color>
-    <color name="secondary">#ff0099cc</color>
-    <color name="secondaryTransparent">#320099cc</color>
-    <color name="background_discover">#5a43a047</color>
-    <color name="background_advertize">#5a43a047</color>
-    <color name="pressed_color">#cfd8dc</color>
+    <!-- Ocean Blue palette — Mini Conversation -->
+    <color name="primary">#0277BD</color>
+    <color name="primary_dark">#01579B</color>
+    <color name="primary_lite">#0288D1</color>
+    <color name="accent">#00BCD4</color>
+    <color name="secondary">#ff006064</color>
+    <color name="secondaryTransparent">#32006064</color>
+    <color name="background_discover">#5a0277BD</color>
+    <color name="background_advertize">#5a0288D1</color>
+    <color name="pressed_color">#B3E5FC</color>
     <color name="black">#212121</color>
     <color name="light_black">#404040</color>
     <color name="very_very_dark_gray">#5A5A5A</color>
@@ -39,4 +40,6 @@
     <color name="red">#d50000</color>
     <color name="yellow">#ffd600</color>
     <color name="green">#00c853</color>
+    <color name="ocean_deep">#003366</color>
+    <color name="ocean_wave">#0097A7</color>
 </resources>

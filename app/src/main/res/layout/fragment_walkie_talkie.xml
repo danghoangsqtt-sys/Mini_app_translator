@@ -21,14 +21,12 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/accent_white"
     android:fitsSystemWindows="true">
 
     <android.widget.Toolbar
         android:id="@+id/toolbarWalkieTalkie"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/accent_white"
         android:elevation="8dp"
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:theme="@style/Theme.Toolbar"
@@ -54,7 +52,7 @@
         android:indeterminateTint="@color/white"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarWalkieTalkie"
-        app:layout_constraintEnd_toStartOf="@+id/exit_button"
+        app:layout_constraintEnd_toStartOf="@+id/exitButton"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="@+id/toolbarWalkieTalkie"
         app:layout_constraintTop_toTopOf="@id/toolbarWalkieTalkie" />
@@ -90,6 +88,7 @@
         android:elevation="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/exit_icon"
+        android:contentDescription="@string/app_name"
         android:tint="@color/primary"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarWalkieTalkie"
@@ -160,6 +159,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:src="@drawable/dropdown_icon"
+        android:contentDescription="@string/app_name"
                     app:tint="@color/light_gray" />
             </LinearLayout>
 
@@ -205,6 +205,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:src="@drawable/dropdown_icon"
+        android:contentDescription="@string/app_name"
                     app:tint="@color/light_gray" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
