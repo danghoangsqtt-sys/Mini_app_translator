@@ -70,6 +70,8 @@ Các package chính:
   - Cloud Speech-to-Text API
   - Cloud Translation API
 
+Thiết lập JDK 17 theo môi trường của mỗi máy, không commit đường dẫn JDK vào `gradle.properties`. Trên Windows, đặt `JAVA_HOME` tới JDK 17 của bạn và đưa `$env:JAVA_HOME\bin` vào `Path` cho phiên PowerShell; trong Android Studio, chọn cùng JDK 17 ở Gradle JDK. Xác minh bằng `java -version` và `./gradlew --version` trước khi build.
+
 ## Build từ mã nguồn
 
 Clone repository:
