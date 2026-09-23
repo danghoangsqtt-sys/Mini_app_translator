@@ -1,15 +1,17 @@
 # ViePilot Audit Report — Mini Conversation / RTranslator
 
-**Date**: 2026-09-20  
-**Scope**: current `master` working tree, Android/Java source, resources, documentation, and ViePilot state  
-**Build verification**: blocked locally because neither Java nor an Android SDK is installed/discoverable
+**Date**: 2026-09-22 (re-audit; original: 2026-09-20)  
+**Scope**: Cả 2 workspace — `Mini_app_Translator` (master) và `Mini_app_Translator-phase3` (compatibility spike); Android/Java source, resources, documentation, ViePilot state  
+**Build verification**: blocked locally — Java/Android SDK không được cấu hình trên máy  
+**UI Upgrade**: Ocean Blue theme áp dụng lên `Mini_app_Translator` (master) ✅
 
 ## Executive summary
 
-- Confirmed 13 previously logged bugs and 17 enhancements against a 24,818-line Java app with 32 layouts and only two boilerplate test files.
-- Added `BUG-014` and `BUG-015`, which block a safe move to target API 36, plus `BUG-016` for broken README images.
-- Added `ENH-018` for the Mini Conversation identity/icon and `ENH-019` for the UI/accessibility refresh.
-- Converted the incomplete Phase 1 and Phase 2 backlog into executable planning artifacts and added Phase 5 for the requested rebrand/UI work.
+- `Mini_app_Translator` (master) là phiên bản **khuyến nghị để tiếp tục** — targetSdk 36, BUG-013/014/015 đã sửa, Phase 1 & 2 hoàn thành.
+- `Mini_app_Translator-phase3` là compatibility spike (Task 3.1) — vẫn ở targetSdk 29, thiếu exported declarations, không có Bluetooth 12+ permissions. **Không dùng để release**.
+- UI nâng cấp sang **Ocean Blue palette** (#0277BD) đã hoàn thành trong master: `colors.xml`, `ic_launcher_background.xml`, `styles.xml`, icon foreground đã được cập nhật.
+- Phase 3 (Android Modernization, 6 tasks) và Phase 5 (Rebrand & UI) vẫn đang planned.
+
 
 ## Tier 1 — ViePilot state consistency: warning, repaired in planning
 

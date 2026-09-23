@@ -38,6 +38,7 @@ README.md
 - Preserve `applicationId` and Java package names for upgrade compatibility. Record any future package rename as a separate migration.
 - Replace the two missing README images with new, privacy-safe screenshots.
 - Keep upstream RTranslator credit and license notices.
+- Correct README's now-stale statements about only boilerplate tests and plaintext credential storage; distinguish the implemented Keystore protection from the still-open public-distribution authentication decision.
 
 ### 5.2 — Launcher/adaptive icon set
 
@@ -74,6 +75,10 @@ README.md
 - Run accessibility checks plus TalkBack smoke tests.
 - Device matrix: API 23, 31, 34, and 36; at least one compact and one large screen.
 - Run `testDebugUnitTest`, `connectedDebugAndroidTest`, `lintDebug`, and `assembleDebug`; manually verify Bluetooth, microphone, translation, TTS, background notification, and process recreation.
+- Run `assembleRelease`, inspect the release artifact, and verify a signed installable artifact without committing a keystore or secret. Record permission grant/deny/revoke and credential import failures; use a physical two-phone Bluetooth pair.
+- Treat any missing device result, unresolved High/Critical issue, or unapproved service-account-on-device risk decision as a release blocker, not as a passed test.
+
+Detailed execution contracts for audit-driven documentation and release QA work are in `tasks/5.1-identity-docs.md` and `tasks/5.6-device-release-qa.md`.
 
 ## Acceptance
 

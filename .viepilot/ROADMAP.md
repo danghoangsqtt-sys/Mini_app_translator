@@ -39,7 +39,7 @@
 
 **Final gate**: at `d7c591f`, 39/39 JVM tests, `assembleDebug`, and 7/7 API 36 instrumentation tests passed. The approved limited lint waiver covers only three `ResourceType` errors in `GridLabelRenderer` and two `InvalidPackage` errors from `grpc-core 1.11.0` (5 errors, 121 warnings); no new lint error was present. JDK 11 is required by Gradle 5.6.4; JBR 25 is incompatible. Task 3.6 remains incomplete and owns dependency-refresh-aware lint remediation and warning triage.
 
-## Phase 3 — Android Modernization (planned, not started)
+## Phase 3 — Android Modernization (in_progress; Cluster A static PASS, device evidence BLOCKED)
 
 **Evolved via `/vp-evolve BUG-013 ENH-012` (2026-09-19), expanded by `/vp-audit` + `/vp-evolve` (2026-09-20)** — see `.viepilot/phases/phase-3-android-modernization/SPEC.md` for full task breakdown. The platform upgrade is sequenced after Phases 1 and 2:
 
@@ -51,6 +51,8 @@
 | 3.4 | Add explicit exported declarations for Android 12+ | `BUG-014` |
 | 3.5 | Declare and enforce microphone/connected-device foreground service types | `BUG-015` |
 | 3.6 | Resolve lint errors and make quality/release checks blocking | 2026-09-20 `vp-audit` |
+
+**Status**: `in_progress`. Tasks 3.1, 3.2, 3.4, and 3.5 have landed in code on `master` (Cluster A static PASS); the two-phone Bluetooth/SCO device evidence remains **PENDING HUMAN**, so the phase is not yet closed. Task 3.3 (dependency refresh) is intentionally deferred to a dedicated `/vp-evolve` pass to avoid an API-migration/backward-compatibility break.
 
 **Acceptance criteria (phase-level)**:
 - [ ] All 6 tasks above have a merged fix + regression test/manual verification
@@ -85,14 +87,38 @@ Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-013` (test covera
 - [ ] Core conversation behavior passes automated and manual regression gates
 - [ ] No unresolved High/Critical defect, missing device evidence, or unsigned artifact is represented as release-ready
 
+## Phase 6 — Bug Fix Sprint (complete)
+
+**Source**: `/vp-audit` 2026-09-22 lint baseline (174 warnings, 0 errors)
+**Execution spec**: `.viepilot/phases/phase-6-bug-fix-sprint/SPEC.md`
+**Status**: complete (10/10 tasks); app bumped to `1.1.3` (`versionCode 14`)
+
+Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thời khắc phục lỗi biên dịch phát sinh trong quá trình sửa (`InflateParams`).
+
+| Task | Request | Priority |
+|---|---|---|
+| 6.1 | Handler Looper fix | done (pre-phase) |
+| 6.2 | UnknownIdInLayout analysis (confirmed false positives) | Low |
+| 6.3 | contentDescription cho ImageViews | Medium |
+| 6.4 | Overdraw trong các layout | Low |
+| 6.5 | InflateParams trong các adapter | Low |
+| 6.6 | CanvasSize trong GraphView + RoundedCornerLayout | Low |
+| 6.7 | FileLog hardcoded path | done (already Logcat) |
+| 6.8 | DefaultLocale trong Translator.java | Low |
+| 6.9 | DataExtractionRules cho Android 12+ | Medium |
+| 6.10 | Build + Install + Verify | — |
+
+**Final gate (2026-09-23)**: `testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL; `lintDebug` → **0 errors, 136 warnings** (below the `<160` target). During the sprint a build-breaking regression in the `InflateParams` fix (undefined `parent` symbol in three list adapters) was found and corrected to use the `viewGroup` parameter.
+
 ## Progress Summary
 
 | Phase | Status | Tasks Done | Tasks Total |
 |---|---|---|---|
 | 1 — Security & Stability Hardening | complete | 6 | 6 |
 | 2 — Correctness & Robustness | complete / PASS | 6 | 6 |
-| 3 — Android Modernization | planned | 0 | 6 |
+| 3 — Android Modernization | in_progress (device evidence BLOCKED) | 4 (static) | 6 |
 | 4 — Remaining Hygiene Backlog | proposed | 0 | 5 |
 | 5 — Mini Conversation Rebrand & UI | planned | 0 | 6 |
+| 6 — Bug Fix Sprint | complete | 10 | 10 |
 
-Phase 2 is complete. Phase 3 remains planned and has not started. The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`; Phase 3 performs the integrated platform upgrade and retains Task 3.6 lint remediation. Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 is `in_progress`: Cluster A (toolchain, Bluetooth permissions, exported declarations, foreground service types) is a static PASS, but two-phone Bluetooth/SCO device evidence is still PENDING HUMAN; Task 3.3 is deferred to a dedicated `/vp-evolve`. Phase 6 is complete at `1.1.3` (0 lint errors / 136 warnings). The audit-driven execution order and release gates are in `.viepilot/REMEDIATION-PLAN.md`; Phase 5 applies the rebrand/UI and records device/release evidence. Phase 4 remains an independently schedulable hygiene backlog.

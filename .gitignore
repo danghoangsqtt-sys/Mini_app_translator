@@ -11,3 +11,10 @@
 /build
 /captures
 .externalNativeBuild
+# JVM crash artifacts / scratch outputs
+hs_err_pid*.log
+replay_pid*.log
+lint_*.txt
+verify_run.txt
+git_status*.txt
+git_diff_stat.txt

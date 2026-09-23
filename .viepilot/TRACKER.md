@@ -3,11 +3,11 @@
 ## Current state
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
-- **Current phase**: Phase 3 — Android Modernization (`planned`; not started)
+- **Current phase**: Multi-phase active — Phase 3 — Android Modernization (`in_progress`; static PASS, device evidence BLOCKED) and Phase 6 — Bug Fix Sprint (`complete`, 10/10 tasks)
 - **Current task**: none
 - **Branch**: `master` tracking this fork's `origin/master`; upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`)
 - **Target product name**: Mini Conversation (planned in Phase 5; runtime still reports RTranslator)
-- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is planned and has not started)
+- **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
 
 ## Brownfield Import
 
@@ -21,9 +21,10 @@
 |---|---|---|
 | 1 — Security & Stability Hardening | complete | 6/6 tasks |
 | 2 — Correctness & Robustness | complete / PASS | 6/6 tasks |
-| 3 — Android Modernization | planned | 0/6 tasks |
+| 3 — Android Modernization | in_progress | 4/6 static (device evidence BLOCKED) |
 | 4 — Remaining Hygiene Backlog | proposed | 0/5 tasks |
 | 5 — Mini Conversation Rebrand & UI | planned | 0/6 tasks |
+| 6 — Bug Fix Sprint | complete | 10/10 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
 `assembleDebug`, and 7/7 API 36 instrumentation tests passed; lint had only the three
@@ -50,9 +51,9 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | resolved (Phase 2, task 2.4) |
 | BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | resolved (Phase 2, task 2.5) |
 | BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Low | closed/reclassified future capability; no production fix (Phase 2, task 2.6) |
-| BUG-013 | 🐛 | Missing Android 12+ Bluetooth runtime permissions (blocks safe targetSdk 31+ upgrade) | High | planned (Phase 3, task 3.2) |
-| BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | planned (Phase 3, task 3.4) |
-| BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | planned (Phase 3, task 3.5) |
+| BUG-013 | 🐛 | Missing Android 12+ Bluetooth runtime permissions (blocks safe targetSdk 31+ upgrade) | High | in_progress (Phase 3, task 3.2 — code committed, device QA pending) |
+| BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | in_progress (Phase 3, task 3.4 — code committed, device QA pending) |
+| BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | in_progress (Phase 3, task 3.5 — code committed, device QA pending) |
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | planned (Phase 5, task 5.1) |
 | ENH-001 | 🔧 | No app-layer encryption for Bluetooth conversation payloads | Medium | new |
 | ENH-002 | 🔧 | Contact photo stored as unencrypted BLOB | Medium | new |
@@ -83,6 +84,8 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-20**: `/vp-evolve` made Phases 1 and 2 executable, expanded Phase 3 from 3 to 5 tasks for target API 36, and created Phase 5 for the Mini Conversation rebrand/UI. Application code and runtime version remain unchanged.
 - **2026-09-20**: `/vp-evolve` audit follow-up created a remediation sequence and task contracts for Phases 2–3 plus Phase 5 documentation/release QA. Added Phase 3 task 3.6 for blocking lint/release checks (5 lint errors and 119 warnings were observed despite a successful legacy build); host builds and 9 unit tests passed, but no Android device was connected and the release APK was unsigned. Phase 1 task 1.6 remains in progress; no app code or runtime version was changed by this planning pass.
 - **2026-09-20**: `/vp-auto` completed Phase 1 task 1.6. Credential import now uses SAF, validates the selected JSON before encrypted persistence, and removes legacy storage access. Build checks passed with 14 unit tests; API 36 emulator validation covered picker open/cancel, invalid rejection, valid import persistence, and the gallery provider entry point without a storage-permission prompt.
+- **2026-09-22**: Created Phase 6 — Bug Fix Sprint (`.viepilot/phases/phase-6-bug-fix-sprint/{SPEC.md,PHASE-STATE.md}`) from the `/vp-audit` lint baseline (174 warnings, 0 errors). Scope: fix all non-dependency lint warnings; no dependency upgrades.
+- **2026-09-23**: Completed Phase 6 (10/10 tasks) and resolved a build-breaking regression where Task 6.5 referred to an undefined `parent` symbol in three list adapters (`LanguageListAdapter`, `FileListAdapter`, `PeerListAdapter`). Bumped the app to `1.1.3` (`versionCode 14`). Verification: `testDebugUnitTest assembleDebug` BUILD SUCCESSFUL; `lintDebug` 0 errors / 136 warnings. Phase 3 remains `in_progress` (Cluster A static PASS; two-phone Bluetooth/SCO device evidence still PENDING HUMAN).
 
 ## Version info
 

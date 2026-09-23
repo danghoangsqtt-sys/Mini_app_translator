@@ -24,13 +24,13 @@
 
 | Thành phần | Giá trị hiện tại |
 |---|---|
-| Phiên bản ứng dụng | `1.1.2` (`versionCode 13`) |
+| Phiên bản ứng dụng | `1.1.3` (`versionCode 14`) |
 | Ngôn ngữ | Java |
 | Nền tảng | Android native |
 | Min SDK | API 23 (Android 6.0) |
-| Compile/Target SDK | API 29 (Android 10) |
-| Android Gradle Plugin | 3.6.1 |
-| Gradle Wrapper | 5.6.4 |
+| Compile/Target SDK | API 36 (Android 16) |
+| Android Gradle Plugin | 8.13.2 |
+| Gradle Wrapper | 8.13 |
 | Giấy phép | Apache License 2.0 |
 
 Mã nguồn đang sử dụng toolchain và thư viện legacy. Bản hiện tại phù hợp cho mục đích nghiên cứu, bảo trì hoặc làm nền cho quá trình nâng cấp; chưa nên phát hành như một ứng dụng production mới nếu chưa xử lý các hạng mục bảo mật và tương thích Android hiện đại.
@@ -62,9 +62,9 @@ Các package chính:
 
 ## Yêu cầu
 
-- Android Studio có thể mở dự án dùng Android Gradle Plugin 3.6.1.
-- JDK 8 được khuyến nghị cho toolchain Gradle 5.6.4 hiện tại.
-- Android SDK Platform 29 và Build Tools 28.0.3.
+- Android Studio có thể mở dự án dùng Android Gradle Plugin 8.13.2.
+- JDK 17 được yêu cầu cho toolchain Gradle 8.13 hiện tại.
+- Android SDK Platform 36.
 - Thiết bị Android 6.0 trở lên có microphone.
 - Bluetooth Low Energy cho Conversation mode.
 - Một Google Cloud project đã bật:

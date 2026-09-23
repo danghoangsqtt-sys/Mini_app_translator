@@ -6,7 +6,7 @@ No `~/.viepilot/stacks/{stack}/SUMMARY.md` external research cache was generated
 
 | Stack | Version | Guardrails source |
 |---|---|---|
-| Android SDK / Java | compileSdk 29, AGP 3.6.1 | `.viepilot/requests/ENH-011.md` |
+| Android SDK / Java | compileSdk 36, AGP 8.13.2, Gradle 8.13 | `.viepilot/requests/ENH-011.md` |
 | Room (SQLite ORM) | 2.1.0 | `.viepilot/requests/BUG-007.md` |
 | gRPC / Protobuf | 1.11.0 | `.viepilot/requests/BUG-005.md`, `ENH-008.md` |
 | google-auth-library-oauth2-http | 0.8.0 | `.viepilot/requests/BUG-001.md`, `BUG-009.md` |
