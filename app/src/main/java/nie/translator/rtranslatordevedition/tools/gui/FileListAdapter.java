@@ -61,7 +61,7 @@ public class FileListAdapter extends BaseAdapter {
         final Object item = getItem(position);
         File file = ((File) item);
         if (view == null) {
-            view = inflater.inflate(R.layout.component_row_key_file, null);
+            view = inflater.inflate(R.layout.component_row_key_file, parent, false);
         }
         ((TextView) view.findViewById(R.id.file_name)).setText(file.getName());
         try {

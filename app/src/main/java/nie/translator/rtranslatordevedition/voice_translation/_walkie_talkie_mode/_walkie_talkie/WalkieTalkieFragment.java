@@ -18,6 +18,7 @@ package nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mo
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +66,7 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
     private ImageButton reloadButton;
     private String selectedLanguageCode;
     private AlertDialog dialog;
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public WalkieTalkieFragment() {
         // Required empty public constructor

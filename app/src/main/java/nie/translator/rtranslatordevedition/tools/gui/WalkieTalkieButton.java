@@ -18,6 +18,7 @@ package nie.translator.rtranslatordevedition.tools.gui;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import nie.translator.rtranslatordevedition.tools.gui.animations.CustomAnimator;
@@ -26,7 +27,7 @@ public class WalkieTalkieButton extends FloatingActionButton {
     public static final int STATE_SINGLE=0;
     public static final int STATE_CONNECTING=2;
     private int state;
-    private Handler eventHandler= new Handler();
+    private Handler eventHandler= new Handler(Looper.getMainLooper());
     private CustomAnimator animator= new CustomAnimator();
 
     public WalkieTalkieButton(Context context) {

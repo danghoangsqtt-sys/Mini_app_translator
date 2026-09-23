@@ -16,32 +16,16 @@
 
 package nie.translator.rtranslatordevedition.tools;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import android.util.Log;
 
 /**
- * This class is only for a possible debug, it is not necessary
+ * This class is only for a possible debug, it is not necessary.
+ * Logs to Logcat instead of sdcard to avoid storage permission requirements.
  */
 public class FileLog {
+    private static final String TAG = "MiniTranslator";
+
     public static void appendLog(String text) {
-        File logFile = new File("sdcard/log.txt");
-        if (!logFile.exists() || !logFile.canWrite()) {
-            try {
-                logFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            //BufferedWriter for performance, true to set append to file flag
-            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-            buf.append(text);
-            buf.newLine();
-            buf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Log.d(TAG, text);
     }
 }

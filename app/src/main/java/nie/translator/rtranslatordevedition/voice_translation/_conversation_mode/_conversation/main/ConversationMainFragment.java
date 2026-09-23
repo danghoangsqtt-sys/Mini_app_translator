@@ -19,6 +19,7 @@ package nie.translator.rtranslatordevedition.voice_translation._conversation_mod
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,7 @@ import nie.translator.rtranslatordevedition.voice_translation._conversation_mode
 
 public class ConversationMainFragment extends VoiceTranslationFragment {
     private TextView micInput;
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public ConversationMainFragment() {
         //an empty constructor is always needed for fragments

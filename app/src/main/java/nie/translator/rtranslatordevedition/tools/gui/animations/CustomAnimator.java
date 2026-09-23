@@ -31,6 +31,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -57,7 +58,7 @@ import nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationAc
 public class CustomAnimator {
     private final float iconSizeInDp=24;
     private final float micSizeInDp=50;
-    private Handler eventHandler= new Handler();
+    private Handler eventHandler= new Handler(Looper.getMainLooper());
     private Interpolator reverseInterpolator=new Interpolator() {
         private AccelerateDecelerateInterpolator interpolator= new AccelerateDecelerateInterpolator();
         @Override

@@ -117,13 +117,13 @@ public class PeerListAdapter extends BaseAdapter {
         if (itemType == HEADER) {
             String headerText = ((Header) item).getText();
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row_header, null);
+                view = inflater.inflate(R.layout.component_row_header, parent, false);
             }
             ((TextView) view.findViewById(R.id.header_text)).setText(headerText);
         } else if (itemType == HOST_CONNECTED) {
             GuiPeer guiPeer = (GuiPeer) item;
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row_connected, null);
+                view = inflater.inflate(R.layout.component_row_connected, parent, false);
             }
             Bitmap image = guiPeer.getUserImage();
             if (image != null) {
@@ -145,7 +145,7 @@ public class PeerListAdapter extends BaseAdapter {
             GuiPeer guiPeer= (GuiPeer) item;
             String peerName = ((Peer) item).getName();
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row, null);
+                view = inflater.inflate(R.layout.component_row, parent, false);
             }
             Bitmap image = guiPeer.getUserImage();
             if (image != null) {
@@ -161,7 +161,7 @@ public class PeerListAdapter extends BaseAdapter {
             final RecentPeer recentPeer = (RecentPeer) item;
             String peerName = recentPeer.getName();
             if (view == null) {
-                view = inflater.inflate(R.layout.component_row_recent, null);
+                view = inflater.inflate(R.layout.component_row_recent, parent, false);
                 // if you don't set it to false then clicking on the whole row won't work
                 ((ImageButton) view.findViewById(R.id.threeDotsButton)).setFocusable(false);
             }
