@@ -1,6 +1,6 @@
 <h3 align="center">PRIVACY POLICY</h3> <br />
 
-In compliance with the obligations deriving from community legislation (European Regulation for the protection of personal data n. 679/2016, GDPR) and subsequent amendments, this application on mobile device (hereinafter also "App") RTranslator respects and protects the confidentiality of visitors and users, by putting in place measures proportionately designed not to infringe the rights of users.<br />
+In compliance with the obligations deriving from community legislation (European Regulation for the protection of personal data n. 679/2016, GDPR) and subsequent amendments, this application on mobile device (hereinafter also "App") Mini Conversation respects and protects the confidentiality of visitors and users, by putting in place measures proportionately designed not to infringe the rights of users.<br />
 This document also takes into account Recommendation no. 2/2001 that the European Authorities for the protection of personal data have adopted to identify the minimum requirements for the collection of personal data online.<br />
 This Privacy Policy applies to the online activities of the App and is valid for visitors / users of the same.<br />
 The purpose of the Privacy Policy is to provide maximum transparency regarding the information that the site collects and uses.
@@ -23,13 +23,13 @@ This is information that is not collected to be associated with identified data 
 
 #### Data provided voluntarily by the User
 The personal data provided voluntarily by the User, such as name and profile picture, are saved only and exclusively on the device of the user using the App as well as transmitted, via Bluetooth system, and then saved on the mobile device with which you are communicating.<br />
-Such data will in no way be managed by RTranslator.<br />
+Such data will in no way be managed by Mini Conversation.<br />
 The optional, explicit and voluntary sending of e-mails to the addresses indicated on this App entails the subsequent acquisition of the sender's address, necessary to respond to requests, as well as any other personal data included in the message.<br />
 Specific summary information, in which the consent of the processing of the processed data is expressly requested, if necessary, will be displayed on the pages of the App prepared for particular services on request.
 <br /><br />
 
 #### Data deriving from the installation of the APP
-The "RTranslator" App does not process and manage any type of personal data, except those deriving from the installation and use of the same.
+The "Mini Conversation" App does not process and manage any type of personal data, except those deriving from the installation and use of the same.
 After downloading and installing the App, the model used, as well as the type and version of the operating system used, are automatically detected by the mobile device. This information helps us to provide the required services and manage the App, analyze its use, protect the app and its content from inappropriate or inappropriate use and improve the user experience.<br />
 The only data used, relating to the user's position and data, such as audio and the transcription of the same, are those that will then be sent to third parties, in this case Google, which allow to provide the services made available to the App. take care of its maintenance, improve it and communicate with users.<br />
 The download of the App is also used as a numeric data for the sole purpose of obtaining anonymous statistical information about the number of users who download the App itself.<br />
@@ -42,8 +42,8 @@ Geolocation data and data sent and third parties
 <br /><br />
 
 #### Geolocation data and data sent and third parties
-For the proper functioning of the App RTranslator collects information only on the location of the device for the sole purpose of allowing the correct use of bluetooth.<br />
-RTranslator in any case collects and processes data that will then be sent to Google, such as: audio, the transcription of which is transmitted at a later time via bluetooth to the phone with which you are communicating, and the transcription of the audio received by the other user, to carry out the translation.<br />
+For the proper functioning of the App Mini Conversation collects information only on the location of the device for the sole purpose of allowing the correct use of bluetooth.<br />
+Mini Conversation in any case collects and processes data that will then be sent to Google, such as: audio, the transcription of which is transmitted at a later time via bluetooth to the phone with which you are communicating, and the transcription of the audio received by the other user, to carry out the translation.<br />
 <br /><br /><br />
 
 #### PURPOSE OF THE TREATMENT

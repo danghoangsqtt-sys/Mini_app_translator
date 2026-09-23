@@ -1,11 +1,9 @@
-# Mini App Translator
+# Mini Conversation
 
 Ứng dụng dịch giọng nói thời gian thực dành cho Android, hỗ trợ hội thoại giữa hai thiết bị và chế độ bộ đàm trên một thiết bị.
 
 > [!IMPORTANT]
-> Tên repository là **Mini App Translator**, nhưng mã nguồn hiện tại là ứng dụng Android native viết bằng Java, không phải mini app chạy trong trình duyệt. Dự án là một fork đang được hiện đại hóa từ [RTranslator](https://github.com/niedev/RTranslator).
-
-![Conversation mode](images/conversation_image_github.png)
+> Tên repository là **Mini App Translator**, nhưng ứng dụng đã được đổi tên hiển thị thành **Mini Conversation** (Phase 5); mã nguồn là ứng dụng Android native viết bằng Java, không phải mini app chạy trong trình duyệt. Dự án là một fork đang được hiện đại hóa từ [RTranslator](https://github.com/niedev/RTranslator).
 
 ## Tính năng
 
@@ -18,13 +16,14 @@
 - Lưu thiết bị gần đây và thống kê mức sử dụng API bằng Room.
 - Có thể tiếp tục dịch khi ứng dụng chạy nền trong các chế độ hội thoại.
 
-![Walkie-Talkie mode and API cost overview](images/WalkieTalkie_and_Costs_image_github.png)
+> [!NOTE]
+> Ảnh chụp màn hình Conversation mode và WalkieTalkie mode trước đây đã được gỡ bỏ (`BUG-016`) vì không còn phản ánh giao diện Mini Conversation. Ảnh mới sẽ được thêm lại từ bộ screenshot baseline light/dark của task 5.6 sau khi có bằng chứng chạy trên thiết bị thật.
 
 ## Trạng thái dự án
 
 | Thành phần | Giá trị hiện tại |
 |---|---|
-| Phiên bản ứng dụng | `1.1.3` (`versionCode 14`) |
+| Phiên bản ứng dụng | `1.2.0` (`versionCode 15`) |
 | Ngôn ngữ | Java |
 | Nền tảng | Android native |
 | Min SDK | API 23 (Android 6.0) |

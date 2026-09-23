@@ -4,6 +4,10 @@ All notable changes to this fork will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed product from Mini Translator to Mini Conversation across all user-facing strings, docs, and notifications (`ENH-018`).
+
 ### Fixed
 
 - Encrypt the Google Cloud service-account credential at rest with an Android Keystore-backed AES-GCM key, including safe migration from the former plaintext file.
