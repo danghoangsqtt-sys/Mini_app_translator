@@ -2,7 +2,7 @@
 
 All notable changes to this fork will be documented in this file.
 
-## [Unreleased]
+## [1.2.0] - 2026-09-23
 
 ### Changed
 
@@ -10,6 +10,13 @@ All notable changes to this fork will be documented in this file.
 - Replaced launcher icons with a clean circular legacy/round set and an adaptive icon (background/foreground/monochrome layers) derived from `images/icon.png` (`ENH-018`).
 - Switched `Theme.Speech` from `Theme.AppCompat.Light.DarkActionBar` to `Theme.MaterialComponents.DayNight.NoActionBar` with semantic color tokens and a `values-night/colors.xml` dark palette (`ENH-019`).
 - Refreshed onboarding, pairing, conversation, WalkieTalkie, API management, and settings screens with Material components (MaterialButton/MaterialCheckBox/MaterialCardView), theme-token colors, a clearer pairing empty state, larger WalkieTalkie language labels, and consolidated settings categories (`ENH-019`).
+
+### Fixed
+
+- Added real contentDescription strings for 28 interactive icon controls that were missing one or reusing the generic app-name placeholder (`ENH-019`).
+- Enlarged 15 sub-48dp interactive icon controls to a 48x48dp minimum touch target (`ENH-019`).
+
+## [Unreleased]
 
 ### Fixed
 
@@ -28,8 +35,6 @@ All notable changes to this fork will be documented in this file.
   lifecycle behavior.
 - Prevent stale Conversation SCO reconnect callbacks from restarting Bluetooth after service
   teardown or from an old service instance.
-- Add real contentDescription strings for 28 interactive icon controls that were missing one or reusing the generic app-name placeholder.
-- Enlarge 15 sub-48dp interactive icon controls to a 48x48dp minimum touch target.
 
 ### Planned
 
@@ -37,5 +42,3 @@ All notable changes to this fork will be documented in this file.
 - Correctness fixes for Room instance ownership, token/service lifecycles, and any reachable unauthenticated crypto or GraphView path (reachability checks come first).
 - Android toolchain modernization targeting API 36, including Bluetooth permissions, component exports, and foreground service types.
 - Resolve lint errors, make quality checks blocking, and collect real-device plus signed-release evidence before public distribution.
-- Product rename to **Mini Conversation** with launcher/adaptive icons sourced from `images/icon.png`.
-- Material-based light/dark UI refresh with accessibility and responsive-layout improvements.
