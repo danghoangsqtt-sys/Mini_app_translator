@@ -183,3 +183,29 @@ No APK was installed and no launch, Settings/API-key/file-picker, permission lif
 PENDING HUMAN EVIDENCE — no available API 23/31/34/36 device/emulator; two-phone Conversation Bluetooth/SCO; WalkieTalkie/headset; grant/deny/revoke; foreground-service lifecycle; UI/back-navigation.
 
 STATUS: BLOCKED — awaiting device evidence and QA
+
+## [2026-09-23 09:43:00 +07:00] Cụm A — API 36 fresh-install Bluetooth corrective handoff
+
+Snapshot commit cho SOL re-QA: `09293b4c18e8dcce424873b7a508d3357e47439f` (`fix(android): defer Bluetooth GATT init until BLUETOOTH_CONNECT granted`). Commit này là hậu duệ của snapshot lỗi `9ae921fd21748db97194c8949b7ea34ae4b42463`.
+
+Corrective scope đã được xác minh:
+
+- `Global.onCreate()` chỉ tạo `BluetoothCommunicatorLifecycle`; không tạo `ConversationBluetoothCommunicator` hay mở GATT server khi `BLUETOOTH_CONNECT` còn chưa được cấp.
+- Communicator chỉ được tạo qua `initializeBluetoothCommunicatorIfPermitted()` sau permission gate. `getBluetoothCommunicator()` trả `null` trong fresh-install/deny/revoke path để các call site không chạm Bluetooth transport.
+- `VoiceTranslationActivity` chỉ initialize sau `hasNearbyPermissions()` và sau kết quả runtime permission hợp lệ; callback được attach sau initialization thành công.
+- Regression test `BluetoothCommunicatorLifecycleTest` bao phủ không tạo object khi fresh-install/deny, một lần tạo sau grant, không expose khi revoke, re-grant, serialized cleanup/retry, và retry sau construction failure. Không có catch-all hoặc lint suppression mới.
+
+Đã kiểm tra đúng snapshot trong detached worktree sạch `D:\DataAdmin\qa-a-09293b4` (JDK `17.0.20.101`, Gradle `8.13`, AGP `8.13.2`; SDK cấp qua `ANDROID_HOME` process-local, không sửa/commit local properties):
+
+- `gradlew.bat testDebugUnitTest lintDebug assembleDebug assembleRelease --max-workers=1 --no-daemon --console=plain`: PASS.
+- Unit XML: 18 suites, 47 tests, 0 failures, 0 errors.
+- `lint-results-debug.xml`: 0 errors / 168 warnings; không added mass-suppress.
+- Debug APK và unsigned release APK được tạo; `minifyReleaseWithR8` hoàn tất.
+- `git diff --check`: PASS; snapshot worktree sạch.
+
+Handoff cho SOL:
+
+- Re-QA/thiết bị đúng snapshot `09293b4c18e8dcce424873b7a508d3357e47439f`: fresh install API 36 với `BLUETOOTH_CONNECT` denied, deny/revoke/re-grant, rồi Conversation/WalkieTalkie paths.
+- Human evidence còn lại vẫn bắt buộc: API 23/31/34/36, two-phone Conversation Bluetooth/SCO, WalkieTalkie/headset, foreground-service lifecycle, screen-lock/restart/process recreation và UI/back-navigation. Cụm A chưa PASS; không chuyển sang Cụm B/C.
+
+STATUS: DONE — awaiting QA
