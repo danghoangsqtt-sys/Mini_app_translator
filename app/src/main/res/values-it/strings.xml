@@ -21,7 +21,7 @@
     <string name="exit">esci</string>
     <string name="retry">riprova</string>
     <string name="delete">elimina</string>
-    <string name="no_devices">no devices</string>
+    <string name="no_devices">Ricerca dispositivi in corso…</string>
     <string name="available">disponibile</string>
     <string name="not_available">non disponibile</string>
     <string name="loading">caricamento…</string>

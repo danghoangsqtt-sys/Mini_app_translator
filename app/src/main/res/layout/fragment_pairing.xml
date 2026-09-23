@@ -32,7 +32,7 @@
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:theme="@style/Theme.Toolbar"
         android:title=" "
-        android:titleTextColor="@color/primary"
+        android:titleTextColor="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
@@ -49,7 +49,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="48dp"
         android:layout_marginBottom="8dp"
-        android:indeterminateTint="@color/primary"
+        android:indeterminateTint="?attr/colorPrimary"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarPairing"
         app:layout_constraintEnd_toEndOf="@+id/toolbarPairing"
@@ -59,16 +59,17 @@
 
     <nie.translator.rtranslatordevedition.tools.gui.ButtonSearch
         android:id="@+id/searchButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="48dp"
+        android:layout_marginEnd="36dp"
         android:layout_marginBottom="8dp"
         android:background="@null"
+        android:padding="12dp"
         android:scaleType="fitCenter"
         android:src="@drawable/cancel_icon"
-        android:tint="@color/primary"
+        android:tint="?attr/colorPrimary"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarPairing"
         app:layout_constraintEnd_toEndOf="@+id/toolbarPairing"
@@ -85,7 +86,7 @@
         android:fontFamily="@font/nunito_sans_light"
         android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/primary"
+        android:textColor="?attr/colorPrimary"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarPairing"
@@ -94,7 +95,7 @@
         app:layout_constraintStart_toStartOf="@+id/toolbarPairing"
         app:layout_constraintTop_toTopOf="@+id/toolbarPairing" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardView4"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -102,8 +103,9 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/white"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +140,12 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
+                android:drawableTop="@drawable/search_icon"
+                android:drawablePadding="12dp"
+                android:drawableTint="@color/light_gray"
+                android:gravity="center_horizontal"
                 android:text="@string/no_devices"
+                android:textColor="@color/light_gray"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -201,7 +208,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <nie.translator.rtranslatordevedition.tools.gui.WalkieTalkieButton
         android:id="@+id/buttonStart"
@@ -215,7 +222,7 @@
         android:elevation="16dp"
         android:focusable="true"
         android:src="@drawable/walkie_talkie_white_icon"
-        android:tint="@color/primary"
+        android:tint="?attr/colorPrimary"
         app:maxImageSize="40dp"
         app:rippleColor="@color/light_gray"
         app:backgroundTint="@color/accent_white"

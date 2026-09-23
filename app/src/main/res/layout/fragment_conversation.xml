@@ -31,7 +31,7 @@
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:theme="@style/Theme.Toolbar"
         android:title=" "
-        android:titleTextColor="@color/primary"
+        android:titleTextColor="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
@@ -49,7 +49,7 @@
         android:fontFamily="@font/nunito_sans_light"
         android:text="@string/title_fragment_conversation"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/primary"
+        android:textColor="?attr/colorPrimary"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarConversation"
@@ -71,7 +71,7 @@
         android:elevation="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/exit_icon"
-        android:tint="@color/primary"
+        android:tint="?attr/colorPrimary"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarConversation"
         app:layout_constraintEnd_toEndOf="@+id/toolbarConversation"
@@ -89,7 +89,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:elevation="8dp"
-        android:indeterminateTint="@color/primary"
+        android:indeterminateTint="?attr/colorPrimary"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarConversation"
         app:layout_constraintEnd_toStartOf="@+id/exitButton"
@@ -109,7 +109,7 @@
         android:elevation="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/cancel_icon"
-        android:tint="@color/primary"
+        android:tint="?attr/colorPrimary"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/toolbarConversation"
         app:layout_constraintEnd_toStartOf="@+id/exitButton"
@@ -117,14 +117,14 @@
         app:layout_constraintStart_toStartOf="@+id/toolbarConversation"
         app:layout_constraintTop_toTopOf="@+id/toolbarConversation" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="-4dp"
         android:layout_marginEnd="-4dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/accent_white"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -147,16 +147,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tabBackground="@color/accent_white"
+                app:tabBackground="?attr/colorSurface"
                 app:tabGravity="fill"
-                app:tabIndicatorColor="@color/accent_white"
+                app:tabIndicatorColor="?attr/colorPrimary"
                 app:tabMaxWidth="0dp"
                 app:tabMode="fixed"
-                app:tabSelectedTextColor="@color/primary"
+                app:tabSelectedTextColor="?attr/colorPrimary"
                 app:tabTextAppearance="@style/Theme.TabLayout"
                 app:tabTextColor="@color/gray" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/tabs"
