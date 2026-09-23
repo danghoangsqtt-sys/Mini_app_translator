@@ -39,7 +39,6 @@ import java.util.ArrayList;
 
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
-import nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationActivity;
 import com.bluetooth.communicator.tools.BluetoothTools;
 
 
@@ -125,11 +124,8 @@ public class UserDataFragment extends Fragment {
                     userImageContainer.saveImage();
                     //modification of the firstStart
                     global.setFirstStart(false);
-                    //start activity
-                    Intent intent = new Intent(activity, VoiceTranslationActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    activity.startActivity(intent);
-                    activity.finish();
+                    // Keep this Activity alive until the destination has reached the foreground.
+                    activity.startMainActivity();
                 }
             }
         });

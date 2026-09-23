@@ -65,7 +65,7 @@
                 android:text="@string/description_notice"
                 android:textAlignment="center"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/buttonConfirm"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/guideline8"
@@ -91,33 +91,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="1" />
 
-            <ImageView
-                android:id="@+id/google_cloud_logo"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginBottom="32dp"
-                android:src="@drawable/google_cloud_logo"
-        android:contentDescription="@string/cd_google_cloud_logo"
-                app:layout_constraintBottom_toTopOf="@+id/buttonConfirm"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.847"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/noticeDescription"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <ImageView
-                android:id="@+id/app_logo"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginBottom="32dp"
-                android:src="@drawable/vertical_logo"
-        android:contentDescription="@string/cd_app_logo"
-                app:layout_constraintBottom_toTopOf="@+id/buttonConfirm"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.152"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/noticeDescription"
-                app:layout_constraintVertical_bias="1.0" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </FrameLayout>

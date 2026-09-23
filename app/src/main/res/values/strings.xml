@@ -63,7 +63,9 @@
     <string name="error_missing_tts">In this device there is no google tts engine, download it to be able to use the application</string>
     <string name="error_wrong_api_key_file">The key file to use the API does not work, insert a working key file</string>
     <string name="error_missing_api_key_file">Enter the key file to use the API</string>
-    <string name="error_missing_bluetooth_le">It is not possible to search because this device does not have Bluetooth Low Energy</string>
+    <string name="error_missing_bluetooth_le">Nearby-device discovery is not available on this device</string>
+    <string name="error_bluetooth_unavailable">Turn on Bluetooth and return to this screen to search for nearby devices</string>
+    <string name="error_bluetooth_discovery_unsupported">This device cannot provide the nearby-device discovery required for pairing. Bluetooth may still be available for other uses.</string>
     <string name="error_internet_lack_loading">To start Mini Conversation an internet connection is required, check your connection</string>
     <string name="error_internet_lack_accessing">To perform the operation an internet connection is required, check your connection</string>
     <string name="error_internet_lack_services">Unable to translate message, check internet connection</string>
@@ -107,7 +109,7 @@
         furthermore the application will continue to work also in background and with the phone on standby</string>
     <string name="description_walkie_talkie">WalkieTalkie mode is the secondary functionality of Mini Conversation, it does not allow real-time translation but is designed to work with just one phone,
         it automatically detects and translates a speech in a language into another language, and the application will continue to work in background and with the phone on standby</string>
-    <string name="description_notice">Mini Conversation is free only for the first 300 dollars spent during the first year from the creation of the Google Cloud account; in addition, it must be configured to work, to know how to do it, the prices and the features of Mini Conversation visit the GitHub project of the app <a href="https://github.com/niedev/RTranslator">here</a></string>
+    <string name="description_notice">Complete this setup to create your local profile and accept the privacy policy. You do not need a Google Cloud account or a service-account key to continue.</string>
 
     <string name="preference_header_language">Language</string>
     <string name="preference_header_audio">Audio</string>
@@ -127,7 +129,6 @@
 
     <!-- Accessibility content descriptions for icon-only controls -->
     <string name="cd_app_logo">App logo</string>
-    <string name="cd_google_cloud_logo">Google Cloud logo</string>
     <string name="cd_user_photo">User profile photo</string>
     <string name="cd_disconnect">Disconnect</string>
     <string name="cd_offline_status">Offline</string>

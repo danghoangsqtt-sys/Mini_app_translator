@@ -89,6 +89,7 @@ public class PairingFragment extends PairingToolbarFragment {
         communicatorCallback = new VoiceTranslationActivity.Callback() {
             @Override
             public void onSearchStarted() {
+                showPairingControls();
                 buttonSearch.setSearching(true, animator);
             }
 
@@ -220,7 +221,7 @@ public class PairingFragment extends PairingToolbarFragment {
 
             @Override
             public void onBluetoothLeNotSupported() {
-
+                showPairingIssue(R.string.error_bluetooth_discovery_unsupported);
             }
 
             @Override
@@ -232,6 +233,7 @@ public class PairingFragment extends PairingToolbarFragment {
                     listViewGui.setVisibility(View.GONE);
                     noDevices.setVisibility(View.GONE);
                     discoveryDescription.setVisibility(View.GONE);
+                    noBluetoothLe.setVisibility(View.GONE);
                     noPermissions.setVisibility(View.VISIBLE);
                 }
             }
@@ -394,16 +396,36 @@ public class PairingFragment extends PairingToolbarFragment {
     @Override
     protected void startSearch() {
         int result = activity.startSearch();
-        if (result != BluetoothCommunicator.SUCCESS) {
-            if (result == BluetoothCommunicator.BLUETOOTH_LE_NOT_SUPPORTED && noBluetoothLe.getVisibility() != View.VISIBLE) {
-                // appearance of the bluetooth le missing sign
-                listViewGui.setVisibility(View.GONE);
-                noDevices.setVisibility(View.GONE);
-                discoveryDescription.setVisibility(View.GONE);
-                noBluetoothLe.setVisibility(View.VISIBLE);
-            } else if (result != VoiceTranslationActivity.NO_PERMISSIONS && result != BluetoothCommunicator.ALREADY_STARTED) {
+        if (result == BluetoothCommunicator.SUCCESS || result == BluetoothCommunicator.ALREADY_STARTED) {
+            showPairingControls();
+        } else {
+            if (result == VoiceTranslationActivity.BLUETOOTH_UNAVAILABLE) {
+                showPairingIssue(R.string.error_bluetooth_unavailable);
+            } else if (result == VoiceTranslationActivity.BLUETOOTH_DISCOVERY_UNSUPPORTED
+                    || result == BluetoothCommunicator.BLUETOOTH_LE_NOT_SUPPORTED) {
+                showPairingIssue(R.string.error_bluetooth_discovery_unsupported);
+            } else if (result != VoiceTranslationActivity.NO_PERMISSIONS) {
                 Toast.makeText(activity, getResources().getString(R.string.error_starting_search), Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void showPairingIssue(int messageResId) {
+        clearFoundPeers();
+        listViewGui.setVisibility(View.GONE);
+        noDevices.setVisibility(View.GONE);
+        discoveryDescription.setVisibility(View.GONE);
+        noPermissions.setVisibility(View.GONE);
+        noBluetoothLe.setText(messageResId);
+        noBluetoothLe.setVisibility(View.VISIBLE);
+    }
+
+    private void showPairingControls() {
+        if (noBluetoothLe.getVisibility() == View.VISIBLE) {
+            noBluetoothLe.setVisibility(View.GONE);
+            listViewGui.setVisibility(View.VISIBLE);
+            noDevices.setVisibility(View.VISIBLE);
+            discoveryDescription.setVisibility(View.VISIBLE);
         }
     }
 

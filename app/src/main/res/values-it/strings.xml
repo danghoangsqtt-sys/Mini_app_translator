@@ -60,7 +60,9 @@
     <string name="error_missing_tts">In questo device non è presente il motore di sintesi vocale di google, scaricalo per poter usare l\' applicazione</string>
     <string name="error_wrong_api_key_file">Il file chiave per usare l\'API non funziona, inserire un file chiave funzionante</string>
     <string name="error_missing_api_key_file">Inserire il file chiave per usare l\'API</string>
-    <string name="error_missing_bluetooth_le">Non é possibile eseguire la ricerca perchè questo dispositivo non ha il Bluetooth Low Energy</string>
+    <string name="error_missing_bluetooth_le">La ricerca di dispositivi nelle vicinanze non è disponibile su questo dispositivo</string>
+    <string name="error_bluetooth_unavailable">Attiva il Bluetooth e torna in questa schermata per cercare dispositivi nelle vicinanze</string>
+    <string name="error_bluetooth_discovery_unsupported">Questo dispositivo non può fornire la ricerca di dispositivi nelle vicinanze necessaria per l\'abbinamento. Il Bluetooth può essere comunque disponibile per altri usi.</string>
     <string name="error_internet_lack_loading">Per avviare Mini Conversation è necessaria una connessione a internet, controllare la propria connessione</string>
     <string name="error_internet_lack_accessing">Per eseguire l\'operazione è necessaria una connessione a internet, controllare la propria connessione</string>
     <string name="error_internet_lack_services">Impossibile tradurre il messaggio, controllare la connessione a internet</string>
@@ -103,7 +105,7 @@
     <string name="description_conversation">La modalità Conversazione è la funzionalità principale di Mini Conversation, permette di tradurre una conversazione tra più persone in tempo reale, per un\' esperienza migliore         si consiglia di collegare delle cuffie bluetooth al telefono, inoltre l\' applicazione continuerà a funzionare anche in background e con il telefono in standby</string>
     <string name="description_walkie_talkie">La modalità WalkieTalkie è la funzionalità secondaria di Mini Conversation, non permette una traduzione in tempo reale ma è pensata per funzionare con un solo telefono,
         rileva e traduce automaticamente un discorso in una lingua nell\' altra, inoltre l\' applicazione continuerà a funzionare anche in background e con il telefono in standby</string>
-    <string name="description_notice">Mini Conversation è gratuito solo per i primi 300 dollari spesi durante il primo anno dalla creazione dell\'account Google Cloud; inoltre, deve essere configurato per funzionare, per sapere come fare, conoscere i prezzi e le funzionalità di Mini Conversation visita il progetto GitHub dell\'app <a href="https://github.com/niedev/RTranslator">qui</a></string>
+    <string name="description_notice">Completa questa configurazione per creare il tuo profilo locale e accettare l\'informativa sulla privacy. Non servono un account Google Cloud né una chiave di servizio per continuare.</string>
 
     <string name="preference_header_language">Lingua</string>
     <string name="preference_header_audio">Audio</string>
@@ -123,7 +125,6 @@
 
     <!-- Accessibility content descriptions for icon-only controls -->
     <string name="cd_app_logo">Logo dell\'app</string>
-    <string name="cd_google_cloud_logo">Logo Google Cloud</string>
     <string name="cd_user_photo">Foto profilo utente</string>
     <string name="cd_disconnect">Disconnetti</string>
     <string name="cd_offline_status">Offline</string>

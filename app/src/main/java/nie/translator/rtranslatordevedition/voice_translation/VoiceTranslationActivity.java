@@ -61,6 +61,7 @@ import nie.translator.rtranslatordevedition.voice_translation._conversation_mode
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode._conversation.ConversationService;
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode._conversation.main.ConversationMainFragment;
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode.communication.ConversationBluetoothCommunicator;
+import nie.translator.rtranslatordevedition.voice_translation._conversation_mode.communication.BluetoothCapabilityEvaluator;
 import com.bluetooth.communicator.BluetoothCommunicator;
 import com.bluetooth.communicator.Peer;
 import nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie.WalkieTalkieFragment;
@@ -77,6 +78,9 @@ public class VoiceTranslationActivity extends GeneralActivity {
     public static final int WALKIE_TALKIE_FRAGMENT = 2;
     public static final int DEFAULT_FRAGMENT = PAIRING_FRAGMENT;
     public static final int NO_PERMISSIONS = -10;
+    public static final int BLUETOOTH_UNAVAILABLE = -11;
+    public static final int BLUETOOTH_DISCOVERY_UNSUPPORTED = -12;
+    public static final int BLUETOOTH_LIBRARY_FAILURE = -13;
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 2;
     private static final String BLUETOOTH_SCAN_PERMISSION = "android.permission.BLUETOOTH_SCAN";
     private static final String BLUETOOTH_CONNECT_PERMISSION = "android.permission.BLUETOOTH_CONNECT";
@@ -260,12 +264,53 @@ public class VoiceTranslationActivity extends GeneralActivity {
         }
         ConversationBluetoothCommunicator communicator = initializeBluetoothCommunicator();
         if (communicator == null) {
-            return NO_PERMISSIONS;
+            return BLUETOOTH_LIBRARY_FAILURE;
         }
-        if (!communicator.isBluetoothLeSupported()) {
-            return BluetoothCommunicator.BLUETOOTH_LE_NOT_SUPPORTED;
+        android.bluetooth.BluetoothAdapter bluetoothAdapter = communicator.getBluetoothAdapter();
+        BluetoothCapabilityEvaluator.Capability preflight = BluetoothCapabilityEvaluator.evaluate(
+                true,
+                bluetoothAdapter != null,
+                bluetoothAdapter != null && bluetoothAdapter.isEnabled(),
+                BluetoothCapabilityEvaluator.SearchResult.NOT_ATTEMPTED);
+        if (preflight != BluetoothCapabilityEvaluator.Capability.READY) {
+            return toSearchStatus(preflight, BluetoothCommunicator.ERROR);
         }
-        return communicator.startSearch();
+        int searchResult = communicator.startSearch();
+        BluetoothCapabilityEvaluator.Capability capability = BluetoothCapabilityEvaluator.evaluate(
+                true,
+                true,
+                true,
+                toEvaluatorSearchResult(searchResult));
+        return toSearchStatus(capability, searchResult);
+    }
+
+    private BluetoothCapabilityEvaluator.SearchResult toEvaluatorSearchResult(int searchResult) {
+        if (searchResult == BluetoothCommunicator.SUCCESS) {
+            return BluetoothCapabilityEvaluator.SearchResult.SUCCESS;
+        }
+        if (searchResult == BluetoothCommunicator.ALREADY_STARTED) {
+            return BluetoothCapabilityEvaluator.SearchResult.ALREADY_STARTED;
+        }
+        if (searchResult == BluetoothCommunicator.BLUETOOTH_LE_NOT_SUPPORTED) {
+            return BluetoothCapabilityEvaluator.SearchResult.DISCOVERY_UNSUPPORTED;
+        }
+        return BluetoothCapabilityEvaluator.SearchResult.FAILURE;
+    }
+
+    private int toSearchStatus(BluetoothCapabilityEvaluator.Capability capability, int searchResult) {
+        switch (capability) {
+            case PERMISSION_MISSING:
+                return NO_PERMISSIONS;
+            case BLUETOOTH_UNAVAILABLE:
+                return BLUETOOTH_UNAVAILABLE;
+            case DISCOVERY_UNSUPPORTED:
+                return BLUETOOTH_DISCOVERY_UNSUPPORTED;
+            case LIBRARY_FAILURE:
+                return BLUETOOTH_LIBRARY_FAILURE;
+            case READY:
+            default:
+                return searchResult;
+        }
     }
 
     public int stopSearch(boolean tryRestoreBluetoothStatus) {

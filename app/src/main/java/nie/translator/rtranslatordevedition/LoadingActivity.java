@@ -33,6 +33,7 @@ public class LoadingActivity extends GeneralActivity {
     private Handler mainHandler;
     private boolean isVisible = false;
     private boolean startVoiceTranslationActivity = false;
+    private boolean finishAfterDestinationStopsCaller = false;
     private Global global;
 
     public LoadingActivity() {
@@ -51,11 +52,7 @@ public class LoadingActivity extends GeneralActivity {
         isVisible = true;
         global = (Global) getApplication();
         if (global.isFirstStart()) {
-            Intent intent = new Intent(this, AccessActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            finish();
+            startAccessActivity();
         } else if (startVoiceTranslationActivity) {
             startVoiceTranslationActivity();
         } else {
@@ -67,6 +64,14 @@ public class LoadingActivity extends GeneralActivity {
     protected void onPause() {
         super.onPause();
         isVisible = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (finishAfterDestinationStopsCaller) {
+            finish();
+        }
     }
 
     private void initializeApp() {
@@ -82,21 +87,21 @@ public class LoadingActivity extends GeneralActivity {
 
             @Override
             public void onFailure(int[] reasons, long value) {
-                Intent intent = new Intent(LoadingActivity.this, VoiceTranslationActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
+                startVoiceTranslationActivity();
             }
         });
     }
 
-    private void startVoiceTranslationActivity() {
-        Intent intent = new Intent(LoadingActivity.this, VoiceTranslationActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+    private void startAccessActivity() {
+        finishAfterDestinationStopsCaller = true;
+        startActivity(new Intent(this, AccessActivity.class));
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        finish();
+    }
+
+    private void startVoiceTranslationActivity() {
+        finishAfterDestinationStopsCaller = true;
+        startActivity(new Intent(this, VoiceTranslationActivity.class));
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private void notifyGoogleTTSErrorDialog() {

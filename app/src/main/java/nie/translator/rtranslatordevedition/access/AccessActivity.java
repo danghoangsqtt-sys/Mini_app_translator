@@ -16,18 +16,21 @@
 
 package nie.translator.rtranslatordevedition.access;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import nie.translator.rtranslatordevedition.GeneralActivity;
 import nie.translator.rtranslatordevedition.R;
+import nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationActivity;
 
 
 public class AccessActivity extends GeneralActivity {
     public static final int USER_DATA_FRAGMENT = 0;
     public static final int NOTICE_FRAGMENT = 1;
     private Fragment fragment;
+    private boolean finishAfterDestinationStopsCaller = false;
     private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
@@ -91,6 +94,19 @@ public class AccessActivity extends GeneralActivity {
             return;
         }
         dispatchDefaultBackNavigation();
+    }
+
+    public void startMainActivity() {
+        finishAfterDestinationStopsCaller = true;
+        startActivity(new Intent(this, VoiceTranslationActivity.class));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (finishAfterDestinationStopsCaller) {
+            finish();
+        }
     }
 
     private void dispatchDefaultBackNavigation() {
