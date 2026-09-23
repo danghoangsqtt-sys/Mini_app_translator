@@ -28,6 +28,8 @@ All notable changes to this fork will be documented in this file.
   lifecycle behavior.
 - Prevent stale Conversation SCO reconnect callbacks from restarting Bluetooth after service
   teardown or from an old service instance.
+- Add real contentDescription strings for 28 interactive icon controls that were missing one or reusing the generic app-name placeholder.
+- Enlarge 15 sub-48dp interactive icon controls to a 48x48dp minimum touch target.
 
 ### Planned
 
