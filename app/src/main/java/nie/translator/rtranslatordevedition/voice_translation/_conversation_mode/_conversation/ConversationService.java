@@ -47,21 +47,21 @@ public class ConversationService extends VoiceTranslationService {
     private static final long WAKELOCK_TIMEOUT = 20 * 1000L;  // 10 minutes, so if the service stopped without calling onDestroyed the wakeLock would still be released within 10 minutes
     private Timer wakeLockTimer;  // to reactivate the timer every 10 minutes, so as long as the service is active the wakelock will never expire
     private PowerManager.WakeLock screenWakeLock;
-    private String textRecognized = "";
-    private Translator translator;
     private String myPeerName;
-    private Recognizer mVoiceRecognizer;
+    private ConversationOnDeviceController controller;
     private BluetoothHelper mBluetoothHelper;
     private Global global;
     private ConversationBluetoothCommunicator.Callback communicationCallback;
     private Handler mainHandler;
     private ScoReconnectCoordinator scoReconnectCoordinator;
+    private boolean closed;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
         global = (Global) getApplication();
+        createController();
         mainHandler = new Handler(Looper.getMainLooper());
         scoReconnectCoordinator = new ScoReconnectCoordinator(new ScoReconnectCoordinator.Dispatcher() {
             @Override
@@ -86,72 +86,6 @@ public class ConversationService extends VoiceTranslationService {
         acquireWakeLock();
         //startBluetoothSco
         mBluetoothHelper = new BluetoothHelper(this);
-        mVoiceCallback = new Recorder.Callback() {
-            @Override
-            public void onListenStart() {
-                if (mVoiceRecognizer != null) {
-                    super.onListenStart();
-                    Log.e("recorder","onListenStart");
-                    global.getLanguage(true, new Global.GetLocaleListener() {
-                        @Override
-                        public void onSuccess(CustomLocale result) {
-                            int sampleRate = getVoiceRecorderSampleRate();
-                            if (sampleRate != 0) {
-                                mVoiceRecognizer.startRecognizing(result.getCode(), sampleRate, false);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int[] reasons, long value) {
-                            ConversationService.super.notifyError(reasons, value);
-                        }
-                    });
-                    super.onListenStart();
-                }
-            }
-
-            @Override
-            public void onVoiceStart() {
-                if (mVoiceRecognizer != null) {
-                    super.onVoiceStart();
-                    Log.e("recorder","onVoiceStart");
-                    //si notifica il client
-                    ConversationService.super.notifyVoiceStart();
-                }
-            }
-
-            @Override
-            public void onVoice(@NonNull byte[] data, int size) {
-                if (mVoiceRecognizer != null) {
-                    super.onVoice(data,size);
-                    mVoiceRecognizer.recognize(data, size);
-                }
-            }
-
-            @Override
-            public void onVoiceEnd() {
-                if (mVoiceRecognizer != null) {
-                    super.onVoiceEnd();
-                    Log.e("recorder","onVoiceEnd");
-                    // if the textRecognizer is not empty then it means that we have a result that has not been correctly recognized as final
-                    if (!textRecognized.equals("")) {
-                        onListenEnd();
-                        textRecognized = "";
-                    }
-                    // the client is notified
-                    ConversationService.super.notifyVoiceEnd();
-                }
-            }
-
-            @Override
-            public void onListenEnd() {
-                if (mVoiceRecognizer != null) {
-                    super.onListenEnd();
-                    Log.e("recorder","onListenEnd");
-                    mVoiceRecognizer.finishRecognizing();
-                }
-            }
-        };
         clientHandler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(final android.os.Message message) {
@@ -194,28 +128,8 @@ public class ConversationService extends VoiceTranslationService {
                 global.getLanguage(false,new Global.GetLocaleListener() {
                     @Override
                     public void onSuccess(CustomLocale result) {
-                        String completeText = message.getText();
-                        int languageCodeSize = Integer.valueOf(completeText.substring(completeText.length() - 1));
-                        String text = completeText.substring(0, completeText.length() - (languageCodeSize + 1));
-                        String languageCode = completeText.substring(completeText.length() - (languageCodeSize + 1), completeText.length() - 1);
-
-                        ConversationMessage conversationMessage = new ConversationMessage(message.getSender(), new CloudApiText(text, CustomLocale.getInstance(languageCode)));
-                        translator.translateMessage(conversationMessage, result, new Translator.TranslateMessageListener() {
-                            @Override
-                            public void onTranslatedMessage(ConversationMessage conversationMessage) {
-                                speak(conversationMessage.getPayload().getText(), conversationMessage.getPayload().getLanguage());
-                                message.setText(conversationMessage.getPayload().getText());   // updating the text with the new translated text (and without the language code)
-                                GuiMessage guiMessage = new GuiMessage(message, false, true);
-                                notifyMessage(guiMessage);
-                                // we save every new message in the exchanged messages so that the fragment can restore them
-                                addMessage(guiMessage);
-                            }
-
-                            @Override
-                            public void onFailure(int[] reasons, long value) {
-                                ConversationService.super.notifyError(reasons, value);
-                            }
-                        });
+                        ConversationOnDeviceController current = controller;
+                        if (!closed && current != null) { current.onIncoming(message.getText(), result); }
                     }
 
                     @Override
@@ -238,44 +152,53 @@ public class ConversationService extends VoiceTranslationService {
             communicator.addCallback(communicationCallback);
         }
 
-        // speech recognition and translation initialization
-        translator = new Translator((Global) getApplication());
-        mVoiceRecognizer = new Recognizer(ConversationService.this, false, new VoiceTranslationServiceRecognizerListener() {
-            @Override
-            public void onSpeechRecognizedResult(String text, String languageCode, float confidenceScore, boolean isFinal) {
-                if (text != null && languageCode != null && !text.equals("")) {
-                    CustomLocale language = CustomLocale.getInstance(languageCode);
-                    GuiMessage guiMessage = new GuiMessage(new Message(global, text), true, isFinal);
-                    if (isFinal) {
-                        textRecognized = "";  // to ensure that we continue to listen since in this case the result is automatically extracted
-                        // send the message
-                        sendMessage(new ConversationMessage(new CloudApiText(text, language)));
-
-                        notifyMessage(guiMessage);
-                        // we save every new message in the exchanged messages so that the fragment can restore them
-                        addMessage(guiMessage);
-                    } else {
-                        notifyMessage(guiMessage);
-                        textRecognized = text;  // if it equals something then when calling voiceEnd we stop recognition
-                    }
-                }
-            }
-
-            @Override
-            public void onError(int[] reasons, long value) {
-                ConversationService.super.notifyError(reasons, value);
-            }
-        });
         mBluetoothHelper.start();
     }
 
     private void sendMessage(ConversationMessage conversationMessage) {
-        String languageCode = conversationMessage.getPayload().getLanguage().getCode();
         ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
         if (communicator != null) {
-            communicator.sendMessage(new Message(global, conversationMessage.getPayload().getText() + languageCode + languageCode.length()));
+            communicator.sendMessage(new Message(global, ConversationPayloadCodec.encode(conversationMessage.getPayload().getText(), conversationMessage.getPayload().getLanguage())));
         }
     }
+
+    private void createController() {
+        nie.translator.rtranslatordevedition.voice_translation.engines.EngineFactoryRegistry registry = new nie.translator.rtranslatordevedition.voice_translation.engines.EngineFactoryRegistry();
+        registry.register(new nie.translator.rtranslatordevedition.voice_translation.engines.ondevice.OnDeviceEngineFactory(this, getSpeechOutputEngine()));
+        nie.translator.rtranslatordevedition.voice_translation.engines.EngineFactory factory = registry.get(nie.translator.rtranslatordevedition.voice_translation.engines.EngineType.ON_DEVICE);
+        final nie.translator.rtranslatordevedition.voice_translation.engines.SpeechRecognitionEngine speech = factory.createSpeechRecognitionEngine();
+        final nie.translator.rtranslatordevedition.voice_translation.engines.TextTranslationEngine translation = factory.createTextTranslationEngine();
+        final nie.translator.rtranslatordevedition.voice_translation.engines.SpeechOutputEngine output = factory.createSpeechOutputEngine();
+        controller = new ConversationOnDeviceController(speech, translation,
+                new nie.translator.rtranslatordevedition.voice_translation.engines.EngineTurnCoordinator(speech, translation, null),
+                new ConversationOnDeviceController.Listener() {
+                    @Override public void onPartial(String text) { notifyMessage(new GuiMessage(new Message(global, text), true, false)); }
+                    @Override public void onOutboundFinal(String text, CustomLocale language) {
+                        ConversationService.this.sendMessage(new ConversationMessage(new CloudApiText(text, language)));
+                        GuiMessage message = new GuiMessage(new Message(global, text), true, true); notifyMessage(message); addMessage(message);
+                    }
+                    @Override public void onIncomingText(String text, CustomLocale language) {
+                        speak(text, language); GuiMessage message = new GuiMessage(new Message(global, text), false, true); notifyMessage(message); addMessage(message);
+                    }
+                    @Override public void onError(nie.translator.rtranslatordevedition.voice_translation.engines.EngineError error,
+                                                  nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind kind) {
+                        if (kind == nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind.TRANSLATION
+                                || kind == nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind.LANGUAGE_DETECTION) {
+                            notifyRecoverableEngineError(nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.map(error, kind));
+                        } else { notifyEngineError(error, kind); }
+                    }
+                    @Override public void onTurnEnded() { finishOnDeviceTurn(); }
+                });
+    }
+
+    @Override protected void startOnDeviceTurn() {
+        global.getLanguage(true, new Global.GetLocaleListener() {
+            @Override public void onSuccess(CustomLocale language) { if (!closed && controller != null) { notifyVoiceStart(); controller.startTurn(language); } }
+            @Override public void onFailure(int[] reasons, long value) { notifyError(reasons, value); }
+        });
+    }
+
+    @Override protected void cancelOnDeviceTurn() { if (controller != null) { controller.stopTurn(); } }
 
     public String getMyPeerName() {
         return myPeerName;
@@ -333,17 +256,14 @@ public class ConversationService extends VoiceTranslationService {
     @Override
     public void onDestroy() {
         // Mark lifecycle ended before Bluetooth teardown can synchronously emit SCO callbacks.
+        closed = true;
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        if (communicator != null && communicationCallback != null) { communicator.removeCallback(communicationCallback); }
         scoReconnectCoordinator.destroy();
-        // Stop Cloud Speech API
-        mVoiceRecognizer.destroy();
-        mVoiceRecognizer = null;
+        if (controller != null) { controller.close(); controller = null; }
         //stop Bluetooth helper
         mBluetoothHelper.stop();
         super.onDestroy();
-        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
-        if (communicator != null) {
-            communicator.removeCallback(communicationCallback);
-        }
         //release wake lock
         resetWakeLockReactivationTimer();
         if (screenWakeLock != null) {

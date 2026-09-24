@@ -212,6 +212,31 @@
         android:contentDescription="@string/cd_language_dropdown"
                     app:tint="@color/light_gray" />
             </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/sourceDirectionGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:contentDescription="@string/walkie_source_direction"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/firstLanguageSelector">
+
+                <RadioButton
+                    android:id="@+id/sourceFirst"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:checked="true"
+                    android:text="@string/walkie_source_first" />
+
+                <RadioButton
+                    android:id="@+id/sourceSecond"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="@string/walkie_source_second" />
+            </RadioGroup>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 

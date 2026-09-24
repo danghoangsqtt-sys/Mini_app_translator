@@ -46,8 +46,8 @@ import nie.translator.rtranslatordevedition.voice_translation._conversation_mode
 import com.bluetooth.communicator.BluetoothCommunicator;
 import com.bluetooth.communicator.Peer;
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode.communication.recent_peer.RecentPeersDataManager;
-import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.translation.Translator;
 import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.voice.Recorder;
+import nie.translator.rtranslatordevedition.voice_translation.engines.translation.MlKitLanguageMapper;
 
 
 public class Global extends Application {
@@ -59,7 +59,7 @@ public class Global extends Application {
     private CustomLocale secondLanguage;
     private RecentPeersDataManager recentPeersDataManager;
     private BluetoothCommunicatorLifecycle<ConversationBluetoothCommunicator> bluetoothCommunicatorLifecycle;
-    private Translator translator;
+    private MlKitLanguageMapper languageMapper;
     private String name = "";
     private String apiKeyFileName = "";
     private ConsumptionsDataManager databaseManager;
@@ -137,7 +137,7 @@ public class Global extends Application {
                         });
                     }
                 });
-        translator = new Translator(this);
+        languageMapper = new MlKitLanguageMapper();
         databaseManager = new ConsumptionsDataManager(this);
         getMicSensitivity();
     }
@@ -165,21 +165,15 @@ public class Global extends Application {
 
     public void getLanguages(final boolean recycleResult, final GetLocalesListListener responseListener) {
         if (recycleResult && languages.size() > 0) {
-            responseListener.onSuccess(languages);
+            responseListener.onSuccess(defensiveLanguageCopy(languages));
         } else {
-            translator.getSupportedLanguages(CustomLocale.getDefault(), new Translator.SupportedLanguagesListener() {
-                @Override
-                public void onLanguagesListAvailable(ArrayList<CustomLocale> languages) {
-                    Global.this.languages = languages;
-                    responseListener.onSuccess(languages);
-                }
-
-                @Override
-                public void onFailure(int[] reasons, long value) {
-                    responseListener.onFailure(reasons, value);
-                }
-            });
+            Global.this.languages = new ArrayList<>(languageMapper.getSupportedLocales(CustomLocale.getDefault()));
+            responseListener.onSuccess(defensiveLanguageCopy(Global.this.languages));
         }
+    }
+
+    static ArrayList<CustomLocale> defensiveLanguageCopy(ArrayList<CustomLocale> source) {
+        return new ArrayList<>(source);
     }
 
     public interface GetLocalesListListener {

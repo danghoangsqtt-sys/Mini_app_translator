@@ -34,4 +34,11 @@ public class ErrorCodes {
     //key
     public static final int MISSING_API_KEY =102;
     public static final int WRONG_API_KEY =103    ;
+    // on-device engines
+    public static final int ON_DEVICE_MODEL_MISSING = 104;
+    public static final int ON_DEVICE_UNSUPPORTED_LANGUAGE = 105;
+    public static final int ON_DEVICE_BUSY = 106;
+    public static final int ON_DEVICE_UNAVAILABLE = 107;
+    public static final int ON_DEVICE_NETWORK = 108;
+    public static final int ON_DEVICE_FAILURE = 109;
 }

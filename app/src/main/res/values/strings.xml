@@ -49,6 +49,14 @@
     <string name="dialog_select_personal_language">Select personal language</string>
     <string name="dialog_select_first_language">Select primary language</string>
     <string name="dialog_select_second_language">Select secondary language</string>
+    <string name="walkie_source_direction">Speech input language</string>
+    <string name="walkie_source_first">Speak %1$s</string>
+    <string name="walkie_source_second">Speak %1$s</string>
+    <string name="error_on_device_model_missing">Download the required language model in Model Management, then retry.</string>
+    <string name="error_on_device_unavailable">On-device speech or translation is unavailable on this device.</string>
+    <string name="error_on_device_language">This language is not supported for this on-device operation.</string>
+    <string name="error_on_device_busy">Another on-device operation is still finishing. Please retry.</string>
+    <string name="error_on_device_failure">The on-device operation could not finish. Please retry.</string>
     <string name="dialog_insert_name">Insert your name</string>
 
     <string name="menu_image_select_from_gallery">Select from gallery</string>
@@ -107,8 +115,7 @@
     <string name="description_fragment_user_data">Your name will be displayed by all nearby devices, while your profile picture will only be shown on devices with which you have already had conversations</string>
     <string name="description_conversation">The Conversation mode is the main feature of Mini Conversation, it allows you to translate a conversation between several people in real time, for a better experience it is recommended to connect bluetooth headphones to the phone,
         furthermore the application will continue to work also in background and with the phone on standby</string>
-    <string name="description_walkie_talkie">WalkieTalkie mode is the secondary functionality of Mini Conversation, it does not allow real-time translation but is designed to work with just one phone,
-        it automatically detects and translates a speech in a language into another language, and the application will continue to work in background and with the phone on standby</string>
+    <string name="description_walkie_talkie">WalkieTalkie translates one selected spoken source language into the other language on one phone. Choose the source language before each turn; speech is not automatically recognized as bilingual.</string>
     <string name="description_notice">Complete this setup to create your local profile and accept the privacy policy. You do not need a Google Cloud account or a service-account key to continue.</string>
 
     <string name="preference_header_language">Language</string>

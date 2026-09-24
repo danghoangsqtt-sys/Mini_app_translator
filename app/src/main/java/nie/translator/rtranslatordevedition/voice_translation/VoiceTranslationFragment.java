@@ -362,6 +362,7 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
         public void onVoiceEnded() {
             super.onVoiceEnded();
             microphone.onVoiceEnded();
+            microphone.setMute(true);
         }
 
         @Override
@@ -431,6 +432,22 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
                         activity.requestNearbyPermissions();
                         break;
                     }
+                    case ErrorCodes.ON_DEVICE_MODEL_MISSING:
+                        Toast.makeText(activity, R.string.error_on_device_model_missing, Toast.LENGTH_LONG).show();
+                        break;
+                    case ErrorCodes.ON_DEVICE_UNSUPPORTED_LANGUAGE:
+                        Toast.makeText(activity, R.string.error_on_device_language, Toast.LENGTH_LONG).show();
+                        break;
+                    case ErrorCodes.ON_DEVICE_BUSY:
+                        Toast.makeText(activity, R.string.error_on_device_busy, Toast.LENGTH_SHORT).show();
+                        break;
+                    case ErrorCodes.ON_DEVICE_UNAVAILABLE:
+                    case ErrorCodes.ON_DEVICE_NETWORK:
+                        Toast.makeText(activity, R.string.error_on_device_unavailable, Toast.LENGTH_LONG).show();
+                        break;
+                    case ErrorCodes.ON_DEVICE_FAILURE:
+                        Toast.makeText(activity, R.string.error_on_device_failure, Toast.LENGTH_LONG).show();
+                        break;
                     default: {
                         activity.onError(aReason, value);
                         break;

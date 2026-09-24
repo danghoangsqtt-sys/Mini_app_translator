@@ -29,6 +29,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
@@ -64,6 +66,10 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
     private ListView listViewGui;
     private ProgressBar progressBar;
     private ImageButton reloadButton;
+    private RadioGroup sourceDirectionGroup;
+    private RadioButton sourceFirst;
+    private RadioButton sourceSecond;
+    private boolean restoringDirection;
     private String selectedLanguageCode;
     private AlertDialog dialog;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -94,6 +100,17 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
         exitButton = view.findViewById(R.id.exitButton);
         micInput = view.findViewById(R.id.inputMicType);
         micInput.setVisibility(View.GONE);
+        sourceDirectionGroup = view.findViewById(R.id.sourceDirectionGroup);
+        sourceFirst = view.findViewById(R.id.sourceFirst);
+        sourceSecond = view.findViewById(R.id.sourceSecond);
+        sourceDirectionGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (!restoringDirection && voiceTranslationServiceCommunicator != null) {
+                    ((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator)
+                            .changeSourceDirection(checkedId == R.id.sourceFirst);
+                }
+            }
+        });
         description.setText(R.string.description_walkie_talkie);
     }
 
@@ -193,13 +210,20 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
                 ((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator).getFirstLanguage(new WalkieTalkieService.LanguageListener() {
                     @Override
                     public void onLanguage(CustomLocale language) {
-                        setFirstLanguage(language);
+                        renderRestoredFirstLanguage(language);
                     }
                 });
                 ((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator).getSecondLanguage(new WalkieTalkieService.LanguageListener() {
                     @Override
                     public void onLanguage(CustomLocale language) {
-                        setSecondLanguage(language);
+                        renderRestoredSecondLanguage(language);
+                    }
+                });
+                ((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator).getSourceDirection(new WalkieTalkieService.DirectionListener() {
+                    @Override public void onDirection(boolean sourceIsFirst) {
+                        restoringDirection = true;
+                        sourceDirectionGroup.check(sourceIsFirst ? R.id.sourceFirst : R.id.sourceSecond);
+                        restoringDirection = false;
                     }
                 });
             }
@@ -324,8 +348,13 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
         ((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator).changeFirstLanguage(language);
         // save firstLanguage selected
         global.setFirstLanguage(language);
-        // change language displayed
+        renderRestoredFirstLanguage(language);
+    }
+
+    /** GET callbacks restore display only; they never mutate service state or preferences. */
+    private void renderRestoredFirstLanguage(CustomLocale language) {
         ((AnimatedTextView) firstLanguageSelector.findViewById(R.id.firstLanguageName)).setText(language.getDisplayName(), true);
+        updateDirectionLabels();
     }
 
     private void setSecondLanguage(CustomLocale language) {
@@ -333,8 +362,21 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
         ((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator).changeSecondLanguage(language);
         // save secondLanguage selected
         global.setSecondLanguage(language);
-        // change language displayed
+        renderRestoredSecondLanguage(language);
+    }
+
+    /** GET callbacks restore display only; they never mutate service state or preferences. */
+    private void renderRestoredSecondLanguage(CustomLocale language) {
         ((AnimatedTextView) secondLanguageSelector.findViewById(R.id.secondLanguageName)).setText(language.getDisplayName(), true);
+        updateDirectionLabels();
+    }
+
+    private void updateDirectionLabels() {
+        if (sourceFirst == null || sourceSecond == null) { return; }
+        TextView firstName = firstLanguageSelector.findViewById(R.id.firstLanguageName);
+        TextView secondName = secondLanguageSelector.findViewById(R.id.secondLanguageName);
+        sourceFirst.setText(getString(R.string.walkie_source_first, firstName.getText()));
+        sourceSecond.setText(getString(R.string.walkie_source_second, secondName.getText()));
     }
 
     private void onFailureShowingList(int[] reasons, long value) {

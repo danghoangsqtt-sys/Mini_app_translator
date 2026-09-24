@@ -39,8 +39,9 @@ import nie.translator.rtranslatordevedition.tools.Tools;
 import nie.translator.rtranslatordevedition.tools.gui.messages.GuiMessage;
 import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCallback;
 import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCommunicator;
+import nie.translator.rtranslatordevedition.voice_translation.engines.SpeechOutputEngine;
+import nie.translator.rtranslatordevedition.voice_translation.engines.legacy.AndroidSpeechOutputEngine;
 import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.voice.RecognizerListener;
-import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.voice.Recorder;
 
 
 public abstract class VoiceTranslationService extends GeneralService {
@@ -73,15 +74,16 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     // objects
     Notification notification;
-    protected Recorder.Callback mVoiceCallback;
     protected Handler clientHandler;
-    private Recorder mVoiceRecorder;
     private UtteranceProgressListener ttsListener;
-    private TTS tts;
+    protected TTS tts;
+    private SpeechOutputEngine speechOutput;
 
     // variables
     private ArrayList<GuiMessage> messages = new ArrayList<>(); // messages exchanged since the beginning of the service
-    private boolean isMicMute = false;
+    // A mode starts idle. Only START_MIC is allowed to arm a bounded capture turn.
+    private boolean isMicMute = true;
+    private boolean micTurnActive;
     private boolean isAudioMute = false;
     private boolean isEditTextOpen = false;
     private int utterancesCurrentlySpeaking = 0;
@@ -103,11 +105,6 @@ public abstract class VoiceTranslationService extends GeneralService {
                     if (utterancesCurrentlySpeaking > 0) {
                         utterancesCurrentlySpeaking--;
                     }
-                    if (!isMicMute && utterancesCurrentlySpeaking == 0) {
-                        // start the task because this thread is not allowed to start the Recorder
-                        StartVoiceRecorderTask startVoiceRecorderTask = new StartVoiceRecorderTask();
-                        startVoiceRecorderTask.execute(VoiceTranslationService.this);
-                    }
                 }
             }
 
@@ -117,6 +114,7 @@ public abstract class VoiceTranslationService extends GeneralService {
         };
 
         initializeTTS();
+        speechOutput = new AndroidSpeechOutputEngine(tts, this);
     }
 
     private void initializeTTS() {
@@ -148,48 +146,32 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     // voice recorder
 
-    private static class StartVoiceRecorderTask extends AsyncTask<VoiceTranslationService, Void, VoiceTranslationService> {
-        @Override
-        protected VoiceTranslationService doInBackground(VoiceTranslationService... voiceTranslationServices) {
-            if (voiceTranslationServices.length > 0) {
-                return voiceTranslationServices[0];
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(VoiceTranslationService voiceTranslationService) {
-            super.onPostExecute(voiceTranslationService);
-            if (voiceTranslationService != null) {
-                voiceTranslationService.startVoiceRecorder();
-            }
-        }
-    }
-
     public void startVoiceRecorder() {
         if (!Tools.hasPermissions(this, REQUIRED_PERMISSIONS)) {
             notifyError(new int[]{MISSING_MIC_PERMISSION}, -1);
-        } else {
-            if (mVoiceRecorder == null && !isMicMute) {
-                mVoiceRecorder = new Recorder((Global) getApplication(), mVoiceCallback);
-                mVoiceRecorder.start();
-            }
+        } else if (!isMicMute) {
+            synchronized (mLock) { micTurnActive = true; }
+            startOnDeviceTurn();
         }
     }
 
     public void stopVoiceRecorder() {
-        if (mVoiceRecorder != null) {
-            mVoiceRecorder.stop();
-            mVoiceRecorder = null;
-        }
+        cancelOnDeviceTurn();
+        finishOnDeviceTurn();
     }
 
-    protected int getVoiceRecorderSampleRate() {
-        if (mVoiceRecorder != null) {
-            return mVoiceRecorder.getSampleRate();
-        } else {
-            return 0;
+    protected abstract void startOnDeviceTurn();
+    protected abstract void cancelOnDeviceTurn();
+
+    /** Completes one bounded turn exactly once and exposes the idle state to a reattached UI. */
+    protected final void finishOnDeviceTurn() {
+        boolean notify;
+        synchronized (mLock) {
+            notify = micTurnActive;
+            micTurnActive = false;
+            isMicMute = true;
         }
+        if (notify) { notifyVoiceEnd(); }
     }
 
     // tts
@@ -197,16 +179,13 @@ public abstract class VoiceTranslationService extends GeneralService {
     public synchronized void speak(String result, CustomLocale language) {
         synchronized (mLock) {
             if (tts.isActive() && !isAudioMute) {
-                utterancesCurrentlySpeaking++;
                 if (shouldStopMicDuringTTS()) {
-                    stopVoiceRecorder();  // used instead of dismiss when the result is final since stop also implements dismiss ()
+                    stopVoiceRecorder();
                 }
-                if (tts.getVoice() != null && language.equals(new CustomLocale(tts.getVoice().getLocale()))) {
-                    tts.speak(result, TextToSpeech.QUEUE_ADD, null, "c01");
-                } else {
-                    tts.setLanguage(language,this);
-                    tts.speak(result, TextToSpeech.QUEUE_ADD, null, "c01");
-                }
+                speechOutput.setLanguage(language, new SpeechOutputEngine.ResultCallback() {
+                    @Override public void onSuccess() { queueSpeech(result); }
+                    @Override public void onFailure(nie.translator.rtranslatordevedition.voice_translation.engines.EngineError error) { notifyEngineError(error); }
+                });
             }
         }
     }
@@ -218,6 +197,37 @@ public abstract class VoiceTranslationService extends GeneralService {
     protected boolean isBluetoothHeadsetConnected() {
         return false;
     }
+
+    private void queueSpeech(String result) {
+        speechOutput.speak(result, SpeechOutputEngine.QueueMode.ADD, new SpeechOutputEngine.ResultCallback() {
+            @Override public void onSuccess() { synchronized (mLock) { utterancesCurrentlySpeaking++; } }
+            @Override public void onFailure(nie.translator.rtranslatordevedition.voice_translation.engines.EngineError error) { notifyEngineError(error); }
+        });
+    }
+
+    protected void notifyEngineError(nie.translator.rtranslatordevedition.voice_translation.engines.EngineError error) {
+        notifyEngineError(error, nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind.SPEECH_RECOGNITION);
+    }
+
+    protected void notifyEngineError(nie.translator.rtranslatordevedition.voice_translation.engines.EngineError error,
+                                     nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind kind) {
+        if (!nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.isSilent(error)) {
+            int code = nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.map(error, kind);
+            if (kind == nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind.TRANSLATION
+                    || kind == nie.translator.rtranslatordevedition.voice_translation.engines.EngineServiceErrorMapper.OperationKind.LANGUAGE_DETECTION) {
+                notifyRecoverableEngineError(code);
+            } else {
+                notifyError(new int[] { code }, -1L);
+            }
+        }
+    }
+
+    /** Delivers a lane-local recoverable failure without cancelling an unrelated microphone turn. */
+    protected final void notifyRecoverableEngineError(int code) {
+        super.notifyError(new int[] { code }, -1L);
+    }
+
+    protected SpeechOutputEngine getSpeechOutputEngine() { return speechOutput; }
 
     // messages
 
@@ -232,9 +242,7 @@ public abstract class VoiceTranslationService extends GeneralService {
         super.onDestroy();
         // Stop listening to voice
         stopVoiceRecorder();
-        //stop tts
-        tts.stop();
-        tts.shutdown();
+        speechOutput.close();
     }
 
     // communication
@@ -298,15 +306,12 @@ public abstract class VoiceTranslationService extends GeneralService {
                     return true;
                 case START_SOUND:
                     isAudioMute = false;
-                    if (!tts.isActive()) {
-                        initializeTTS();
-                    }
                     return true;
                 case STOP_SOUND:
                     isAudioMute = true;
                     if (utterancesCurrentlySpeaking > 0) {
                         utterancesCurrentlySpeaking = 0;
-                        tts.stop();
+                        speechOutput.stop();
                         ttsListener.onDone("");
                     }
                     return true;
@@ -352,9 +357,7 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     public void notifyError(int[] reasons, long value) {
         super.notifyError(reasons, value);
-        if (mVoiceRecorder != null) {
-            mVoiceCallback.onListenEnd();
-        }
+        stopVoiceRecorder();
     }
 
     // connection with clients
