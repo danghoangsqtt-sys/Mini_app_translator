@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.4 — Implement lifecycle-safe Android SpeechRecognizer engine (planned; strict file-level contract not yet locked or assigned)",
+  "current_task": "9.4 — Implement lifecycle-safe Android SpeechRecognizer engine (in_progress; strict contract locked and assigned to TERRA 5.6; PM review pending)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 Task 9.3 passed PM review at 384b114: 99 JVM tests, 10 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, official ML Kit model management, and genuine offline translation after force-stop with all emulator routes removed. Runtime integration remains deferred to 9.5. Prepare and approve the strict Task 9.4 Android SpeechRecognizer contract before assigning Terra. Task 9.1 physical phone/two-phone evidence remains due in 9.7. No release tag/version bump; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
+  "resume_hint": "Phase 9 Task 9.3 passed PM review at 384b114. Task 9.4 is now in_progress with its strict Android SpeechRecognizer contract locked and assigned to TERRA 5.6: main-thread-only platform calls, one session/generation, 30-second watchdog, API 31 on-device preference, truthful pre-listening system fallback, exact-once destroy, focused JVM/API 36 tests, and no runtime integration until 9.5. PM must review Terra's single local implementation commit before any push/tag/state completion. Task 9.1 physical phone/two-phone evidence remains due in 9.7; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
 }

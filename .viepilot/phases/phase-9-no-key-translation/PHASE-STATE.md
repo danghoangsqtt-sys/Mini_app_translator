@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 3/7 complete
-- **Current task**: 9.4 — Android SpeechRecognizer engine (`planned`; strict contract not yet locked or assigned)
+- **Current task**: 9.4 — Android SpeechRecognizer engine (`in_progress`; strict contract locked and assigned to TERRA 5.6)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -13,7 +13,7 @@
 | 9.1 — Launch/onboarding/Bluetooth stabilization | done — PM automated/emulator PASS | Physical-phone confirmation consolidated into 9.7 |
 | 9.2 — Engine contracts and capability model | done — PM PASS | `87e9875`; 66 JVM tests; lint 0/136; explicit factories, session isolation, no runtime switch |
 | 9.3 — ML Kit translation/model management | done — PM PASS | `384b114`; 99 JVM tests; 10 API 36 tests; lint 0/136; genuine post-relaunch offline translation proof |
-| 9.4 — Android SpeechRecognizer engine | planned | Requires 9.2; strict file-level contract must be locked before assignment |
+| 9.4 — Android SpeechRecognizer engine | in_progress | Strict contract locked 2026-09-24; implementation assigned to TERRA 5.6; PM review required |
 | 9.5 — Conversation/WalkieTalkie integration | planned | Requires 9.3 and 9.4 |
 | 9.6 — Legacy Cloud opt-in and migration UX | planned | Requires 9.5 |
 | 9.7 — Full QA and release-candidate gate | planned | Requires 9.1–9.6 |

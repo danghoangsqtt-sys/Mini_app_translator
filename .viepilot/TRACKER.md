@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.4 — Implement lifecycle-safe Android SpeechRecognizer engine (planned; strict file-level contract not yet locked or assigned).
+- **Current task**: 9.4 — Implement lifecycle-safe Android SpeechRecognizer engine (`in_progress`; strict contract locked and assigned to TERRA 5.6; PM review pending).
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
