@@ -127,6 +127,29 @@
     <string name="preference_description_speech_timeout">Select the time after you stop talking to send the transcribed text</string>
     <string name="preference_description_prev_voice_duration">Select the length of the recording before you start speaking that will be included in the voice recognition</string>
 
+    <string name="translation_models_title">On-device translation models</string>
+    <string name="translation_models_preference_summary">Download or remove languages for offline translation</string>
+    <string name="translation_models_disclosure">Powered by Google Translate. Automatic translation may be inaccurate. Language pairs that do not include English may be translated through English, which can reduce quality. Input and output are processed on this device. Google ML Kit may still contact Google to download or update models, receive SDK fixes, and send performance and utilization metrics.</string>
+    <string name="translation_models_wifi_only">Download over Wi-Fi only (recommended)</string>
+    <string name="translation_models_any_network">Allow downloads on any network</string>
+    <string name="translation_models_any_network_confirmation_title">Use mobile data for model downloads?</string>
+    <string name="translation_models_any_network_confirmation_message">Each model can be about 30 MB and may use mobile data. Download progress is shown without a percentage.</string>
+    <string name="translation_models_any_network_confirmation_continue">Allow any network</string>
+    <string name="translation_models_download">Download</string>
+    <string name="translation_models_delete">Delete</string>
+    <string name="translation_models_state_built_in">Built in — always available offline</string>
+    <string name="translation_models_state_not_downloaded">Not downloaded</string>
+    <string name="translation_models_state_queued">Waiting for download conditions</string>
+    <string name="translation_models_state_downloading">Downloading…</string>
+    <string name="translation_models_state_downloaded">Downloaded — available offline</string>
+    <string name="translation_models_state_deleting">Deleting…</string>
+    <string name="translation_models_state_failed">Action failed — try again</string>
+    <string name="translation_models_error_network">The model operation could not use the network. Check the selected network policy and try again.</string>
+    <string name="translation_models_error_busy">A model action is already running for this language.</string>
+    <string name="translation_models_error_storage">There is not enough available device storage for this model.</string>
+    <string name="translation_models_error_unsupported">This language cannot be managed by on-device translation.</string>
+    <string name="translation_models_error_generic">The model action failed. Try again.</string>
+
     <!-- Accessibility content descriptions for icon-only controls -->
     <string name="cd_app_logo">App logo</string>
     <string name="cd_user_photo">User profile photo</string>

@@ -41,6 +41,11 @@
             android:title="@string/preference_title_language"
             android:dialogTitle="Application language"
             app:iconSpaceReserved="false" />
+        <nie.translator.rtranslatordevedition.settings.TranslationModelsPreference
+            android:key="translationModels"
+            android:title="@string/translation_models_title"
+            android:summary="@string/translation_models_preference_summary"
+            app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
     <!-- Consolidates the former Input/Output/Advanced categories: all remaining

@@ -123,6 +123,29 @@
     <string name="preference_description_speech_timeout">Seleziona il tempo che deve trascorrere dopo aver smesso di parlare per inviare il testo trascritto</string>
     <string name="preference_description_prev_voice_duration">Seleziona la durata della registrazione precedente a quando si inizia a parlare che verrà inclusa nel riconoscimento vocale</string>
 
+    <string name="translation_models_title">Modelli di traduzione sul dispositivo</string>
+    <string name="translation_models_preference_summary">Scarica o rimuovi lingue per la traduzione offline</string>
+    <string name="translation_models_disclosure">Basato su Google Translate. La traduzione automatica può essere imprecisa. Le coppie di lingue che non includono l’inglese possono essere tradotte tramite l’inglese, con possibile riduzione della qualità. L’input e l’output vengono elaborati su questo dispositivo. Google ML Kit può comunque contattare Google per scaricare o aggiornare i modelli, ricevere correzioni dell’SDK e inviare metriche di prestazioni e utilizzo.</string>
+    <string name="translation_models_wifi_only">Scarica solo tramite Wi-Fi (consigliato)</string>
+    <string name="translation_models_any_network">Consenti download su qualsiasi rete</string>
+    <string name="translation_models_any_network_confirmation_title">Usare i dati mobili per scaricare i modelli?</string>
+    <string name="translation_models_any_network_confirmation_message">Ogni modello può occupare circa 30 MB e può usare dati mobili. L’avanzamento del download viene mostrato senza percentuale.</string>
+    <string name="translation_models_any_network_confirmation_continue">Consenti qualsiasi rete</string>
+    <string name="translation_models_download">Scarica</string>
+    <string name="translation_models_delete">Elimina</string>
+    <string name="translation_models_state_built_in">Integrato — sempre disponibile offline</string>
+    <string name="translation_models_state_not_downloaded">Non scaricato</string>
+    <string name="translation_models_state_queued">In attesa delle condizioni di download</string>
+    <string name="translation_models_state_downloading">Download in corso…</string>
+    <string name="translation_models_state_downloaded">Scaricato — disponibile offline</string>
+    <string name="translation_models_state_deleting">Eliminazione in corso…</string>
+    <string name="translation_models_state_failed">Operazione non riuscita — riprova</string>
+    <string name="translation_models_error_network">L’operazione sul modello non ha potuto usare la rete. Controlla la rete selezionata e riprova.</string>
+    <string name="translation_models_error_busy">È già in corso un’operazione sul modello di questa lingua.</string>
+    <string name="translation_models_error_storage">Lo spazio disponibile sul dispositivo non è sufficiente per questo modello.</string>
+    <string name="translation_models_error_unsupported">Questa lingua non può essere gestita dalla traduzione sul dispositivo.</string>
+    <string name="translation_models_error_generic">Operazione sul modello non riuscita. Riprova.</string>
+
     <!-- Accessibility content descriptions for icon-only controls -->
     <string name="cd_app_logo">Logo dell\'app</string>
     <string name="cd_user_photo">Foto profilo utente</string>

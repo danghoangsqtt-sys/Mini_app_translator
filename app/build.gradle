@@ -108,6 +108,8 @@ dependencies {
     implementation files('libs/libs/google-http-client-android-1.22.0.jar')
     implementation files('libs/libs/google-api-client-1.22.0.jar')
     implementation 'com.google.android.gms:play-services-nearby:17.0.0'
+    implementation 'com.google.mlkit:translate:17.0.3'
+    implementation 'com.google.mlkit:language-id:17.0.6'
     implementation 'com.github.okitcom:SwitchButton:1.4.5'
     // Support libraries
     implementation "com.google.android.material:material:$materialVersion"

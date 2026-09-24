@@ -57,6 +57,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private UserNamePreference userNamePreference;
     private SupportTtsQualityPreference supportTtsQualityPreference;
     private LanguagePreference languagePreference;
+    private TranslationModelsPreference translationModelsPreference;
 
     private Handler selfHandler = new Handler(new Handler.Callback() {
         @Override
@@ -143,6 +144,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         languagePreference.setFragment(this);
         languagePreference.initializeLanguagesList();
 
+        translationModelsPreference = (TranslationModelsPreference) findPreference("translationModels");
+
         //link tts settings initialization
         Preference ttsPreference = findPreference("tts");
         ttsPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -168,6 +171,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (translationModelsPreference != null) {
+            translationModelsPreference.close();
+            translationModelsPreference = null;
+        }
+        super.onDestroyView();
     }
 
     @Override
