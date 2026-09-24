@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.5 — Integrate default engines into Conversation and WalkieTalkie (planned; strict contract not yet locked or assigned)",
+  "current_task": "9.5 — Integrate default engines into Conversation and WalkieTalkie (in_progress; strict contract locked and assigned to TERRA 5.6; PM review pending)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 Task 9.4 passed PM review at 83fdeb2: 122 JVM tests, 16 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, bounded Android SpeechRecognizer lifecycle, and exact-once cleanup. Phase 9 is 4/7 complete. Next is Task 9.5, but its strict Conversation/WalkieTalkie integration contract is not yet locked or assigned; prepare and approve that contract before implementation. Task 9.1 physical phone/two-phone evidence remains due in 9.7; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
+  "resume_hint": "Phase 9 Task 9.4 passed PM review at 83fdeb2 and Phase 9 remains 4/7 complete. Task 9.5 is now in_progress with a strict contract assigned to TERRA 5.6: ON_DEVICE default composition, one bounded recognition turn per explicit tap, explicit WalkieTalkie source-language direction, serialized ML Kit work, unchanged Bluetooth framing, one TTS instance, actionable no-auto-download model failures, and generation-gated teardown. PM must review Terra's single local implementation commit before any state completion, tag, or push. Task 9.1 physical phone/two-phone evidence remains due in 9.7; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
 }

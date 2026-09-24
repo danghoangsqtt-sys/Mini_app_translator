@@ -167,7 +167,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.2 | Introduce speech/translation/output engine contracts and capability model | done — `87e9875`; PM PASS |
 | 9.3 | Implement ML Kit translation and model management | done — `384b114`; PM automated/emulator/offline PASS |
 | 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | done — `83fdeb2`; PM automated/emulator PASS |
-| 9.5 | Integrate default engines into Conversation and WalkieTalkie | planned — strict contract not yet locked or assigned |
+| 9.5 | Integrate default engines into Conversation and WalkieTalkie | in_progress — strict contract locked; assigned to TERRA 5.6 |
 | 9.6 | Make legacy Cloud opt-in and finish migration/privacy UX | planned |
 | 9.7 | Run full automated/device regression and release-candidate gate | planned |
 
