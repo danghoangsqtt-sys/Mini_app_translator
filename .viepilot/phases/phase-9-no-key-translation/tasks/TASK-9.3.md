@@ -1,5 +1,11 @@
 # Task 9.3 — Implement ML Kit translation and model management
 
+**Status**: done — PM PASS on 2026-09-24
+
+**Implementation**: `384b114ec22ed8a5137072d501676dd4c032fa46`
+
+**PM evidence**: 99/99 JVM tests and 10/10 Pixel 7a API 36 instrumentation tests passed; lint reported 0 errors/136 warnings; the debug APK was 79,095,051 bytes with SHA-256 `E3CDB5263CC0D84914F11D644D81300D8F3384788C6FE45FD758FBC11002DEA7`. PM independently proved persistence offline by installing the app/test APKs once, preparing the Italian model online, force-stopping both packages, enabling airplane mode and disabling Wi-Fi/mobile networking until the emulator had no route and ping returned `Network is unreachable`, then running only the translate-without-download test successfully. Network was restored to validated Wi-Fi and cellular connectivity afterward.
+
 ## Objective
 
 Implement the default on-device text translation boundary with Google ML Kit Translation and bundled ML Kit Language Identification. Translation must identify the source language, normalize it to an ML Kit-supported language, require every non-English model to have been explicitly downloaded, and then translate without credentials. Add a Settings model-management surface for listing, downloading, and deleting models with a Wi-Fi-only default and honest indeterminate progress. Do not integrate the engine into Conversation, WalkieTalkie, recognition, or runtime selection in this task.
@@ -183,11 +189,11 @@ If a real emulator/device or verifiable network isolation is unavailable, report
 
 ## Acceptance Criteria
 
-- [ ] Uses official ML Kit Translation and Language Identification dependencies and supported APIs.
-- [ ] No API key or Cloud project is required.
-- [ ] Missing model is a recoverable state with explicit user action and honest indeterminate progress.
-- [ ] Downloaded model translates a supported pair while the device is genuinely offline.
-- [ ] Translators/identifiers close exactly once; concurrent/cancelled work cannot leak callbacks or cross sessions.
-- [ ] Required on-device/offline/quality/Google ML Kit disclosures are localized in English and Italian.
-- [ ] JVM, instrumentation (when a device exists), lint, APK, scope, and security gates are recorded for PM review.
-- [ ] Task remains `in_progress`/not PASS until PM reviews the diff and evidence.
+- [x] Uses official ML Kit Translation and Language Identification dependencies and supported APIs.
+- [x] No API key or Cloud project is required.
+- [x] Missing model is a recoverable state with explicit user action and honest indeterminate progress.
+- [x] Downloaded model translates a supported pair while the device is genuinely offline.
+- [x] Translators/identifiers close exactly once; concurrent/cancelled work cannot leak callbacks or cross sessions.
+- [x] Required on-device/offline/quality/Google ML Kit disclosures are localized in English and Italian.
+- [x] JVM, instrumentation, lint, APK, scope, and security gates are recorded and independently verified by PM.
+- [x] PM reviewed the diff and evidence before marking the task PASS.
