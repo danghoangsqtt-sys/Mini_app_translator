@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 1/7 complete
-- **Current task**: 9.2 — Engine contracts and capability model (planned; not assigned yet)
+- **Current task**: 9.2 — Engine contracts and capability model (`in_progress`; contract locked for Terra)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -11,7 +11,7 @@
 | Task | Status | Control point |
 |---|---|---|
 | 9.1 — Launch/onboarding/Bluetooth stabilization | done — PM automated/emulator PASS | Physical-phone confirmation consolidated into 9.7 |
-| 9.2 — Engine contracts and capability model | planned | Requires PM acceptance of 9.1 |
+| 9.2 — Engine contracts and capability model | in_progress | PM contract locked; implementation restricted to new engine-boundary files |
 | 9.3 — ML Kit translation/model management | planned | Requires 9.2 |
 | 9.4 — Android SpeechRecognizer engine | planned | Requires 9.2; may proceed after 9.3 review |
 | 9.5 — Conversation/WalkieTalkie integration | planned | Requires 9.3 and 9.4 |
