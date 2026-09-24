@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 2/7 complete
-- **Current task**: 9.3 — ML Kit translation/model management (planned; not assigned)
+- **Current task**: 9.3 — ML Kit translation/model management (`in_progress`; implementation pending)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -12,7 +12,7 @@
 |---|---|---|
 | 9.1 — Launch/onboarding/Bluetooth stabilization | done — PM automated/emulator PASS | Physical-phone confirmation consolidated into 9.7 |
 | 9.2 — Engine contracts and capability model | done — PM PASS | `87e9875`; 66 JVM tests; lint 0/136; explicit factories, session isolation, no runtime switch |
-| 9.3 — ML Kit translation/model management | planned | Requires 9.2 |
+| 9.3 — ML Kit translation/model management | in_progress | Requires 9.2; doc-first contract locked 2026-09-24; PM review required before PASS |
 | 9.4 — Android SpeechRecognizer engine | planned | Requires 9.2; may proceed after 9.3 review |
 | 9.5 — Conversation/WalkieTalkie integration | planned | Requires 9.3 and 9.4 |
 | 9.6 — Legacy Cloud opt-in and migration UX | planned | Requires 9.5 |
