@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 1/7 complete
-- **Current task**: 9.2 — Engine contracts and capability model (`in_progress`; contract locked for Terra)
+- **Tasks**: 2/7 complete
+- **Current task**: 9.3 — ML Kit translation/model management (planned; not assigned)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -11,7 +11,7 @@
 | Task | Status | Control point |
 |---|---|---|
 | 9.1 — Launch/onboarding/Bluetooth stabilization | done — PM automated/emulator PASS | Physical-phone confirmation consolidated into 9.7 |
-| 9.2 — Engine contracts and capability model | in_progress | PM contract locked; implementation restricted to new engine-boundary files |
+| 9.2 — Engine contracts and capability model | done — PM PASS | `87e9875`; 66 JVM tests; lint 0/136; explicit factories, session isolation, no runtime switch |
 | 9.3 — ML Kit translation/model management | planned | Requires 9.2 |
 | 9.4 — Android SpeechRecognizer engine | planned | Requires 9.2; may proceed after 9.3 review |
 | 9.5 — Conversation/WalkieTalkie integration | planned | Requires 9.3 and 9.4 |
@@ -34,3 +34,11 @@
 - **Runtime smoke**: fresh install; keyless Notice/Profile; Nearby Devices deny path; grant/relaunch path; pairing search; no crash/ANR/FATAL.
 - **APK**: `app/build/outputs/apk/debug/app-debug.apk` produced successfully.
 - **Deferred manual gate**: physical phone and two-phone Bluetooth/SCO evidence remains mandatory in Task 9.7.
+
+## Task 9.2 evidence
+
+- **Implementation commit**: `87e9875b7d5469f59340f654f0e682c09aff114b`, persisted to `origin/master`.
+- **Scope proof**: exactly 18 new files under the engine boundary and its JVM tests; existing consumers and credential/build/resource files untouched.
+- **PM review**: required session-bound recognizer callbacks, cancel/close cleanup, explicit PCM versus engine-capture semantics, and thread-safe output close before PASS.
+- **Verification**: 66 JVM tests passed; lint 0 errors/136 warnings; debug APK 11,183,277 bytes.
+- **Behavior**: no runtime selection change; legacy translation cancellation remains callback-only because the existing HTTP request is not abortable.

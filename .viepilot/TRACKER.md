@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.2 — Introduce engine contracts and capability model (`in_progress`; strict file contract assigned after Task 9.1 persistence verification).
+- **Current task**: 9.3 — Implement ML Kit translation and model management (planned; not assigned until its strict contract and dependency preflight are approved).
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 1/7 tasks; 9.2 next |
+| 9 — No-Key On-Device Translation | in_progress | 2/7 tasks; 9.3 next |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -110,6 +110,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-23**: With explicit maintainer approval, Task 8.2 advanced canonical `master`/`origin/master` to the sanitized history, pushed the mapped Phase 5–8.1 tags, and retained the former history in local backup branch `codex/backup-master-pre-sanitize-20260923`. No worktree was deleted. Task 8.2 is complete; Task 8.3 is next.
 - **2026-09-23**: Product owner approved the no-key architecture after reviewing `vp-pdf`. `/vp-crystallize` + `/vp-evolve` created Phase 9 with seven gated tasks: launch/Bluetooth stabilization, engine contracts, ML Kit translation, Android SpeechRecognizer, mode integration, optional legacy Cloud migration, and full device/release QA. The current `1.2.0` candidate is a release NO-GO; target is `1.3.0`, while Wi-Fi Hotspot moved to Phase 10. `translate.google.com/m` scraping and copying AGPL code from `vp-pdf` are forbidden.
 - **2026-09-23**: Phase 9 Task 9.1 passed PM code/emulator review at `8a0a97a`: 54 JVM tests, 7 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, keyless fresh onboarding, Nearby permission deny/grant/relaunch, and pairing search all passed without crash/ANR. Physical-phone/two-phone proof remains explicitly deferred to 9.7.
+- **2026-09-24**: Phase 9 Task 9.2 passed PM review at `87e9875` after correction of recognition-session callback isolation and cancellation/close races. The new runtime-neutral contracts, explicit factory registry, and composition adapters do not switch runtime behavior or touch credentials/consumers. Independent gate: 66 JVM tests, lint 0 errors/136 warnings, debug APK 11,183,277 bytes; commit persisted to `origin/master`.
 
 ## Version info
 

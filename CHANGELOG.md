@@ -31,6 +31,10 @@ All notable changes to this fork will be documented in this file.
 - Made first-run onboarding reach the main UI without a Google Cloud credential and removed obsolete Cloud/RTranslator promotional assets (`BUG-021`, `BUG-022`).
 - Reclassified legacy Bluetooth multiple-advertisement failures as a recoverable discovery limitation instead of falsely claiming the device has no BLE (`BUG-023`).
 
+### Changed
+
+- Added runtime-neutral speech-recognition, text-translation, and speech-output contracts with explicit engine selection and isolated legacy adapters; runtime behavior is not switched yet (`ENH-021`).
+
 ### Fixed
 
 - Encrypt the Google Cloud service-account credential at rest with an Android Keystore-backed AES-GCM key, including safe migration from the former plaintext file.

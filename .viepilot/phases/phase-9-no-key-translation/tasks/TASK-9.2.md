@@ -73,13 +73,13 @@ Tests must be JVM tests and must not perform network, credential, microphone, Bl
 
 ## Acceptance criteria
 
-- [ ] All three engine contracts and immutable capability/error models compile on the existing Java/Android baseline.
-- [ ] Existing Cloud translation/recognition and Android TTS are wrapped by composition behind the new contracts.
-- [ ] Factory selection is explicit and has no hidden Cloud fallback.
-- [ ] Legacy error mapping and callback-only cancellation semantics are documented and tested.
-- [ ] No existing UI/service/runtime consumer changes, no behavior switch, and no credential regression.
-- [ ] No dependency, manifest, resource, version, or build-configuration changes.
-- [ ] Full unit/lint/debug build passes with zero lint errors and no unexplained warning increase from the 136-warning baseline.
+- [x] All three engine contracts and immutable capability/error models compile on the existing Java/Android baseline.
+- [x] Existing Cloud translation/recognition and Android TTS are wrapped by composition behind the new contracts.
+- [x] Factory selection is explicit and has no hidden Cloud fallback.
+- [x] Legacy error mapping and callback-only cancellation semantics are documented and tested.
+- [x] No existing UI/service/runtime consumer changes, no behavior switch, and no credential regression.
+- [x] No dependency, manifest, resource, version, or build-configuration changes.
+- [x] Full unit/lint/debug build passes with zero lint errors and no unexplained warning increase from the 136-warning baseline.
 
 ## Verification
 
@@ -104,3 +104,14 @@ git status --short
 - Local implementation commit SHA.
 
 Stop after one local implementation commit and report to PM. Do not push, tag, merge, edit ViePilot state, migrate consumers, or start Task 9.3.
+
+## Result
+
+**Status**: PASS — PM code review, independent build gate, and upstream persistence complete.
+
+- Implementation commit: `87e9875b7d5469f59340f654f0e682c09aff114b`.
+- Scope: exactly 18 new engine/adapter/test files; no existing runtime consumer, dependency, manifest, resource, credential, or version change.
+- PM review caught and required correction of cross-session recognition callback leakage, incomplete cancellation/close cleanup, PCM-vs-engine-capture request semantics, output close synchronization, and translation callback naming before acceptance.
+- Verification: `clean testDebugUnitTest lintDebug assembleDebug --console=plain --no-daemon` — 57 Gradle tasks, 66 JVM tests, 0 failures/errors/skips, lint 0 errors/136 warnings.
+- APK: `app/build/outputs/apk/debug/app-debug.apk` — 11,183,277 bytes.
+- Known limitation: legacy text-translation cancellation suppresses callbacks but cannot abort the already-started HTTP request. No runtime engine switch occurs until the later integration task.

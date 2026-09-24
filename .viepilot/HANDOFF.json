@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.2 — Introduce engine contracts and capability model (in_progress; strict file contract locked for Terra)",
+  "current_task": "9.3 — Implement ML Kit translation and model management (planned; not assigned pending strict contract and dependency preflight)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 Task 9.2 is in progress under a locked contract: add only engine interfaces/value models, explicit factory registry, legacy composition adapters, and focused JVM tests; do not migrate consumers or switch runtime engines. Task 9.1 remains accepted at 8a0a97a with physical phone/two-phone evidence deferred to 9.7. No release tag/version bump; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
+  "resume_hint": "Phase 9 Task 9.2 passed PM review at 87e9875 and is persisted to origin/master: 66 JVM tests, lint 0 errors/136 warnings, explicit engine boundaries and legacy composition adapters, with no runtime switch. Prepare and approve the strict Task 9.3 ML Kit dependency/model-management contract before assigning Terra. Task 9.1 physical phone/two-phone evidence remains due in 9.7. No release tag/version bump; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
 }
