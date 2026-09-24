@@ -1,6 +1,6 @@
 # Task 9.4 — Implement lifecycle-safe Android SpeechRecognizer engine
 
-**Status**: in_progress — contract locked by PM on 2026-09-24; assigned to TERRA 5.6
+**Status**: done — PM PASS on 2026-09-24; implementation `83fdeb250445a0a316cbb45a61c3f5aef15d027d`
 
 ## Objective
 
@@ -139,13 +139,24 @@ Expected: only the one manifest file and the explicitly listed speech engine/tes
 
 ## Acceptance Criteria
 
-- [ ] Existing `SpeechRecognitionEngine` is implemented for bounded engine-owned microphone capture without changing the contract.
-- [ ] API 31-only calls are guarded and API 23 remains build/runtime compatible.
-- [ ] On-device recognition is preferred only when reported available; safe pre-listening system fallback is truthful and tested.
-- [ ] All platform calls and public callbacks occur on the main thread; session generations suppress stale/late callbacks.
-- [ ] Final/error/cancel/timeout/close paths cancel the watchdog and destroy the owned recognizer exactly once.
-- [ ] Permission denial, recognizer absence, busy state, unsupported/unavailable language, no match, timeout, and unknown errors are recoverable normalized outcomes.
-- [ ] No indefinite or automatically restarted recognition loop exists; every session is capped at 30 seconds.
-- [ ] Manifest package visibility, JVM coverage, API 36 instrumentation smoke, lint, APK, scope, and security evidence are recorded.
-- [ ] No runtime consumer/default-engine switch, UI/resource/dependency/version/credential change, or out-of-scope filesystem artifact is introduced.
-- [ ] PM reviews the diff and evidence before marking the task PASS.
+- [x] Existing `SpeechRecognitionEngine` is implemented for bounded engine-owned microphone capture without changing the contract.
+- [x] API 31-only calls are guarded and API 23 remains build/runtime compatible.
+- [x] On-device recognition is preferred only when reported available; safe pre-listening system fallback is truthful and tested.
+- [x] All platform calls and public callbacks occur on the main thread; session generations suppress stale/late callbacks.
+- [x] Final/error/cancel/timeout/close paths cancel the watchdog and destroy the owned recognizer exactly once.
+- [x] Permission denial, recognizer absence, busy state, unsupported/unavailable language, no match, timeout, and unknown errors are recoverable normalized outcomes.
+- [x] No indefinite or automatically restarted recognition loop exists; every session is capped at 30 seconds.
+- [x] Manifest package visibility, JVM coverage, API 36 instrumentation smoke, lint, APK, scope, and security evidence are recorded.
+- [x] No runtime consumer/default-engine switch, UI/resource/dependency/version/credential change, or out-of-scope filesystem artifact is introduced.
+- [x] PM reviewed the diff and independently reproduced the required gates before marking the task PASS.
+
+## PM Acceptance Evidence — 2026-09-24
+
+- **Implementation commit**: `83fdeb250445a0a316cbb45a61c3f5aef15d027d`; exactly one implementation commit above planning baseline `84bce6cd03426f3a19056965656bda4e034df18f`.
+- **Independent JVM gate**: 122 tests passed; 0 failures, errors, or skips.
+- **Independent instrumentation gate**: 16 tests passed on Pixel 7a API 36; 0 failures, errors, or skips.
+- **Lint/build gate**: 0 errors, 136 warnings; `assembleDebug` passed; `git diff --check` passed.
+- **APK**: `app/build/outputs/apk/debug/app-debug.apk`, 79,095,115 bytes, SHA-256 `E62AA75200F83C024F125AC753F2121AA133E00F2944701990363F7345EF37A8`.
+- **Scope**: exactly the locked manifest, speech-engine, JVM-test, and instrumentation-test paths changed. Gradle, resources, UI/services, credentials, ML Kit, engine contracts, app identity/version, and PM state were untouched by the implementation commit.
+- **Behavior reviewed**: main-thread framework lifecycle, generation isolation, 30-second watchdog, one pre-listening on-device-to-system construction fallback, no active-session retry, sanitized errors, close/cancel races, stale/late suppression, and exact-once cleanup.
+- **Retained limitations**: system fallback may use network; `EXTRA_PREFER_OFFLINE` is only a preference; supported languages cannot be truthfully enumerated synchronously across supported Android versions; runtime integration remains Task 9.5.
