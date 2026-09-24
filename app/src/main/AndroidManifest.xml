@@ -52,6 +52,12 @@
         tools:node="remove" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+
     <application
         android:name="nie.translator.rtranslatordevedition.Global"
         android:allowBackup="true"
