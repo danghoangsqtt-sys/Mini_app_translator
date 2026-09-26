@@ -168,7 +168,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.3 | Implement ML Kit translation and model management | done — `384b114`; PM automated/emulator/offline PASS |
 | 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | done — `83fdeb2`; PM automated/emulator PASS |
 | 9.5 | Integrate default engines into Conversation and WalkieTalkie | done — `ab6094c`; PM automated/emulator PASS |
-| 9.6 | Make legacy Cloud opt-in and finish migration/privacy UX | planned |
+| 9.6 | Make legacy Cloud opt-in, finish migration/privacy UX, and fix audit blockers | in_progress |
 | 9.7 | Run full automated/device regression and release-candidate gate | planned |
 
 **Release rule**: `1.2.0` must not be published. Phase 9 must prove a credential-free speech → translation → TTS path and clear the physical-device gates before any release claim.

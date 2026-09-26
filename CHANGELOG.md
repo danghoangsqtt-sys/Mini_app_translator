@@ -24,6 +24,7 @@ All notable changes to this fork will be documented in this file.
 - Correct the false Bluetooth Low Energy capability gate and make unsupported states recoverable (`BUG-023`).
 - Remove obsolete `$300`/one-year Cloud messaging and legacy RTranslator active branding (`BUG-021`, `BUG-022`).
 - Keep legacy Cloud configuration optional; do not use undocumented Google Translate web scraping.
+- Make voice services reject null restart intents safely and correct the Settings missing-TTS event dispatch (`BUG-024`, `BUG-025`).
 - Do not publish or tag the current `1.2.0` candidate; it is a release NO-GO pending Phase 9.
 
 ### Fixed

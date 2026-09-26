@@ -42,7 +42,7 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 | 9.3 | Implement ML Kit translation and language-model management | Focused tests plus online-download/offline-use device proof |
 | 9.4 | Implement Android SpeechRecognizer engine | API 23–36 guards, lifecycle cleanup, bounded utterances, error mapping tested |
 | 9.5 | Integrate default engines into Conversation and WalkieTalkie | Both modes work without Cloud credentials on supported devices |
-| 9.6 | Make legacy Cloud explicitly optional and finish migration UI/privacy copy | Default onboarding contains no key/billing requirement; no credential bundled |
+| 9.6 | Make legacy Cloud explicitly optional, finish migration UI/privacy copy, and close audit blockers `BUG-024`/`BUG-025` | Default journey contains no key/billing requirement; service restart and Settings dispatch regressions covered; no credential bundled |
 | 9.7 | Full regression, device matrix, APK/release-candidate gate | Automated suite + physical two-phone evidence + PM approval |
 
 ## Phase acceptance criteria
@@ -64,4 +64,3 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 ```
 
 Manual tests are specified in Task 9.7. Release signing remains an external maintainer gate.
-
