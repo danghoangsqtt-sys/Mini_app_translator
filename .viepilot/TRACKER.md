@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.5 — Integrate default engines into Conversation and WalkieTalkie (`in_progress`; strict contract locked and assigned to TERRA 5.6; PM review pending).
+- **Current task**: 9.6 — Legacy Cloud opt-in and migration UX (`planned`; Task 9.5 passed PM review and is remotely persisted).
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 4/7 tasks; 9.5 next |
+| 9 — No-Key On-Device Translation | in_progress | 5/7 tasks; 9.6 next |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -114,6 +114,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-24**: Phase 9 Task 9.3 passed PM review at `384b114` after callback-under-lock, cancel-before-SDK-start, attribution/privacy, and metered-network confirmation corrections. Independent gate: 99 JVM tests, 10 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, and debug APK SHA-256 `E3CDB5263CC0D84914F11D644D81300D8F3384788C6FE45FD758FBC11002DEA7`. PM installed the APK pair once, prepared Italian online, force-stopped both packages, removed all emulator routes, and passed the separate translate-without-download test offline before restoring validated network connectivity. Runtime integration remains deferred to 9.5.
 - **2026-09-24**: Phase 9 Task 9.4 passed PM review at `83fdeb2` after cleanup-exception, permission-mapping, capability-disclosure, close-race, stale-session, queued-start, callback-reentry, watchdog, and scheduler coverage corrections. Independent gate: 122 JVM tests, 16 Pixel 7a API 36 instrumentation tests with no skips, lint 0 errors/136 warnings, and debug APK SHA-256 `E62AA75200F83C024F125AC753F2121AA133E00F2944701990363F7345EF37A8`. Scope remained the 12 locked manifest/speech/test files; runtime integration remains deferred to 9.5.
 - **2026-09-24**: Locked Task 9.5 after a read-only Terra architecture pass. PM selected an explicit per-turn WalkieTalkie source-language toggle because the on-device recognizer owns the microphone and cannot safely replace the former dual Cloud PCM recognizers. The contract requires one bounded turn per tap, ON_DEVICE default composition, ML Kit candidate languages without fabricated speech support, no model auto-download, existing TTS completion ownership, unchanged Bluetooth framing, generation-gated callbacks, and no Task 9.6 legacy opt-in work.
+- **2026-09-26**: Phase 9 Task 9.5 passed PM review at `ab6094c` and was fast-forwarded to `origin/master`. Independent gate: 137 JVM tests, 19 Pixel 7a API 36 instrumentation tests with no skips, lint 0 errors/136 warnings, `git diff --check` clean, and debug APK SHA-256 `0439A7DED87D7AE7F9C33E97AD8E6E604207C0C277B82EA5C71DDF0168FD83B9`. Conversation/WalkieTalkie now use explicit ON_DEVICE composition with bounded turns, persistent Walkie source direction, FIFO-isolated incoming Conversation work, legacy payload compatibility, shared TTS ownership, and stale/late suppression. Physical speech/offline quality and two-phone Bluetooth/SCO remain due in 9.7; legacy Cloud opt-in/migration is next in 9.6.
 
 ## Version info
 

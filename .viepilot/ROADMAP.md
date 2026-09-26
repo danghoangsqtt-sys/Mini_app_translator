@@ -155,7 +155,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 - [ ] Signed `1.2.0` installs and passes core Conversation/WalkieTalkie smoke tests.
 - [ ] State/docs/tags identify the exact verified release commit.
 
-## Phase 9 — No-Key On-Device Translation (in_progress; 4/7 tasks complete)
+## Phase 9 — No-Key On-Device Translation (in_progress; 5/7 tasks complete)
 
 **Execution spec**: `.viepilot/phases/phase-9-no-key-translation/SPEC.md`
 **Target**: `1.3.0`; no versionCode change until release-candidate approval
@@ -167,7 +167,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.2 | Introduce speech/translation/output engine contracts and capability model | done — `87e9875`; PM PASS |
 | 9.3 | Implement ML Kit translation and model management | done — `384b114`; PM automated/emulator/offline PASS |
 | 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | done — `83fdeb2`; PM automated/emulator PASS |
-| 9.5 | Integrate default engines into Conversation and WalkieTalkie | in_progress — strict contract locked; assigned to TERRA 5.6 |
+| 9.5 | Integrate default engines into Conversation and WalkieTalkie | done — `ab6094c`; PM automated/emulator PASS |
 | 9.6 | Make legacy Cloud opt-in and finish migration/privacy UX | planned |
 | 9.7 | Run full automated/device regression and release-candidate gate | planned |
 
@@ -189,7 +189,7 @@ Reserved for `ENH-020` after Phase 9. The planned `ConnectionTransport` abstract
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
 | 7 — Operational State & Build Portability | complete | 4 | 4 |
 | 8 — Release Readiness & Project Closure | blocked / 1.2.0 NO-GO | 2 | 7 |
-| 9 — No-Key On-Device Translation | in_progress | 4 | 7 |
+| 9 — No-Key On-Device Translation | in_progress | 5 | 7 |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
 
-Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 is now the active implementation phase: remove key-required onboarding, introduce on-device-first speech/translation engines, and produce a verifiable `1.3.0` candidate. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 is now the active implementation phase: Tasks 9.1–9.5 are complete, Task 9.6 owns legacy Cloud opt-in/migration UX, and Task 9.7 owns the final physical-device/release-candidate gate. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.

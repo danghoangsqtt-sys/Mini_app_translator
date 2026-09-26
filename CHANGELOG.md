@@ -33,9 +33,10 @@ All notable changes to this fork will be documented in this file.
 
 ### Changed
 
-- Added runtime-neutral speech-recognition, text-translation, and speech-output contracts with explicit engine selection and isolated legacy adapters; runtime behavior is not switched yet (`ENH-021`).
-- Added official on-device ML Kit language identification and translation with explicit Wi-Fi-first model download/delete management, English built-in handling, localized Google attribution/privacy disclosures, lifecycle-safe callbacks, and verified offline translation; Conversation and WalkieTalkie integration remains deferred (`ENH-021`).
-- Added a bounded Android `SpeechRecognizer` engine with API 31+ on-device preference, truthful pre-listening system fallback, main-thread lifecycle dispatch, stale-session isolation, a 30-second watchdog, sanitized recoverable errors, and exact-once recognizer cleanup; runtime integration remains deferred (`ENH-021`).
+- Added runtime-neutral speech-recognition, text-translation, and speech-output contracts with explicit engine selection and isolated legacy adapters (`ENH-021`).
+- Added official on-device ML Kit language identification and translation with explicit Wi-Fi-first model download/delete management, English built-in handling, localized Google attribution/privacy disclosures, lifecycle-safe callbacks, and verified offline translation (`ENH-021`).
+- Added a bounded Android `SpeechRecognizer` engine with API 31+ on-device preference, truthful pre-listening system fallback, main-thread lifecycle dispatch, stale-session isolation, a 30-second watchdog, sanitized recoverable errors, and exact-once recognizer cleanup (`ENH-021`).
+- Switched default Conversation and WalkieTalkie operation to explicit ON_DEVICE engine composition: one bounded recognition turn per tap, persistent Walkie source direction, serialized translation, unchanged Bluetooth payload framing, shared TTS ownership, and stale/late callback suppression without hidden Cloud fallback (`ENH-021`).
 
 ### Fixed
 

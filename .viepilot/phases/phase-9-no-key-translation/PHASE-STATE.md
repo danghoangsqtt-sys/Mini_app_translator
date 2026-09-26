@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 4/7 complete
-- **Current task**: 9.5 — Conversation/WalkieTalkie integration (`in_progress`; strict contract locked and assigned to TERRA 5.6)
+- **Tasks**: 5/7 complete
+- **Current task**: 9.6 — Legacy Cloud opt-in and migration UX (`planned`; contract/assignment pending)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -14,7 +14,7 @@
 | 9.2 — Engine contracts and capability model | done — PM PASS | `87e9875`; 66 JVM tests; lint 0/136; explicit factories, session isolation, no runtime switch |
 | 9.3 — ML Kit translation/model management | done — PM PASS | `384b114`; 99 JVM tests; 10 API 36 tests; lint 0/136; genuine post-relaunch offline translation proof |
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
-| 9.5 — Conversation/WalkieTalkie integration | in_progress | Strict contract locked 2026-09-24; explicit Walkie source direction; implementation assigned to TERRA 5.6; PM review required |
+| 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | planned | Requires 9.5 |
 | 9.7 — Full QA and release-candidate gate | planned | Requires 9.1–9.6 |
 
@@ -59,3 +59,13 @@
 - **Lifecycle proof**: main-thread platform calls, one recognizer per session, stale/late callback suppression, 30-second watchdog removal, close/cancel race coverage, no retry after listening starts, and exact-once cleanup including teardown exceptions.
 - **Scope**: exactly 12 locked files changed; no Gradle, resource, UI/service, credential, ML Kit, contract, version, or runtime-selection change.
 - **Limitations**: the system recognizer may use network and may ignore the offline preference; truthful synchronous language enumeration is unavailable; runtime integration remains Task 9.5.
+
+## Task 9.5 evidence
+
+- **Implementation commit**: `ab6094c71e8b6f4415185fedbb741bdbb77e2b0d`, persisted to `origin/master`; parent/planning baseline `faf12f1c06c6c8b07cec9c0314e264caef72ebfa`.
+- **Scope**: exactly 25 locked application/resource/test files; 1,122 insertions and 601 deletions; no Gradle, manifest, credentials, legacy Cloud adapter, Bluetooth transport, core engine contract, app identity/version, or implementation-time ViePilot state change.
+- **Verification**: 137 JVM tests and 19 Pixel 7a API 36 instrumentation tests passed with no failures/errors/skips; lint 0 errors/136 warnings; `git diff --check` clean.
+- **APK**: 79,115,541 bytes, SHA-256 `0439A7DED87D7AE7F9C33E97AD8E6E604207C0C277B82EA5C71DDF0168FD83B9`.
+- **Behavior**: Conversation and WalkieTalkie now explicitly compose ON_DEVICE engines; each tap owns one bounded recognition turn; Walkie uses a persistent explicit source direction; incoming Conversation translation is FIFO-isolated; payload framing remains compatible; terminal/generation guards suppress duplicate, stale, and post-close work; one service TTS instance remains shared.
+- **Persistence gate**: remote `refs/heads/master`, `origin/master`, upstream, and `HEAD` all resolve to `ab6094c`; ahead/behind `0/0`. PM-owned untracked `.viepilot/debug/` remains untouched.
+- **Deferred**: legacy Cloud opt-in/migration is Task 9.6; physical speech/offline quality and two-phone Bluetooth/SCO evidence remain Task 9.7.

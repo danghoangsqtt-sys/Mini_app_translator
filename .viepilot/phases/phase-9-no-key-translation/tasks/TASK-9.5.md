@@ -1,6 +1,6 @@
 # Task 9.5 — Integrate no-key engines into Conversation and WalkieTalkie
 
-**Status**: in_progress — strict contract locked by PM on 2026-09-24; assigned to TERRA 5.6
+**Status**: done — PM automated/emulator PASS on 2026-09-26; implementation `ab6094c` persisted to `origin/master`
 
 ## Objective
 
@@ -163,13 +163,22 @@ Expected: only locked paths changed; the final `rg` command has no match; Gradle
 
 ## Acceptance Criteria
 
-- [ ] Fresh/default Conversation and WalkieTalkie startup does not construct or require Cloud Translator/Recognizer, Recorder, or credentials.
-- [ ] `EngineType.ON_DEVICE` is explicitly composed and selected; one service owns/closes one engine family and one TTS instance.
-- [ ] Every mic action is one bounded `ENGINE_CAPTURE` turn with no PCM fan-out, second recognizer, continuous loop, or automatic restart.
-- [ ] WalkieTalkie exposes a persistent, accessible explicit source-language direction and always translates to the opposite selected language.
-- [ ] Conversation outbound final/partial behavior and Bluetooth payload framing remain compatible and malformed inbound payloads are recoverable.
-- [ ] ML Kit work is serialized; missing models and capability/language/permission/busy failures are actionable and non-fatal without hidden Cloud fallback.
-- [ ] Stop/mute/language/direction/replacement/destroy invalidate active work; stale callbacks cannot update UI, send, translate, or speak.
-- [ ] TTS queue acceptance and actual completion remain correctly separated, with exact-once shutdown and no microphone restart after service close.
-- [ ] JVM, source guard, API 36 instrumentation, lint, APK, scope, and security/privacy evidence are recorded.
-- [ ] PM reviews the single implementation commit and evidence before any PASS, tag, or push.
+- [x] Fresh/default Conversation and WalkieTalkie startup does not construct or require Cloud Translator/Recognizer, Recorder, or credentials.
+- [x] `EngineType.ON_DEVICE` is explicitly composed and selected; one service owns/closes one engine family and one TTS instance.
+- [x] Every mic action is one bounded `ENGINE_CAPTURE` turn with no PCM fan-out, second recognizer, continuous loop, or automatic restart.
+- [x] WalkieTalkie exposes a persistent, accessible explicit source-language direction and always translates to the opposite selected language.
+- [x] Conversation outbound final/partial behavior and Bluetooth payload framing remain compatible and malformed inbound payloads are recoverable.
+- [x] ML Kit work is serialized; missing models and capability/language/permission/busy failures are actionable and non-fatal without hidden Cloud fallback.
+- [x] Stop/mute/language/direction/replacement/destroy invalidate active work; stale callbacks cannot update UI, send, translate, or speak.
+- [x] TTS queue acceptance and actual completion remain correctly separated, with exact-once shutdown and no microphone restart after service close.
+- [x] JVM, source guard, API 36 instrumentation, lint, APK, scope, and security/privacy evidence are recorded.
+- [x] PM reviewed the single implementation commit and evidence before PASS; the approved commit was then fast-forwarded to `origin/master`.
+
+## PM Acceptance Evidence — 2026-09-26
+
+- **Implementation commit**: `ab6094c71e8b6f4415185fedbb741bdbb77e2b0d`; parent/planning baseline `faf12f1c06c6c8b07cec9c0314e264caef72ebfa`; exactly one implementation commit and 25 locked files.
+- **Independent verification**: 137 JVM tests and 19 Pixel 7a API 36 instrumentation tests passed with no failures, errors, or skips; lint reported 0 errors/136 warnings; `git diff --check` passed.
+- **APK**: 79,115,541 bytes; SHA-256 `0439A7DED87D7AE7F9C33E97AD8E6E604207C0C277B82EA5C71DDF0168FD83B9`.
+- **Behavior review**: confirmed ON_DEVICE default composition, one bounded recognition turn, explicit Walkie source direction, Conversation FIFO isolation, legacy payload compatibility, generation/terminal gates, close/cancel race handling, shared TTS ownership, and recoverable operation-aware errors without Cloud fallback.
+- **Persistence**: `HEAD`, upstream, `origin/master`, and remote `refs/heads/master` all resolve to `ab6094c`; ahead/behind is `0/0`. The only remaining status entry is PM-owned untracked `.viepilot/debug/`, which was not modified or staged.
+- **Deferred scope**: physical speech quality, true offline recognizer behavior, and two-phone Bluetooth/SCO interoperability remain Task 9.7 gates; legacy Cloud opt-in/migration remains Task 9.6.
