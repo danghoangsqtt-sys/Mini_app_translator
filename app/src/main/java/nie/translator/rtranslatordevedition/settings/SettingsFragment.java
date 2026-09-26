@@ -238,7 +238,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Messenger selfMessenger = new Messenger(selfHandler);
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
-        bundle.putInt("command", ON_MISSING_GOOGLE_TTS);
+        bundle.putInt("type", ON_MISSING_GOOGLE_TTS);
         message.setData(bundle);
         try {
             selfMessenger.send(message);
@@ -257,6 +257,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     break;
                 case ErrorCodes.MISSING_GOOGLE_TTS:
                     notifyMissingGoogleTTSDialog();
+                    break;
                 default:
                     activity.onError(aReason, value);
                     break;

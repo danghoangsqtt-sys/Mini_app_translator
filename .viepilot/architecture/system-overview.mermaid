@@ -1,17 +1,20 @@
 flowchart LR
-    subgraph PhoneA["Phone A (speaker)"]
-        MicA[AudioRecord] --> RecA[Recognizer.java\ngRPC stream]
+    subgraph PhoneA["Phone A — local speaker"]
+        MicA[Microphone] --> SpeechA[Android SpeechRecognizer\non-device preferred]
+        SpeechA --> ControllerA[Conversation controller\nbounded turn + generation gate]
+        ControllerA --> MlKitA[ML Kit Translation\ndownloaded model]
+        MlKitA --> BTA[ConversationBluetoothCommunicator]
     end
 
-    RecA -->|audio chunks| STT[Google Cloud\nSpeech-to-Text API]
-    STT -->|transcript| TransA[Translation API call]
-    TransA -->|translated text| BTA[ConversationBluetoothCommunicator]
+    BTA <-->|translated text over Bluetooth| BTB[ConversationBluetoothCommunicator]
 
-    BTA <-->|Bluetooth\nBluetoothCommunicator lib| BTB[ConversationBluetoothCommunicator]
-
-    subgraph PhoneB["Phone B (listener)"]
-        BTB --> TTS[Android TextToSpeech]
+    subgraph PhoneB["Phone B — peer"]
+        BTB --> MlKitB[ML Kit Translation\ndownloaded model]
+        MlKitB --> TTSB[Android TextToSpeech]
     end
 
-    KeyFile[User-supplied GCP\nservice-account key] -.OAuth2 token.-> RecA
-    KeyFile -.OAuth2 token.-> TransA
+    ModelService[Google model infrastructure] -.download/update models.-> MlKitA
+    ModelService -.download/update models.-> MlKitB
+    SystemSpeech[Selected Android system recognizer\nmay use network] -.capability-dependent.-> SpeechA
+
+    LegacyKey[Optional legacy Cloud credential\nencrypted on device] -.migration storage only\nno automatic runtime selection.-> Legacy[Isolated legacy adapters]

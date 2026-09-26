@@ -75,6 +75,9 @@ public class WalkieTalkieService extends VoiceTranslationService {
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            return super.onStartCommand(null, flags, startId);
+        }
         applyLanguages((CustomLocale) intent.getSerializableExtra("firstLanguage"), (CustomLocale) intent.getSerializableExtra("secondLanguage"));
         return super.onStartCommand(intent, flags, startId);
     }

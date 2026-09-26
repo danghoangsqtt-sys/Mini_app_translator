@@ -26,11 +26,9 @@ import java.util.ArrayList;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
-import nie.translator.rtranslatordevedition.voice_translation.cloud_apis.translation.Translator;
 
 public class SupportTtsQualityPreference extends SwitchPreference {
     private SettingsFragment fragment;
-    private Translator translator;
     private Global global;
     private SettingsActivity activity;
 
@@ -53,7 +51,6 @@ public class SupportTtsQualityPreference extends SwitchPreference {
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
-        translator = new Translator((Global) fragment.requireActivity().getApplication());
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {

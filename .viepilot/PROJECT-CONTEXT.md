@@ -1,35 +1,48 @@
 <!-- crystallize_version: 0.8.0 -->
 
-# Project Context — RTranslator
+# Project Context — Mini Conversation
 
 ## Product scope
 
-RTranslator lets two people who don't share a language have a real-time spoken conversation: each phone captures speech, sends it to Google Cloud for recognition + translation, and speaks the translated result — either over a live Bluetooth link between two phones (Conversation mode) or on a single phone used in turns (WalkieTalkie mode). Users bring their own Google Cloud billing account (via a service-account JSON key) rather than the app operator paying for API usage.
+Mini Conversation is a native Android/Java speech-translation app with two modes:
 
-## Phase overview
+- **Conversation** exchanges translated text between paired phones over Bluetooth.
+- **Walkie-Talkie** lets two people share one phone and take bounded turns in two selected languages.
 
-No greenfield phases were brainstormed for this import — this project was crystallized in **brownfield mode** purely to make an existing codebase audit's findings trackable. There is currently one working phase:
+The on-device default is Android `SpeechRecognizer` → Google ML Kit Translation → Android Text-to-Speech. A normal user does not need a Google Cloud project, billing account, API key, or service-account JSON.
 
-- **Phase 1 — Security & Stability Hardening**: address the Critical/High findings from the 2026-09-19 `/vp-audit` pass (credential storage, data corruption bug, race conditions) before any new feature work. See `.viepilot/ROADMAP.md`.
+## Current delivery state
 
-Further phases (new features, toolchain upgrade, branch consolidation) are expected to be defined later via `/vp-evolve` once Phase 1 is triaged.
+- Phase 9 is active and targets `1.3.0`; the `1.2.0` candidate is a release NO-GO.
+- Tasks 9.1–9.5 implemented keyless onboarding, engine contracts, ML Kit model management/offline translation, lifecycle-safe speech recognition, and default Conversation/Walkie integration.
+- Task 9.6 removes remaining Cloud-first UX/documentation and fixes audit blockers.
+- Task 9.7 owns API 23/31/34/36, physical two-phone Bluetooth/SCO, accessibility, signing, and release-candidate evidence.
+- Phase 3 dependency modernization and Phase 5 physical UI gates remain visible; emulator evidence does not close them.
 
-## Anti-goals
+## Domain and data flow
 
-- This ViePilot setup is **not** a rewrite or fork announcement — it does not change the app's public identity (README, LICENSE, package name, repo).
-- Not scoped to decide whether to move development to the `v3.00` branch — that's flagged as an open question (`ENH-015`), not decided here.
+- Speech recognition capability is device-dependent. API 31+ on-device recognition is preferred when available; the Android system recognizer may require network access and may ignore an offline preference.
+- ML Kit language models are explicitly downloaded/deleted in Settings and can translate offline after download.
+- Android TTS output depends on the engine installed by the user/device.
+- Conversation sends profile data and translated text to the selected peer over the existing Bluetooth transport. There is no app-operated server.
+- Local state includes preferences, optional profile image, downloaded models, recent peers, and legacy usage history in Room.
 
-## Domain knowledge
+## Credential model
 
-- **Credential model**: Each user supplies their own GCP service-account JSON key with `cloud-platform` scope. This is the most sensitive data the app handles — see `.viepilot/requests/BUG-001.md` and `BUG-002.md`.
-- **Two independent conversation UX modes** (Conversation vs WalkieTalkie) share the same underlying Google Cloud Speech/Translation calls but differ in transport (persistent Bluetooth session vs local dual-language listening).
-- **No server component** — this is a pure client app; all state is local (Room DB) or in the user's own GCP project.
+Credential-free operation is the default. Existing service-account import/delete remains only as **Legacy Cloud (advanced / optional)** migration tooling:
 
-## Constraints
+- importing a credential does not select a Cloud runtime or enable fallback;
+- credentials are validated, encrypted with an Android Keystore-backed key, stored privately, and excluded from Auto Backup;
+- no shared credential is bundled in the APK;
+- a functional Cloud mode would require a separately approved architecture because the retained legacy speech adapter consumes PCM while current controllers own microphone capture.
 
-- Upstream project identity files (README.md, LICENSE.txt, NOTICE.txt) are out of scope for ViePilot-driven edits unless the user explicitly asks.
-- Any fix work should target the correct branch — confirm `master` vs `v3.00` before starting non-trivial changes (see `ENH-015`).
+## Constraints and anti-goals
 
-## Known issues register
+- Preserve minSdk 23, package/application ID, Bluetooth payload compatibility, and upstream Apache-2.0 attribution.
+- Do not scrape `translate.google.com`, copy AGPL code from `vp-pdf`, add hidden Cloud fallback, or fabricate speech-language support from the ML Kit catalog.
+- Do not close physical-device, accessibility, legal/privacy-owner, or signed-release gates using emulator/static evidence.
+- Wi-Fi Hotspot transport is Phase 10 and must not be mixed into Phase 9.
 
-All current known issues are tracked as individual requests under `.viepilot/requests/` (12 `BUG-*`, 17 `ENH-*`), sourced from the `/vp-audit` pass on 2026-09-19. Summary table in `.viepilot/TRACKER.md`.
+## Known risk register
+
+Canonical issue state is in `.viepilot/TRACKER.md` and `.viepilot/requests/`. Current release-sensitive items include dependency debt (`ENH-012`), Bluetooth application-layer confidentiality (`ENH-001`), final privacy-controller/legal review, and physical-device QA.

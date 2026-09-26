@@ -24,11 +24,11 @@
 ```
 app/src/main/java/nie/translator/rtranslatordevedition/
 ├── access/            onboarding (name/photo/privacy) — low risk
-├── api_management/    Google Cloud key handling + OAuth token refresh — HIGH RISK (BUG-001, BUG-002, BUG-006, BUG-009)
+├── api_management/    optional legacy Cloud credential handling + OAuth internals — HIGH RISK (BUG-001, BUG-002, BUG-006, BUG-009)
 ├── database/          Room DB (AppDatabase, MyDao, entities) — BUG-007
 ├── settings/          settings UI
 ├── tools/             utilities incl. crypto (Tools.java — BUG-003, BUG-008) and vendored GraphView lib
-└── voice_translation/ Bluetooth conversation + walkie-talkie modes, gRPC speech recognition — BUG-004, BUG-005, BUG-010, BUG-011, ENH-001
+└── voice_translation/ on-device engines, Bluetooth conversation + walkie modes, isolated legacy gRPC code — BUG-004, BUG-005, BUG-010, BUG-011, ENH-001
 ```
 
 ## Known constraints (do not re-derive, already established by audit)

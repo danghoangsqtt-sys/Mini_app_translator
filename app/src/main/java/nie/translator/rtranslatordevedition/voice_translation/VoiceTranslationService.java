@@ -134,10 +134,14 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            stopSelf(startId);
+            return START_NOT_STICKY;
+        }
         if (notification == null) {
             notification = intent.getParcelableExtra("notification");
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     protected boolean isAudioMute() {

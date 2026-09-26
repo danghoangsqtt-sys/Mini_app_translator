@@ -28,6 +28,8 @@ Remove Cloud setup from the default journey, preserve an explicit legacy/advance
 - `privacy/Privacy_Policy_en.md`
 - `privacy/Privacy_Policy_it.md`
 - `.viepilot/PROJECT-CONTEXT.md`
+- `.viepilot/PROJECT-META.md`
+- `.viepilot/AI-GUIDE.md`
 - `.viepilot/ARCHITECTURE.md`
 - `.viepilot/architecture/system-overview.mermaid`
 - `app/src/test/java/nie/translator/rtranslatordevedition/MigrationUxContractTest.java`
@@ -41,7 +43,7 @@ Remove Cloud setup from the default journey, preserve an explicit legacy/advance
 - `VoiceTranslationService.java`: define a non-sticky, null-intent-safe restart policy and preserve normal notification startup (`BUG-024`).
 - `WalkieTalkieService.java`: delegate null-intent recovery before reading language extras; preserve normal first/second-language application (`BUG-024`).
 - EN/IT strings: label credential management as optional legacy/advanced tooling; remove obsolete pricing/tutorial claims and automatic-Cloud implications.
-- README/privacy/architecture/project-context/Mermaid: document the implemented on-device default, truthful system-recognizer/model-download network behavior, Bluetooth data flow, and optional local legacy credential storage.
+- README/privacy/architecture/project-context/project-meta/AI guide/Mermaid: document the implemented on-device default, truthful system-recognizer/model-download network behavior, Bluetooth data flow, and optional local legacy credential storage.
 - `MigrationUxContractTest.java`: source/resource/doc guards for no default legacy construction, corrected Settings dispatch, current fork privacy links, and prohibited obsolete Cloud-default/pricing claims.
 - `ServiceRestartContractTest.java`: source contract covering null-intent guards and explicit `START_NOT_STICKY` restart behavior for both services.
 - `CHANGELOG.md`: record the implemented migration UX and audit bug fixes under `[Unreleased]`; do not bump `versionCode`/`versionName`.

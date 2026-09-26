@@ -3,7 +3,7 @@
 - **Current runtime name**: Mini Conversation (Phase 5 code complete; app 1.2.0/versionCode 15)
 - **Upstream product name**: RTranslator
 - **Fork repository name**: Mini App Translator
-- **Description**: World's first open-source real-time translation app — Bluetooth-based Conversation mode and WalkieTalkie mode, using Google Cloud Speech-to-Text and Translation APIs.
+- **Description**: Native Android speech-translation app with Bluetooth Conversation and single-device Walkie-Talkie modes, using Android SpeechRecognizer, ML Kit Translation, and Android TTS by default.
 - **Package base ID**: `nie.translator.rtranslatordevedition`
 - **Repository**: https://github.com/danghoangsqtt-sys/Mini_app_translator
 - **Upstream**: https://github.com/niedev/RTranslator

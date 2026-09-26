@@ -29,11 +29,14 @@ All notable changes to this fork will be documented in this file.
 
 ### Fixed
 
+- Reject null voice-service restart intents with explicit non-sticky shutdown instead of dereferencing missing notification/language extras (`BUG-024`).
+- Route the Settings missing-TTS event through the correct message key without falling through to the generic error callback (`BUG-025`).
 - Made first-run onboarding reach the main UI without a Google Cloud credential and removed obsolete Cloud/RTranslator promotional assets (`BUG-021`, `BUG-022`).
 - Reclassified legacy Bluetooth multiple-advertisement failures as a recoverable discovery limitation instead of falsely claiming the device has no BLE (`BUG-023`).
 
 ### Changed
 
+- Made legacy Cloud credential management explicitly optional/advanced, removed hidden token access from ordinary Settings, and synchronized README/privacy/architecture with the on-device default (`ENH-021`).
 - Added runtime-neutral speech-recognition, text-translation, and speech-output contracts with explicit engine selection and isolated legacy adapters (`ENH-021`).
 - Added official on-device ML Kit language identification and translation with explicit Wi-Fi-first model download/delete management, English built-in handling, localized Google attribution/privacy disclosures, lifecycle-safe callbacks, and verified offline translation (`ENH-021`).
 - Added a bounded Android `SpeechRecognizer` engine with API 31+ on-device preference, truthful pre-listening system fallback, main-thread lifecycle dispatch, stale-session isolation, a 30-second watchdog, sanitized recoverable errors, and exact-once recognizer cleanup (`ENH-021`).
