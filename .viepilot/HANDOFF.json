@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.6 — Legacy Cloud opt-in, migration UX, and audit blockers (in_progress; autonomous implementation authorized 2026-09-26)",
+  "current_task": "9.7 — Full QA and release-candidate gate (planned; physical-device, legal-owner, signing, and release evidence required)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 Task 9.6 is in progress from a documented planning baseline. Scope: remove hidden legacy Cloud token access from Settings; label credential management optional/advanced; synchronize README/privacy/architecture; fix BUG-024 null-intent service restart and BUG-025 missing-TTS dispatch; add focused contract tests. Do not add a functional Cloud runtime selector or hidden fallback. Physical phone/two-phone evidence remains due in 9.7; 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
+  "resume_hint": "Phase 9 Task 9.6 passed PM automated/emulator review at 8a8882b: 143 JVM tests, 19 API 36 instrumentation tests, lint 0 errors/136 warnings. Legacy Cloud management is optional/advanced; no runtime selector/fallback was added; BUG-024 and BUG-025 are resolved. Phase 9 is 6/7 complete. Task 9.7 is next and requires physical API/device, two-phone Bluetooth/SCO, TalkBack, publisher/controller legal confirmation, signed artifact, version/tag, and PM release approval. 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
 }

@@ -1,6 +1,6 @@
 # Task 9.6 — Make legacy Cloud optional and complete migration UX
 
-**Status**: in_progress — planning baseline; autonomous implementation authorized 2026-09-26
+**Status**: done — PM automated/emulator PASS 2026-09-26
 **Depends on**: Task 9.5 at `ab6094c` and its PM state commit
 **Owner split**: TERRA implements the locked application/docs scope; PM reviews evidence and updates ViePilot state
 
@@ -70,18 +70,18 @@ Remove Cloud setup from the default journey, preserve an explicit legacy/advance
 
 ## Acceptance criteria
 
-- [ ] Fresh/default path contains no Cloud key requirement or billing marketing.
-- [ ] Legacy Cloud is clearly labeled opt-in and never auto-selected for a keyless user.
-- [ ] No shared credential or secret is present in source, resources, APK, or test fixtures.
-- [ ] Existing encrypted credential can be removed safely and is not uploaded.
-- [ ] Privacy/attribution/network disclosures match actual engine behavior.
-- [ ] Resource/source tests prevent reintroduction of obsolete RTranslator/$300 copy.
-- [ ] Opening/binding ordinary Settings does not instantiate the legacy Cloud `Translator` or request an API token.
-- [ ] README, privacy EN/IT, project context, architecture doc, and Mermaid sidecar agree on the on-device default and its truthful network limitations.
-- [ ] Legacy credential controls are visibly advanced/optional and do not claim that Cloud mode is automatically active.
-- [ ] Secret scan distinguishes fake test fixtures from shipping assets and finds no real credential/private key in source, resources, APK, or Git diff.
-- [ ] `BUG-025` has exactly one correct terminal UI action and focused regression coverage, or its dead path is safely removed.
-- [ ] `BUG-024` is covered for both services; a null restart intent cannot crash or synthesize invalid session state.
+- [x] Fresh/default path contains no Cloud key requirement or billing marketing.
+- [x] Legacy Cloud is clearly labeled opt-in and never auto-selected for a keyless user.
+- [x] No shared credential or secret is present in source, resources, APK, or test fixtures.
+- [x] Existing encrypted credential can be removed safely and is not uploaded.
+- [x] Privacy/attribution/network disclosures match actual engine behavior.
+- [x] Resource/source tests prevent reintroduction of obsolete RTranslator/$300 copy.
+- [x] Opening/binding ordinary Settings does not instantiate the legacy Cloud `Translator` or request an API token.
+- [x] README, privacy EN/IT, project context, architecture doc, and Mermaid sidecar agree on the on-device default and its truthful network limitations.
+- [x] Legacy credential controls are visibly advanced/optional and do not claim that Cloud mode is automatically active.
+- [x] Secret scan distinguishes fake/validator markers from shipping assets and finds no real credential/private key in source, resources, APK, or Git diff.
+- [x] `BUG-025` has exactly one correct terminal UI action and focused regression coverage.
+- [x] `BUG-024` is covered for both services; a null restart intent cannot crash or synthesize invalid session state.
 
 ## Forbidden changes
 
@@ -99,3 +99,14 @@ git diff --check <planning-baseline>...HEAD
 ```
 
 Evidence must include changed-file scope, test counts, lint error/warning counts, APK size/SHA-256, a source/resource scan for obsolete claims and default-path legacy construction, and final Git status. Implementation is one local commit above the PM planning baseline; no push/tag/state update until PM review.
+
+## Completion evidence
+
+- Planning baseline: `fb18fec`; implementation commit: `8a8882b` (18 files, 399 insertions, 336 deletions), persisted to `origin/master`.
+- JVM: 143 tests, 0 failures/errors/skips.
+- Instrumentation: 19 Pixel 7a API 36 tests, 0 failures/errors/skips.
+- Lint: 0 errors, 136 warnings; debug APK assembled successfully.
+- APK: 79,115,707 bytes; SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`.
+- Source/resource scan found no obsolete active pricing/onboarding claim and no Settings-side `new Translator(...)` construction.
+- APK scan found only the expected private-key **format marker** compiled from `ServiceAccountCredentialValidator`; no key body, key ID, client email, Google API key, or OAuth access token was present.
+- Privacy files are now factual technical disclosures. Publisher/controller identity and jurisdiction-specific legal approval remain a human release gate in Task 9.7.

@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.6 — Legacy Cloud opt-in, migration UX, and audit blockers (`in_progress`; autonomous implementation authorized 2026-09-26).
+- **Current task**: 9.7 — Full QA and release-candidate gate (`planned`; physical-device, legal-owner, signing, and release evidence required).
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 5/7 tasks; 9.6 next |
+| 9 — No-Key On-Device Translation | in_progress | 6/7 tasks; 9.7 next |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -83,8 +83,8 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-021 | 🐛 | Onboarding states an obsolete Google Cloud `$300`/one-year offer | Medium | resolved (Phase 9, task 9.1; `8a0a97a`) |
 | BUG-022 | 🐛 | Onboarding still displays the legacy RTranslator logo after rebrand | Low | resolved (Phase 9, task 9.1; `8a0a97a`) |
 | BUG-023 | 🐛 | False BLE capability gate blocks valid physical phones | High | code/emulator resolved (`8a0a97a`); physical confirmation due 9.7 |
-| BUG-024 | 🐛 | Sticky service restart can crash on null `onStartCommand` intent | High | new; must resolve before Phase 9.7 RC gate |
-| BUG-025 | 🐛 | Missing-TTS Settings message uses wrong Bundle key and falls through | High | new; candidate for Task 9.6 |
+| BUG-024 | 🐛 | Sticky service restart can crash on null `onStartCommand` intent | High | resolved (Phase 9, task 9.6; `8a8882b`) |
+| BUG-025 | 🐛 | Missing-TTS Settings message uses wrong Bundle key and falls through | High | resolved (Phase 9, task 9.6; `8a8882b`) |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | planned (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | planned (Phase 5, tasks 5.3–5.6) |
 | ENH-020 | 🔧 | Add Wi-Fi Hotspot transport alongside Bluetooth | Medium | proposed (Phase 10) |
@@ -119,6 +119,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-24**: Locked Task 9.5 after a read-only Terra architecture pass. PM selected an explicit per-turn WalkieTalkie source-language toggle because the on-device recognizer owns the microphone and cannot safely replace the former dual Cloud PCM recognizers. The contract requires one bounded turn per tap, ON_DEVICE default composition, ML Kit candidate languages without fabricated speech support, no model auto-download, existing TTS completion ownership, unchanged Bluetooth framing, generation-gated callbacks, and no Task 9.6 legacy opt-in work.
 - **2026-09-26**: Phase 9 Task 9.5 passed PM review at `ab6094c` and was fast-forwarded to `origin/master`. Independent gate: 137 JVM tests, 19 Pixel 7a API 36 instrumentation tests with no skips, lint 0 errors/136 warnings, `git diff --check` clean, and debug APK SHA-256 `0439A7DED87D7AE7F9C33E97AD8E6E604207C0C277B82EA5C71DDF0168FD83B9`. Conversation/WalkieTalkie now use explicit ON_DEVICE composition with bounded turns, persistent Walkie source direction, FIFO-isolated incoming Conversation work, legacy payload compatibility, shared TTS ownership, and stale/late suppression. Physical speech/offline quality and two-phone Bluetooth/SCO remain due in 9.7; legacy Cloud opt-in/migration is next in 9.6.
 - **2026-09-26**: `/vp-audit` independently passed `clean testDebugUnitTest lintDebug assembleDebug` (137 JVM tests, lint 0 errors/136 warnings) and `connectedDebugAndroidTest` (19/19 API 36 tests). It auto-logged `BUG-024` (null-intent sticky service restart), `BUG-025` (misrouted missing-TTS Settings event), and `ENH-022` (explicit, Git-aware cleanup of ~2.4 GB retained QA worktrees/caches). Cloud-first README/privacy/architecture drift and Settings-side legacy `Translator` construction were deduplicated into `ENH-021`; dependency warnings were re-recorded under `ENH-012`. Task 9.6 was sharpened into an execution-ready contract without changing shipping code. No worktree/cache was deleted.
+- **2026-09-26**: `/vp-evolve` + `/vp-auto` completed Task 9.6 at `8a8882b`: legacy Cloud credential management is explicitly optional/advanced, ordinary Settings no longer constructs a Cloud translator, README/privacy/current architecture describe the on-device default, and `BUG-024`/`BUG-025` are resolved. Independent gate: 143 JVM tests, 19 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, APK SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`. Technical privacy copy is current; publisher/controller identity and legal approval remain a Task 9.7 human release gate.
 
 ## Version info
 

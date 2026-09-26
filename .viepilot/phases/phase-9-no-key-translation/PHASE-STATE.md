@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 5/7 complete
-- **Current task**: 9.6 — Legacy Cloud opt-in, migration UX, and audit blockers (`in_progress`; autonomous implementation authorized 2026-09-26)
+- **Tasks**: 6/7 complete
+- **Current task**: 9.7 — Full QA and release-candidate gate (`planned`; physical-device and signing evidence required)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -15,7 +15,7 @@
 | 9.3 — ML Kit translation/model management | done — PM PASS | `384b114`; 99 JVM tests; 10 API 36 tests; lint 0/136; genuine post-relaunch offline translation proof |
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
-| 9.6 — Legacy Cloud opt-in and migration UX | in_progress | Includes `BUG-024`, `BUG-025`; no functional Cloud runtime selector in Phase 9 |
+| 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
 | 9.7 — Full QA and release-candidate gate | planned | Requires 9.1–9.6 |
 
 ## PM control rules
@@ -69,3 +69,12 @@
 - **Behavior**: Conversation and WalkieTalkie now explicitly compose ON_DEVICE engines; each tap owns one bounded recognition turn; Walkie uses a persistent explicit source direction; incoming Conversation translation is FIFO-isolated; payload framing remains compatible; terminal/generation guards suppress duplicate, stale, and post-close work; one service TTS instance remains shared.
 - **Persistence gate**: remote `refs/heads/master`, `origin/master`, upstream, and `HEAD` all resolve to `ab6094c`; ahead/behind `0/0`. PM-owned untracked `.viepilot/debug/` remains untouched.
 - **Deferred**: legacy Cloud opt-in/migration is Task 9.6; physical speech/offline quality and two-phone Bluetooth/SCO evidence remain Task 9.7.
+
+## Task 9.6 evidence
+
+- **Planning baseline / implementation**: `fb18fec` / `8a8882b`, persisted to `origin/master`.
+- **Scope**: 18 files; narrow Settings/service fixes, EN/IT migration copy/privacy, current architecture docs, and two focused source-contract test classes. No engine/controller/Bluetooth/Gradle/version/signing change.
+- **Behavior**: ordinary Settings no longer constructs the legacy Cloud translator; legacy credential management is visibly optional/advanced and cannot select runtime automatically; null service restarts stop non-sticky before reading extras; missing-TTS dispatch uses the correct key and no longer falls through.
+- **Verification**: 143 JVM tests and 19 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; `git diff --check` clean.
+- **APK**: 79,115,707 bytes; SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`.
+- **Release boundary**: technical privacy disclosure is current, but publisher/controller identity and legal approval remain human gates. Task 9.7 still owns physical API/device, two-phone Bluetooth/SCO, TalkBack, signing, version/tag, and release approval.
