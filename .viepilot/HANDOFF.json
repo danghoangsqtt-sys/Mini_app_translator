@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; Gate A automated evidence collection, with Gates B/C/D still mandatory)",
+  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; Gate A PASS on API 36, Gates B/C/D blocked)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 Task 9.7 is in progress under its locked QA contract. Collect and record Gate A automated/API 36 evidence first. Do not advance beyond 6/7 or claim release PASS while API 23/31/34 device rows, two physical phones with Bluetooth/SCO and offline speech/translation, TalkBack/200% font review, publisher/controller legal confirmation, authorized release signing, version/tag, and explicit release approval remain blocked. 1.2.0 remains NO-GO and Wi-Fi Hotspot remains Phase 10."
+  "resume_hint": "Phase 9 Task 9.7 Gate A passed after QA fix 3b16037: 143 JVM tests, 19 API 36 instrumentation tests, lint 0 errors/136 warnings, fresh-install/permission/runtime smoke, and APK SHA-256 BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A. Canonical evidence is evidence/TASK-9.7-QA.md. Do not advance beyond 6/7 or claim release PASS while API 23/31/34, two physical phones with Bluetooth/SCO and speech/product QA, human TalkBack/200% font review, publisher/controller legal confirmation, authorized release signing, version/tag, and explicit release approval remain blocked. 1.2.0 remains NO-GO."
 }

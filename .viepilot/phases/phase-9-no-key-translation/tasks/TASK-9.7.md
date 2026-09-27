@@ -86,7 +86,7 @@ git diff --check
 
 ## Acceptance criteria
 
-- [ ] Gate A passes with zero test failures, zero lint errors, exact artifact/install evidence, and no unresolved Critical/High defect.
+- [x] Gate A passes with zero test failures, zero lint errors, exact artifact/install evidence, and no unresolved Critical/High defect in the exercised scope.
 - [ ] Gate B passes on API 23, 31, 34, and 36 with per-device evidence.
 - [ ] Gate C passes on two physical phones, including Bluetooth/SCO, no-key speech/translation, offline-model, accessibility, and visual checks.
 - [ ] Gate D has approved legal identity/privacy copy, authorized signing, reviewed version assignment, signed artifact evidence, and explicit release approval.
@@ -100,4 +100,4 @@ git diff --check
 
 ## Completion evidence
 
-Pending. Canonical evidence is written to `evidence/TASK-9.7-QA.md`. Task progress remains 6/7 until all four gates pass.
+Gate A passed on 2026-09-27 after fixing one stale README BLE requirement and adding a regression guard: 143 JVM tests, 19 API 36 instrumentation tests, lint 0 errors/136 warnings, clean diff check, fresh-install/permission-cycle runtime smoke, and debug APK SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`. Gates B/C/D remain blocked; canonical detail is in `evidence/TASK-9.7-QA.md`. Task progress remains 6/7 until all four gates pass.

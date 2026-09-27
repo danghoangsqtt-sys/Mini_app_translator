@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 6/7 complete
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; automated evidence collection, with physical-device/accessibility/legal/signing gates mandatory)
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS, Gates B/C/D blocked on devices/human/legal/signing input)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -16,7 +16,7 @@
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
-| 9.7 — Full QA and release-candidate gate | in_progress — Gate A evidence collection | Gates B/C/D require supported-API devices, two physical phones, accessibility review, legal identity, signing, and explicit release approval |
+| 9.7 — Full QA and release-candidate gate | in_progress — Gate A PASS; release NO-GO | Gates B/C/D require API 23/31/34, two physical phones, accessibility review, legal identity, signing, and explicit release approval |
 
 ## PM control rules
 
@@ -78,3 +78,11 @@
 - **Verification**: 143 JVM tests and 19 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; `git diff --check` clean.
 - **APK**: 79,115,707 bytes; SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`.
 - **Release boundary**: technical privacy disclosure is current, but publisher/controller identity and legal approval remain human gates. Task 9.7 still owns physical API/device, two-phone Bluetooth/SCO, TalkBack, signing, version/tag, and release approval.
+
+## Task 9.7 partial evidence
+
+- **Planning baseline / QA fix**: `3db5ec1` / `3b16037`; the only fix removes the stale README claim that Bluetooth Low Energy is required and adds a focused regression guard.
+- **Gate A**: 143 JVM tests and 19 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; fresh-install, relaunch, force-stop recreation, permission grant/revoke/re-grant, and initial-screen 200% font light/dark smokes had no app FATAL/ANR.
+- **APK**: 79,115,707 bytes; SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`.
+- **Release NO-GO**: API 23/31/34 lack runnable devices/images; no physical phone is attached; two-phone Bluetooth/SCO, physical speech, complete TalkBack/visual QA, controller identity/legal approval, release signing, version assignment, signed artifact, tag, and publication remain blocked.
+- **Canonical evidence**: `evidence/TASK-9.7-QA.md`.
