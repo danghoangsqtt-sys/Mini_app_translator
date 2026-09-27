@@ -72,6 +72,8 @@ public class MigrationUxContractTest {
         assertTrue(readme.contains("ml kit translation"));
         assertFalse(readme.contains("một google cloud project đã bật"));
         assertFalse(readme.contains("## cấu hình google cloud"));
+        assertFalse(readme.contains("bluetooth low energy cho conversation mode"));
+        assertTrue(readme.contains("không yêu cầu cờ phần cứng bluetooth le riêng"));
         assertTrue(architecture.contains("on-device default"));
         assertTrue(projectContext.contains("on-device default"));
     }

@@ -66,7 +66,7 @@ Các package chính:
 - JDK 17 được yêu cầu cho toolchain Gradle 8.13 hiện tại.
 - Android SDK Platform 36.
 - Thiết bị Android 6.0 trở lên có microphone.
-- Bluetooth Low Energy cho Conversation mode.
+- Bluetooth được bật và quyền thiết bị lân cận phù hợp với phiên bản Android cho Conversation mode; ứng dụng không yêu cầu cờ phần cứng Bluetooth LE riêng.
 - Android speech-recognition service có sẵn trên thiết bị; mức hỗ trợ on-device tùy thiết bị/ngôn ngữ.
 - Dung lượng trống và kết nối mạng để tải model ML Kit trước khi dịch offline.
 
