@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 6/7 complete
-- **Current task**: 9.7 — Full QA and release-candidate gate (`planned`; physical-device and signing evidence required)
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; automated evidence collection, with physical-device/accessibility/legal/signing gates mandatory)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -16,7 +16,7 @@
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
-| 9.7 — Full QA and release-candidate gate | planned | Requires 9.1–9.6 |
+| 9.7 — Full QA and release-candidate gate | in_progress — Gate A evidence collection | Gates B/C/D require supported-API devices, two physical phones, accessibility review, legal identity, signing, and explicit release approval |
 
 ## PM control rules
 
