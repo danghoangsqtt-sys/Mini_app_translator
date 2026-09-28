@@ -44,6 +44,7 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 | 9.5 | Integrate default engines into Conversation and WalkieTalkie | Both modes work without Cloud credentials on supported devices |
 | 9.6 | Make legacy Cloud explicitly optional, finish migration UI/privacy copy, and close audit blockers `BUG-024`/`BUG-025` | Default journey contains no key/billing requirement; service restart and Settings dispatch regressions covered; no credential bundled |
 | 9.7 | Full regression, device matrix, APK/release-candidate gate | Automated suite + physical two-phone evidence + PM approval |
+| 9.8 | Remediate audit findings `BUG-027`–`BUG-030` before resuming the physical gate | State consistency, safe mode restore, exact service binding, serialized recent-peer persistence, focused regression tests |
 
 ## Phase acceptance criteria
 
@@ -55,6 +56,7 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 - [ ] API 23, 31, 34, and 36 checks are recorded; physical two-phone Bluetooth evidence exists.
 - [ ] `clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest` passes with zero lint errors.
 - [ ] PM reviews the diff and test evidence before any tag, push, or release claim.
+- [ ] `BUG-027`–`BUG-030` are resolved and verified before the two-phone Task 9.7 retest is accepted.
 
 ## Verification baseline
 

@@ -26,6 +26,7 @@ All notable changes to this fork will be documented in this file.
 - Keep legacy Cloud configuration optional; do not use undocumented Google Translate web scraping.
 - Make voice services reject null restart intents safely and correct the Settings missing-TTS event dispatch (`BUG-024`, `BUG-025`).
 - Do not publish or tag the current `1.2.0` candidate; it is a release NO-GO pending Phase 9.
+- Stabilize cold-start mode restore, service binding ownership, and recent-peer persistence before resuming the physical release gate (`BUG-028`–`BUG-030`).
 
 ### Fixed
 

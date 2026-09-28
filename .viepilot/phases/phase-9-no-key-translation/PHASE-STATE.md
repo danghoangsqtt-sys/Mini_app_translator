@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 6/7 complete
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS after `BUG-026`, Gate C awaits two-phone hotfix retest, Gates B/D blocked)
+- **Tasks**: 6/8 complete
+- **Current task**: 9.8 — Audit stabilization hotfixes (`in_progress`; prerequisite before Task 9.7 Gate C resumes)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -17,6 +17,7 @@
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
 | 9.7 — Full QA and release-candidate gate | in_progress — Gate A PASS after `BUG-026`; release NO-GO | Same two phones must confirm hotfix; API 23/31/34, remaining physical/accessibility QA, legal identity, signing, and release approval remain |
+| 9.8 — Audit stabilization hotfixes | in_progress | Resolve `BUG-027`–`BUG-030`, re-run automated/API 36 gates, then return control to 9.7 without claiming release PASS |
 
 ## PM control rules
 
