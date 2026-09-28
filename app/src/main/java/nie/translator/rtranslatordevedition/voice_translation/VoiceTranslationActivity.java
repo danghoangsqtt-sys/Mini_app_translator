@@ -671,7 +671,8 @@ public class VoiceTranslationActivity extends GeneralActivity {
         Intent resultIntent = new Intent(this, VoiceTranslationActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+                0, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         // creation of the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID);
         if (clickAction == CONVERSATION_FRAGMENT) {

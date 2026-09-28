@@ -2,8 +2,13 @@ package nie.translator.rtranslatordevedition.voice_translation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertSame;
+import android.app.Notification;
+import android.content.Context;
+import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioGroup;
@@ -11,6 +16,8 @@ import android.widget.RadioButton;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
 import androidx.test.InstrumentationRegistry;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import nie.translator.rtranslatordevedition.R;
@@ -31,6 +38,44 @@ import org.junit.Test;
 
 /** API 36 UI/lifecycle smoke only; it makes no transcription, offline-quality, or Bluetooth claim. */
 public class OnDeviceModeInstrumentedTest {
+    @Test public void conversationNotificationPendingIntentIsValidOnTargetSPlus() throws Exception {
+        final android.app.Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        PreferenceManager.getDefaultSharedPreferences(targetContext).edit()
+                .putInt("fragment", VoiceTranslationActivity.PAIRING_FRAGMENT)
+                .commit();
+        Intent intent = new Intent(targetContext, VoiceTranslationActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        final VoiceTranslationActivity activity = (VoiceTranslationActivity)
+                instrumentation.startActivitySync(intent);
+        final Notification[] notification = new Notification[1];
+        final Throwable[] failure = new Throwable[1];
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override public void run() {
+                try {
+                    Method method = VoiceTranslationActivity.class
+                            .getDeclaredMethod("buildNotification", int.class);
+                    method.setAccessible(true);
+                    notification[0] = (Notification) method.invoke(
+                            activity, VoiceTranslationActivity.CONVERSATION_FRAGMENT);
+                } catch (Throwable throwable) {
+                    failure[0] = throwable instanceof InvocationTargetException
+                            ? throwable.getCause() : throwable;
+                }
+            }
+        });
+        instrumentation.waitForIdleSync();
+        if (failure[0] != null) {
+            throw new AssertionError(failure[0]);
+        }
+        assertNotNull(notification[0]);
+        assertNotNull(notification[0].contentIntent);
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override public void run() { activity.finish(); }
+        });
+        instrumentation.waitForIdleSync();
+    }
+
     @Test public void directionControlIsSingleSelectedAndItsCheckedStateSurvivesReinflate() {
         final RadioGroup[] group = new RadioGroup[1]; final SparseArray<android.os.Parcelable> state = new SparseArray<>();
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
