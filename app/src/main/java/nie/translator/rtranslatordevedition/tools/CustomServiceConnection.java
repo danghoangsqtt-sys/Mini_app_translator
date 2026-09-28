@@ -41,6 +41,7 @@ public class CustomServiceConnection implements ServiceConnection {
     private boolean registered;
     private boolean released;
     private boolean connected;
+    private boolean everConnected;
     private boolean terminalFailureReported;
     private TerminalListener terminalListener;
 
@@ -54,6 +55,7 @@ public class CustomServiceConnection implements ServiceConnection {
             return;
         }
         connected = true;
+        everConnected = true;
         serviceCommunicator.initializeCommunication(new Messenger(iBinder));
         for(int i = 0; i< callbacksToAddOnBind.size(); i++) {
             serviceCommunicator.addCallback(callbacksToAddOnBind.get(i));
@@ -113,14 +115,25 @@ public class CustomServiceConnection implements ServiceConnection {
             }
         }
         disconnectCommunication();
+        synchronized (this) {
+            callbacksToAddOnBind.clear();
+            callbacksToRespondOnBind.clear();
+            terminalListener = null;
+        }
     }
 
     public synchronized boolean isRegistered() {
         return registered && !released;
     }
 
+    public synchronized boolean hasEverConnected() {
+        return everConnected;
+    }
+
     public synchronized void setTerminalListener(TerminalListener listener) {
-        terminalListener = listener;
+        if (!released) {
+            terminalListener = listener;
+        }
     }
 
     private synchronized void reportTerminalFailure() {
@@ -140,7 +153,7 @@ public class CustomServiceConnection implements ServiceConnection {
         }
     }
 
-    private void disconnectCommunication(){
+    private synchronized void disconnectCommunication(){
         for(int i=0;i<callbacksToAddOnBind.size();i++) {
             serviceCommunicator.removeCallback(callbacksToAddOnBind.get(i));
         }
@@ -151,7 +164,10 @@ public class CustomServiceConnection implements ServiceConnection {
         return serviceCommunicator;
     }
 
-    public void addCallbacks(ServiceCallback serviceCallback, ServiceCommunicatorListener responseListener){
+    public synchronized void addCallbacks(ServiceCallback serviceCallback, ServiceCommunicatorListener responseListener){
+        if (released) {
+            return;
+        }
         callbacksToAddOnBind.add(serviceCallback);
         callbacksToRespondOnBind.add(responseListener);
     }

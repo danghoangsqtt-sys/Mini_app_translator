@@ -39,6 +39,7 @@ import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
 import nie.translator.rtranslatordevedition.api_management.ApiManagementActivity;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
+import nie.translator.rtranslatordevedition.tools.ServiceConnectionHandle;
 import nie.translator.rtranslatordevedition.tools.gui.ButtonKeyboard;
 import nie.translator.rtranslatordevedition.tools.gui.ButtonMic;
 import nie.translator.rtranslatordevedition.tools.gui.ButtonSound;
@@ -65,6 +66,7 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
     //connection
     protected VoiceTranslationService.VoiceTranslationServiceCommunicator voiceTranslationServiceCommunicator;
     protected VoiceTranslationService.VoiceTranslationServiceCallback voiceTranslationServiceCallback;
+    protected ServiceConnectionHandle serviceConnectionHandle;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

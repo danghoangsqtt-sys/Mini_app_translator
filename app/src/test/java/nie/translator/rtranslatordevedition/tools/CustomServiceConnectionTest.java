@@ -60,6 +60,20 @@ public class CustomServiceConnectionTest {
         assertFalse(connection.isRegistered());
     }
 
+    @Test public void releaseBeforeLateTerminalCallbackSuppressesOwnerFailure() {
+        final int[] failures = {0};
+        CustomServiceConnection connection = connection(new ServiceCommunicatorListener() {
+            @Override public void onServiceCommunicator(ServiceCommunicator communicator) { }
+            @Override public void onFailure(int[] reasons, long value) { failures[0]++; }
+        });
+
+        connection.disconnect(value -> { });
+        connection.reportBindFailure();
+
+        assertEquals(0, failures[0]);
+        assertFalse(connection.hasEverConnected());
+    }
+
     private static CustomServiceConnection connection(ServiceCommunicatorListener listener) {
         CustomServiceConnection connection = new CustomServiceConnection(new FakeCommunicator());
         connection.addCallbacks(new ServiceCallback() { }, listener);

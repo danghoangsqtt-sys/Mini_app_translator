@@ -8,6 +8,7 @@ import static org.junit.Assert.assertSame;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import nie.translator.rtranslatordevedition.R;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
+import nie.translator.rtranslatordevedition.tools.CustomServiceConnection;
+import nie.translator.rtranslatordevedition.tools.ServiceConnectionHandle;
+import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCallback;
+import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCommunicator;
+import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCommunicatorListener;
 import nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie.WalkieTalkieOnDeviceController;
 import nie.translator.rtranslatordevedition.voice_translation.engines.EngineCapability;
 import nie.translator.rtranslatordevedition.voice_translation.engines.EngineError;
@@ -135,6 +141,41 @@ public class OnDeviceModeInstrumentedTest {
         assertSame(output, factory.createSpeechOutputEngine());
     }
 
+    @Test public void cancelledServiceHandleSuppressesLateFrameworkConnection() {
+        final int[] deliveries = { 0 };
+        final int[] failures = { 0 };
+        final int[] unbinds = { 0 };
+        CustomServiceConnection connection = new CustomServiceConnection(new FakeCommunicator());
+        ServiceConnectionHandle handle = new ServiceConnectionHandle(
+                new ServiceCallback() { }, new ServiceCommunicatorListener() {
+            @Override public void onServiceCommunicator(ServiceCommunicator serviceCommunicator) {
+                deliveries[0]++;
+            }
+
+            @Override public void onFailure(int[] reasons, long value) {
+                failures[0]++;
+            }
+        }, new ServiceConnectionHandle.CancellationListener() {
+            @Override public void onCancelled(ServiceConnectionHandle owner,
+                                              CustomServiceConnection attached,
+                                              boolean serviceStarted) {
+                assertTrue(serviceStarted);
+                attached.disconnect(value -> unbinds[0]++);
+            }
+        });
+
+        assertTrue(handle.markServiceStarted());
+        assertTrue(handle.attach(connection));
+        assertTrue(connection.markRegistered());
+        handle.cancel();
+        connection.onServiceConnected(null, new Binder());
+
+        assertEquals(1, unbinds[0]);
+        assertEquals(0, deliveries[0]);
+        assertEquals(0, failures[0]);
+        assertFalse(connection.isRegistered());
+    }
+
     private static final class FakeSpeech implements SpeechRecognitionEngine {
         int starts; RecognitionCallback callback;
         @Override public EngineCapability getCapability() { return capability(); }
@@ -158,6 +199,11 @@ public class OnDeviceModeInstrumentedTest {
         @Override public EngineOperation speak(CharSequence text, QueueMode mode, ResultCallback callback) { return new EngineOperation(null); }
         @Override public void stop() { }
         @Override public void close() { }
+    }
+    private static final class FakeCommunicator extends ServiceCommunicator {
+        FakeCommunicator() { super(1); }
+        @Override public void addCallback(ServiceCallback callback) { }
+        @Override public int removeCallback(ServiceCallback callback) { return 0; }
     }
     private static EngineCapability capability() { return new EngineCapability(nie.translator.rtranslatordevedition.voice_translation.engines.CapabilityState.AVAILABLE, "test"); }
 }

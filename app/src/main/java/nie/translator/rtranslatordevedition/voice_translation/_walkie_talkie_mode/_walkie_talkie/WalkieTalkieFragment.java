@@ -81,7 +81,6 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        voiceTranslationServiceCommunicator = new WalkieTalkieService.WalkieTalkieServiceCommunicator(0);
         voiceTranslationServiceCallback = new VoiceTranslationServiceCallback();
     }
 
@@ -187,7 +186,11 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
     @Override
     protected void connectToService() {
         super.connectToService();
-        activity.connectToWalkieTalkieService(voiceTranslationServiceCallback, new ServiceCommunicatorListener() {
+        if (serviceConnectionHandle != null) {
+            serviceConnectionHandle.cancel();
+        }
+        voiceTranslationServiceCommunicator = null;
+        serviceConnectionHandle = activity.connectToWalkieTalkieService(voiceTranslationServiceCallback, new ServiceCommunicatorListener() {
             @Override
             public void onServiceCommunicator(ServiceCommunicator serviceCommunicator) {
                 voiceTranslationServiceCommunicator = (VoiceTranslationService.VoiceTranslationServiceCommunicator) serviceCommunicator;
@@ -340,7 +343,11 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
         mHandler.removeCallbacksAndMessages(null);
         firstLanguageSelector.setOnClickListener(null);
         secondLanguageSelector.setOnClickListener(null);
-        activity.disconnectFromWalkieTalkieService((WalkieTalkieService.WalkieTalkieServiceCommunicator) voiceTranslationServiceCommunicator);
+        if (serviceConnectionHandle != null) {
+            serviceConnectionHandle.cancel();
+            serviceConnectionHandle = null;
+        }
+        voiceTranslationServiceCommunicator = null;
     }
 
     private void setFirstLanguage(CustomLocale language) {

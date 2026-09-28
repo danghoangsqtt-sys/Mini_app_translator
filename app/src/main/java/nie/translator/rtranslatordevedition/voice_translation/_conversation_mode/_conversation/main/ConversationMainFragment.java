@@ -44,7 +44,6 @@ public class ConversationMainFragment extends VoiceTranslationFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        voiceTranslationServiceCommunicator = new ConversationService.ConversationServiceCommunicator(0);
         voiceTranslationServiceCallback = new VoiceTranslationServiceCallback() {
             @Override
             public void onBluetoothHeadsetConnected() {
@@ -109,7 +108,11 @@ public class ConversationMainFragment extends VoiceTranslationFragment {
     @Override
     protected void connectToService() {
         super.connectToService();
-        activity.connectToConversationService(voiceTranslationServiceCallback, new ServiceCommunicatorListener() {
+        if (serviceConnectionHandle != null) {
+            serviceConnectionHandle.cancel();
+        }
+        voiceTranslationServiceCommunicator = null;
+        serviceConnectionHandle = activity.connectToConversationService(voiceTranslationServiceCallback, new ServiceCommunicatorListener() {
             @Override
             public void onServiceCommunicator(ServiceCommunicator serviceCommunicator) {
                 voiceTranslationServiceCommunicator = (ConversationService.ConversationServiceCommunicator) serviceCommunicator;
@@ -127,7 +130,11 @@ public class ConversationMainFragment extends VoiceTranslationFragment {
     public void onStop() {
         super.onStop();
         mHandler.removeCallbacksAndMessages(null);
-        activity.disconnectFromConversationService((ConversationService.ConversationServiceCommunicator) voiceTranslationServiceCommunicator);
+        if (serviceConnectionHandle != null) {
+            serviceConnectionHandle.cancel();
+            serviceConnectionHandle = null;
+        }
+        voiceTranslationServiceCommunicator = null;
 
     }
 

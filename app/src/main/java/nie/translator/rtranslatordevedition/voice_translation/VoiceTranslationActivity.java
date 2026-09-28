@@ -54,6 +54,7 @@ import nie.translator.rtranslatordevedition.settings.SettingsActivity;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.CustomServiceConnection;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
+import nie.translator.rtranslatordevedition.tools.ServiceConnectionHandle;
 import nie.translator.rtranslatordevedition.tools.Tools;
 import nie.translator.rtranslatordevedition.tools.gui.animations.CustomAnimator;
 import nie.translator.rtranslatordevedition.tools.gui.peers.GuiPeer;
@@ -96,6 +97,8 @@ public class VoiceTranslationActivity extends GeneralActivity {
     private ArrayList<Callback> clientsCallbacks = new ArrayList<>();
     private ArrayList<CustomServiceConnection> conversationServiceConnections = new ArrayList<>();
     private ArrayList<CustomServiceConnection> walkieTalkieServiceConnections = new ArrayList<>();
+    private ArrayList<ServiceConnectionHandle> pendingConversationConnections = new ArrayList<>();
+    private ArrayList<ServiceConnectionHandle> pendingWalkieTalkieConnections = new ArrayList<>();
     private Handler mainHandler;  // handler that can be used to post to the main thread
     private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
         @Override
@@ -538,18 +541,29 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
     // services management
 
-    public void startConversationService(final Notification notification, final Global.ResponseListener responseListener) {
+    private void startConversationService(final Notification notification,
+                                          final ServiceConnectionHandle handle,
+                                          final Global.ResponseListener responseListener) {
         final Intent intent = new Intent(this, ConversationService.class);
         global.getLanguage(false, new Global.GetLocaleListener() {
             @Override
             public void onSuccess(CustomLocale result) {
+                if (handle.isCancelled()) {
+                    return;
+                }
                 intent.putExtra("notification", notification);
                 try {
                     ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
-                    responseListener.onSuccess();
+                    if (handle.markServiceStarted()) {
+                        responseListener.onSuccess();
+                    } else {
+                        stopConversationServiceIfUnused();
+                    }
                 } catch (RuntimeException error) {
-                    persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
-                    responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                    if (!handle.isCancelled()) {
+                        persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
+                        responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                    }
                 }
             }
 
@@ -561,7 +575,9 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
     }
 
-    public void startWalkieTalkieService(final Notification notification, final Global.ResponseListener responseListener) {
+    private void startWalkieTalkieService(final Notification notification,
+                                          final ServiceConnectionHandle handle,
+                                          final Global.ResponseListener responseListener) {
         final Intent intent = new Intent(this, WalkieTalkieService.class);
         // initialization of the WalkieTalkieService
         global.getFirstLanguage(false, new Global.GetLocaleListener() {
@@ -571,13 +587,22 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 global.getSecondLanguage(false, new Global.GetLocaleListener() {
                     @Override
                     public void onSuccess(CustomLocale result) {
+                        if (handle.isCancelled()) {
+                            return;
+                        }
                         intent.putExtra("secondLanguage", result);
                         intent.putExtra("notification", notification);
                         try {
                             ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
-                            responseListener.onSuccess();
+                            if (handle.markServiceStarted()) {
+                                responseListener.onSuccess();
+                            } else {
+                                stopWalkieTalkieServiceIfUnused();
+                            }
                         } catch (RuntimeException error) {
-                            responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                            if (!handle.isCancelled()) {
+                                responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                            }
                         }
                     }
 
@@ -595,27 +620,57 @@ public class VoiceTranslationActivity extends GeneralActivity {
         });
     }
 
-    public synchronized void connectToConversationService(final VoiceTranslationService.VoiceTranslationServiceCallback callback, final ServiceCommunicatorListener responseListener) {
+    public synchronized ServiceConnectionHandle connectToConversationService(
+            final VoiceTranslationService.VoiceTranslationServiceCallback callback,
+            final ServiceCommunicatorListener responseListener) {
+        final ServiceConnectionHandle handle = new ServiceConnectionHandle(
+                callback, responseListener, new ServiceConnectionHandle.CancellationListener() {
+            @Override
+            public void onCancelled(ServiceConnectionHandle cancelled,
+                                    CustomServiceConnection connection,
+                                    boolean serviceStarted) {
+                releaseConversationRequest(cancelled, connection,
+                        serviceStarted && (connection == null || !connection.hasEverConnected()));
+            }
+        });
+        pendingConversationConnections.add(handle);
         // possible start of ConversationService
-        startConversationService(buildNotification(CONVERSATION_FRAGMENT), new Global.ResponseListener() {
+        startConversationService(buildNotification(CONVERSATION_FRAGMENT), handle, new Global.ResponseListener() {
             @Override
             public void onSuccess() {
+                if (handle.isCancelled()) {
+                    stopConversationServiceIfUnused();
+                    return;
+                }
                 CustomServiceConnection conversationServiceConnection = new CustomServiceConnection(new ConversationService.ConversationServiceCommunicator(connectionId));
                 connectionId++;
-                conversationServiceConnection.addCallbacks(callback, responseListener);
+                if (!handle.attach(conversationServiceConnection)) {
+                    releaseConversationRequest(handle, conversationServiceConnection, true);
+                    return;
+                }
                 conversationServiceConnection.setTerminalListener(new CustomServiceConnection.TerminalListener() {
                     @Override public void onTerminal() {
-                        releaseConnection(conversationServiceConnections, conversationServiceConnection);
+                        releaseConversationRequest(handle, conversationServiceConnection,
+                                !conversationServiceConnection.hasEverConnected());
                     }
                 });
                 boolean bound = false;
-                try {
-                    bound = bindService(new Intent(VoiceTranslationActivity.this, ConversationService.class), conversationServiceConnection, BIND_ABOVE_CLIENT);
-                } catch (RuntimeException ignored) {
-                    // Report through the same recoverable service-connection path below.
+                synchronized (handle) {
+                    try {
+                        if (!handle.isCancelled()) {
+                            bound = bindService(new Intent(VoiceTranslationActivity.this, ConversationService.class), conversationServiceConnection, BIND_ABOVE_CLIENT);
+                            if (bound) {
+                                bound = conversationServiceConnection.markRegistered();
+                            }
+                        }
+                    } catch (RuntimeException ignored) {
+                        // Report through the same recoverable service-connection path below.
+                    }
                 }
-                if (bound && conversationServiceConnection.markRegistered()) {
-                    conversationServiceConnections.add(conversationServiceConnection);
+                if (bound) {
+                    if (!activateConversationConnection(handle, conversationServiceConnection)) {
+                        releaseConversationRequest(handle, conversationServiceConnection, true);
+                    }
                 } else {
                     conversationServiceConnection.reportBindFailure();
                 }
@@ -623,32 +678,63 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
             @Override
             public void onFailure(int[] reasons, long value) {
-                responseListener.onFailure(reasons, value);
+                failConversationRequest(handle, reasons, value);
             }
         });
+        return handle;
     }
 
-    public synchronized void connectToWalkieTalkieService(final VoiceTranslationService.VoiceTranslationServiceCallback callback, final ServiceCommunicatorListener responseListener) {
+    public synchronized ServiceConnectionHandle connectToWalkieTalkieService(
+            final VoiceTranslationService.VoiceTranslationServiceCallback callback,
+            final ServiceCommunicatorListener responseListener) {
+        final ServiceConnectionHandle handle = new ServiceConnectionHandle(
+                callback, responseListener, new ServiceConnectionHandle.CancellationListener() {
+            @Override
+            public void onCancelled(ServiceConnectionHandle cancelled,
+                                    CustomServiceConnection connection,
+                                    boolean serviceStarted) {
+                releaseWalkieTalkieRequest(cancelled, connection,
+                        serviceStarted && (connection == null || !connection.hasEverConnected()));
+            }
+        });
+        pendingWalkieTalkieConnections.add(handle);
         // possible start of WalkieTalkieService
-        startWalkieTalkieService(buildNotification(WALKIE_TALKIE_FRAGMENT), new Global.ResponseListener() {
+        startWalkieTalkieService(buildNotification(WALKIE_TALKIE_FRAGMENT), handle, new Global.ResponseListener() {
             @Override
             public void onSuccess() {
+                if (handle.isCancelled()) {
+                    stopWalkieTalkieServiceIfUnused();
+                    return;
+                }
                 CustomServiceConnection walkieTalkieServiceConnection = new CustomServiceConnection(new WalkieTalkieService.WalkieTalkieServiceCommunicator(connectionId));
                 connectionId++;
-                walkieTalkieServiceConnection.addCallbacks(callback, responseListener);
+                if (!handle.attach(walkieTalkieServiceConnection)) {
+                    releaseWalkieTalkieRequest(handle, walkieTalkieServiceConnection, true);
+                    return;
+                }
                 walkieTalkieServiceConnection.setTerminalListener(new CustomServiceConnection.TerminalListener() {
                     @Override public void onTerminal() {
-                        releaseConnection(walkieTalkieServiceConnections, walkieTalkieServiceConnection);
+                        releaseWalkieTalkieRequest(handle, walkieTalkieServiceConnection,
+                                !walkieTalkieServiceConnection.hasEverConnected());
                     }
                 });
                 boolean bound = false;
-                try {
-                    bound = bindService(new Intent(VoiceTranslationActivity.this, WalkieTalkieService.class), walkieTalkieServiceConnection, BIND_ABOVE_CLIENT);
-                } catch (RuntimeException ignored) {
-                    // Report through the same recoverable service-connection path below.
+                synchronized (handle) {
+                    try {
+                        if (!handle.isCancelled()) {
+                            bound = bindService(new Intent(VoiceTranslationActivity.this, WalkieTalkieService.class), walkieTalkieServiceConnection, BIND_ABOVE_CLIENT);
+                            if (bound) {
+                                bound = walkieTalkieServiceConnection.markRegistered();
+                            }
+                        }
+                    } catch (RuntimeException ignored) {
+                        // Report through the same recoverable service-connection path below.
+                    }
                 }
-                if (bound && walkieTalkieServiceConnection.markRegistered()) {
-                    walkieTalkieServiceConnections.add(walkieTalkieServiceConnection);
+                if (bound) {
+                    if (!activateWalkieTalkieConnection(handle, walkieTalkieServiceConnection)) {
+                        releaseWalkieTalkieRequest(handle, walkieTalkieServiceConnection, true);
+                    }
                 } else {
                     walkieTalkieServiceConnection.reportBindFailure();
                 }
@@ -656,38 +742,79 @@ public class VoiceTranslationActivity extends GeneralActivity {
 
             @Override
             public void onFailure(int[] reasons, long value) {
-                responseListener.onFailure(reasons, value);
+                failWalkieTalkieRequest(handle, reasons, value);
             }
         });
+        return handle;
     }
 
-    public synchronized void disconnectFromConversationService(ConversationService.ConversationServiceCommunicator conversationServiceCommunicator) {
-        int index = -1;
-        boolean found = false;
-        for (int i = 0; i < conversationServiceConnections.size() && !found; i++) {
-            if (conversationServiceConnections.get(i).getServiceCommunicator().equals(conversationServiceCommunicator)) {
-                index = i;
-                found = true;
+    private synchronized boolean activateConversationConnection(ServiceConnectionHandle handle,
+                                                                  CustomServiceConnection connection) {
+        synchronized (handle) {
+            if (handle.isCancelled()) {
+                return false;
             }
-        }
-        if (index != -1) {
-            CustomServiceConnection serviceConnection = conversationServiceConnections.remove(index);
-            releaseConnection(conversationServiceConnections, serviceConnection);
+            pendingConversationConnections.remove(handle);
+            conversationServiceConnections.add(connection);
+            return true;
         }
     }
 
-    public synchronized void disconnectFromWalkieTalkieService(WalkieTalkieService.WalkieTalkieServiceCommunicator walkieTalkieServiceCommunicator) {
-        int index = -1;
-        boolean found = false;
-        for (int i = 0; i < walkieTalkieServiceConnections.size() && !found; i++) {
-            if (walkieTalkieServiceConnections.get(i).getServiceCommunicator().equals(walkieTalkieServiceCommunicator)) {
-                index = i;
-                found = true;
+    private synchronized boolean activateWalkieTalkieConnection(ServiceConnectionHandle handle,
+                                                                  CustomServiceConnection connection) {
+        synchronized (handle) {
+            if (handle.isCancelled()) {
+                return false;
             }
+            pendingWalkieTalkieConnections.remove(handle);
+            walkieTalkieServiceConnections.add(connection);
+            return true;
         }
-        if (index != -1) {
-            CustomServiceConnection serviceConnection = walkieTalkieServiceConnections.remove(index);
-            releaseConnection(walkieTalkieServiceConnections, serviceConnection);
+    }
+
+    private synchronized void failConversationRequest(ServiceConnectionHandle handle,
+                                                       int[] reasons, long value) {
+        pendingConversationConnections.remove(handle);
+        boolean stopOrphan = handle.wasServiceStarted();
+        handle.fail(reasons, value);
+        if (stopOrphan) {
+            stopConversationServiceIfUnused();
+        }
+    }
+
+    private synchronized void failWalkieTalkieRequest(ServiceConnectionHandle handle,
+                                                       int[] reasons, long value) {
+        pendingWalkieTalkieConnections.remove(handle);
+        boolean stopOrphan = handle.wasServiceStarted();
+        handle.fail(reasons, value);
+        if (stopOrphan) {
+            stopWalkieTalkieServiceIfUnused();
+        }
+    }
+
+    private synchronized void releaseConversationRequest(ServiceConnectionHandle handle,
+                                                           CustomServiceConnection connection,
+                                                           boolean stopOrphan) {
+        pendingConversationConnections.remove(handle);
+        if (connection != null) {
+            releaseConnection(conversationServiceConnections, connection);
+        }
+        handle.markTerminal();
+        if (stopOrphan) {
+            stopConversationServiceIfUnused();
+        }
+    }
+
+    private synchronized void releaseWalkieTalkieRequest(ServiceConnectionHandle handle,
+                                                          CustomServiceConnection connection,
+                                                          boolean stopOrphan) {
+        pendingWalkieTalkieConnections.remove(handle);
+        if (connection != null) {
+            releaseConnection(walkieTalkieServiceConnections, connection);
+        }
+        handle.markTerminal();
+        if (stopOrphan) {
+            stopWalkieTalkieServiceIfUnused();
         }
     }
 
@@ -699,6 +826,18 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 unbindService(connection);
             }
         });
+    }
+
+    private synchronized void stopConversationServiceIfUnused() {
+        if (conversationServiceConnections.isEmpty() && pendingConversationConnections.isEmpty()) {
+            stopConversationService();
+        }
+    }
+
+    private synchronized void stopWalkieTalkieServiceIfUnused() {
+        if (walkieTalkieServiceConnections.isEmpty() && pendingWalkieTalkieConnections.isEmpty()) {
+            stopWalkieTalkieService();
+        }
     }
 
     public void stopConversationService() {
