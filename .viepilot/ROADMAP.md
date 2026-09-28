@@ -155,7 +155,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 - [ ] Signed `1.2.0` installs and passes core Conversation/WalkieTalkie smoke tests.
 - [ ] State/docs/tags identify the exact verified release commit.
 
-## Phase 9 — No-Key On-Device Translation (in_progress; 6/8 tasks complete, Task 9.8 persistence review pending)
+## Phase 9 — No-Key On-Device Translation (in_progress; 7/8 tasks complete, Task 9.7 physical/release gate active)
 
 **Execution spec**: `.viepilot/phases/phase-9-no-key-translation/SPEC.md`
 **Target**: `1.3.0`; no versionCode change until release-candidate approval
@@ -169,8 +169,8 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | done — `83fdeb2`; PM automated/emulator PASS |
 | 9.5 | Integrate default engines into Conversation and WalkieTalkie | done — `ab6094c`; PM automated/emulator PASS |
 | 9.6 | Make legacy Cloud opt-in, finish migration/privacy UX, and fix audit blockers | done — `8a8882b`; PM automated/emulator PASS |
-| 9.7 | Run full automated/device regression and release-candidate gate | in_progress — Gate A PASS; Gate C paused for Task 9.8 remediation and two-phone retest |
-| 9.8 | Fix audit state/restore/binding/recent-peer races (`BUG-027`–`BUG-030`) | implementation complete locally — automated/API 36 PASS; persistence review pending before Gate C resumes |
+| 9.7 | Run full automated/device regression and release-candidate gate | in_progress — Gate A PASS with Task 9.8 fixes; Gate C awaits two-phone retest |
+| 9.8 | Fix audit state/restore/binding/recent-peer races (`BUG-027`–`BUG-030`) | done — PM automated/API 36 PASS; persisted through `5c9c70e` |
 
 **Release rule**: `1.2.0` must not be published. Phase 9 must prove a credential-free speech → translation → TTS path and clear the physical-device gates before any release claim.
 
@@ -190,7 +190,7 @@ Reserved for `ENH-020` after Phase 9. The planned `ConnectionTransport` abstract
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
 | 7 — Operational State & Build Portability | complete | 4 | 4 |
 | 8 — Release Readiness & Project Closure | blocked / 1.2.0 NO-GO | 2 | 7 |
-| 9 — No-Key On-Device Translation | in_progress | 6 | 8 |
+| 9 — No-Key On-Device Translation | in_progress | 7 | 8 |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
 
-Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 is the active implementation phase: Tasks 9.1–9.6 are complete, Task 9.8 remediates `BUG-027`–`BUG-030`, and Task 9.7 then resumes the final physical-device/release-candidate gate. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 is the active implementation phase: Tasks 9.1–9.6 and 9.8 are complete, while Task 9.7 owns the resumed physical-device/release-candidate gate. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.

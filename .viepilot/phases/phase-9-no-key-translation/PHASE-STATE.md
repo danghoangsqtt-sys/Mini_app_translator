@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 6/8 complete
-- **Current task**: 9.8 — Audit stabilization hotfixes (`implementation_complete`; automated/API 36 PASS at local `ce265bd`, Git persistence review pending before Task 9.7 resumes)
+- **Tasks**: 7/8 complete
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS with Task 9.8 fixes, Gate C awaits two-phone retest, Gates B/D blocked)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -17,7 +17,7 @@
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
 | 9.7 — Full QA and release-candidate gate | in_progress — Gate A PASS after `BUG-026`; release NO-GO | Same two phones must confirm hotfix; API 23/31/34, remaining physical/accessibility QA, legal identity, signing, and release approval remain |
-| 9.8 — Audit stabilization hotfixes | implementation_complete — local commits not pushed | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persistence review pending, then return to 9.7 without claiming release PASS |
+| 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
 
 ## PM control rules
 
@@ -91,8 +91,8 @@
 
 ## Task 9.8 implementation evidence
 
-- **Planning / implementation**: local commits `c2bc8fe` / `ce265bd`; no push/tag/version/signing change.
+- **Planning / implementation**: `c2bc8fe` / `ce265bd`; verification state `5c9c70e`; fast-forward persisted to `origin/master`. No tag/version/signing change.
 - **Requests**: `BUG-027` state drift resolved; `BUG-028` stale mode restore, `BUG-029` binding ownership, and `BUG-030` recent-peer ordering are code/emulator resolved pending physical Task 9.7 regression.
 - **Verification**: 154 JVM tests and 21 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; `git diff --check` clean.
 - **APK**: 79,115,713 bytes; SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`.
-- **Control point**: do not count Task 9.8 done or resume 9.7 until the local commits pass PM Git persistence review. Physical two-phone confirmation remains mandatory for release.
+- **Persistence gate**: implementation/evidence is persisted through `5c9c70e`; the final closeout state is also pushed with `HEAD == origin/master`, ahead/behind `0/0`. Task 9.8 is done and control returns to 9.7. Physical two-phone confirmation remains mandatory for release.

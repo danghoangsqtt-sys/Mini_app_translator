@@ -4,7 +4,7 @@
 
 **PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. A real two-phone connection attempt exposed `BUG-026`, a deterministic Android 12+ Conversation-start crash; the hotfix passes emulator reproduction/regression but still requires confirmation on the same two phones. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
 
-Task 9.7 and Phase 9 remain `in_progress` at 6/7 tasks. No version bump, signed-release claim, completion tag, release tag, or publication is authorized by this evidence.
+Task 9.7 and Phase 9 remain `in_progress`; Task 9.8 raised Phase 9 to 7/8 complete. No version bump, signed-release claim, completion tag, release tag, or publication is authorized by this evidence.
 
 ## Provenance
 
@@ -98,7 +98,9 @@ Installing additional large SDK images was not implicitly authorized. A complete
 
 ## Required continuation
 
-1. Install the debug APK with SHA-256 `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D` on both phones and repeat connection/relaunch/disconnect/reconnect. Send bug reports from both phones if either app terminates again.
+> **Superseded candidate (Task 9.8, 2026-09-28):** use the new debug APK, 79,115,713 bytes, SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`. It adds safe stale-mode restore, exact service-binding ownership, and serialized peer identity/image persistence. Automated gate: 154 JVM tests, 21 API 36 instrumentation tests, lint 0 errors/136 warnings. Commits are persisted through `5c9c70e`; `HEAD == origin/master`, ahead/behind `0/0` at the persistence gate.
+
+1. Install the debug APK with SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7` on both phones and repeat connection/background-relaunch/disconnect/reconnect plus peer-image retention. Send bug reports/logs from both phones if either app terminates again.
 2. Continue two-phone Conversation text/audio, Bluetooth/SCO, WalkieTalkie direction, permission recovery, and offline-model checks after connection remains stable.
 3. Provide or authorize runnable API 23, 31, and 34 devices/system images.
 4. Perform the human TalkBack/200% font/light-dark/icon/splash review on representative physical hardware.
