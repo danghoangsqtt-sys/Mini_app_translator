@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.8 — Audit stabilization hotfixes (`in_progress`; fixes `BUG-027`–`BUG-030` before Task 9.7 resumes its two-phone/release gate).
+- **Current task**: 9.8 — Audit stabilization hotfixes (`implementation_complete`; local `ce265bd`, automated/API 36 PASS, Git persistence review pending before Task 9.7 resumes).
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 6/8 tasks; 9.8 remediation in progress, 9.7 release gate remains NO-GO |
+| 9 — No-Key On-Device Translation | in_progress | 6/8 tasks; 9.8 implementation complete locally/persistence pending, 9.7 release gate remains NO-GO |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -86,10 +86,10 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-024 | 🐛 | Sticky service restart can crash on null `onStartCommand` intent | High | resolved (Phase 9, task 9.6; `8a8882b`) |
 | BUG-025 | 🐛 | Missing-TTS Settings message uses wrong Bundle key and falls through | High | resolved (Phase 9, task 9.6; `8a8882b`) |
 | BUG-026 | 🐛 | Android 12+ crashes when Conversation builds a notification PendingIntent without a mutability flag | Critical | code/emulator resolved (Phase 9, task 9.7; `24ee245`); same two-phone retest pending |
-| BUG-027 | 🐛 | ROADMAP and backlog statuses drift from canonical Phase 9 state | Medium | in_progress (Phase 9, task 9.8) |
-| BUG-028 | 🐛 | Persisted mode restore can re-enter a Conversation crash loop | High | in_progress (Phase 9, task 9.8) |
-| BUG-029 | 🐛 | Service binding recorded before bind success can crash during unbind | High | in_progress (Phase 9, task 9.8) |
-| BUG-030 | 🐛 | Recent-peer ID/image persistence race can drop profile images | High | in_progress (Phase 9, task 9.8) |
+| BUG-027 | 🐛 | ROADMAP and backlog statuses drift from canonical Phase 9 state | Medium | resolved locally (Phase 9, task 9.8; `c2bc8fe`) |
+| BUG-028 | 🐛 | Persisted mode restore can re-enter a Conversation crash loop | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
+| BUG-029 | 🐛 | Service binding recorded before bind success can crash during unbind | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
+| BUG-030 | 🐛 | Recent-peer ID/image persistence race can drop profile images | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | resolved (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | in_progress (tasks 5.3–5.5 done; task 5.6 device/release QA pending) |
 | ENH-020 | 🔧 | Add Wi-Fi Hotspot transport alongside Bluetooth | Medium | proposed (Phase 10) |
@@ -129,6 +129,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-28**: First physical two-phone Task 9.7 attempt discovered and connected peers, then both apps crashed and persisted Conversation caused a relaunch loop. `/vp-debug` reproduced the exact API 36 FATAL: target S+ rejected the notification `PendingIntent` because `VoiceTranslationActivity` supplied no mutability flag. `BUG-026` code/emulator hotfix `24ee245` adds `FLAG_IMMUTABLE` plus focused instrumentation. Full gate: 143 JVM tests, 20 API 36 instrumentation tests, lint 0 errors/136 warnings, APK SHA-256 `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D`. Same two-phone confirmation is required before Gate C can pass.
 - **2026-09-28**: `/vp-audit` deep scan auto-logged `BUG-027` (ViePilot state drift), `BUG-028` (persisted-mode crash-loop amplification), `BUG-029` (unchecked service bind/unbind lifecycle), and `BUG-030` (recent-peer ID/image persistence race). It re-detected existing foreground-service ordering (`BUG-015`), Bluetooth identity/payload privacy (`ENH-001`), recent-peer backup/privacy (`ENH-002`), async execution (`ENH-005`), release logging (`ENH-007`), and dependency (`ENH-012`) gaps without changing shipping code. Fresh gate: 143 JVM tests, 0 failures; lint 0 errors/136 warnings. Task 9.7 remains release NO-GO.
 - **2026-09-28**: `/vp-evolve BUG-027 BUG-028 BUG-029 BUG-030` added Phase 9 Task 9.8 as an audit-stabilization prerequisite before Task 9.7 Gate C resumes. The plan locks four control points: canonical state sync, safe persisted-mode restore, exact service-binding ownership, and serialized recent-peer persistence. No app version/dependency/release state changed; Task 9.7 remains NO-GO pending full automated and physical two-phone verification.
+- **2026-09-28**: `/vp-auto` implemented Task 9.8 locally at `ce265bd`: stale Conversation restore requires a proven connected peer, terminal Conversation state clears the persisted mode, Activity service registrations are success-gated/idempotent, and recent-peer identity/image writes share one serial executor with direct addressed updates. Verification: 154 JVM tests, 21 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, APK SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`. Commits remain local pending persistence review; Task 9.7 and the release remain NO-GO.
 
 ## Version info
 

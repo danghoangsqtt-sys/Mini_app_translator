@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.8 — Audit stabilization hotfixes (in_progress; BUG-027 through BUG-030; Task 9.7 resumes afterward and remains release NO-GO)",
+  "current_task": "9.8 — Audit stabilization hotfixes (implementation_complete at local ce265bd; automated/API 36 PASS; Git persistence review pending before Task 9.7 resumes)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Execute Phase 9 Task 9.8 for BUG-027 through BUG-030: synchronize state, gate stale Conversation restore, make service binding/unbinding idempotent, and serialize recent-peer identity/image persistence. Run full JVM/lint/APK/API 36 gates, then return to Task 9.7. The same two phones must still confirm connect/relaunch/disconnect/reconnect before Gate C advances; API 23/31/34, remaining physical/accessibility QA, legal identity, signing, version/tag, and release approval remain blocked."
+  "resume_hint": "Review and persist local Task 9.8 commits c2bc8fe/ce265bd. Automated evidence is PASS: 154 JVM, 21 API 36 instrumentation, lint 0/136, APK SHA-256 0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7. After persistence, return to Task 9.7. The same two phones must still confirm connect/relaunch/disconnect/reconnect and peer-image retention before Gate C advances; API 23/31/34, remaining physical/accessibility QA, legal identity, signing, version/tag, and release approval remain blocked."
 }

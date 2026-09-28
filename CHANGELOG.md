@@ -30,6 +30,9 @@ All notable changes to this fork will be documented in this file.
 
 ### Fixed
 
+- Prevent stale persisted Conversation state from replaying a failed session on every cold launch; terminal disconnect/service teardown now downgrades safely to Pairing (`BUG-028`).
+- Make Conversation/Walkie service registration success-gated and teardown idempotent across false bind, null binding, binding death, and already-unregistered races (`BUG-029`).
+- Serialize recent-peer identity/image persistence and update the addressed peer directly so handshake ordering cannot silently drop profile images (`BUG-030`).
 - Prevent Android 12+ from crashing when Conversation starts by making the foreground-notification `PendingIntent` explicitly immutable (`BUG-026`).
 - Reject null voice-service restart intents with explicit non-sticky shutdown instead of dereferencing missing notification/language extras (`BUG-024`).
 - Route the Settings missing-TTS event through the correct message key without falling through to the generic error callback (`BUG-025`).
