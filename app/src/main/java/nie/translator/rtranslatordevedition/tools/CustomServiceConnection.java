@@ -21,21 +21,39 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Messenger;
 import java.util.ArrayList;
+import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCallback;
 import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCommunicator;
 import nie.translator.rtranslatordevedition.tools.services_communication.ServiceCommunicatorListener;
 
 public class CustomServiceConnection implements ServiceConnection {
+    public interface Unbinder {
+        void unbind(ServiceConnection connection);
+    }
+
+    public interface TerminalListener {
+        void onTerminal();
+    }
+
     private ServiceCommunicator serviceCommunicator;
     private ArrayList<ServiceCallback> callbacksToAddOnBind = new ArrayList<>();
     private ArrayList<ServiceCommunicatorListener> callbacksToRespondOnBind = new ArrayList<>();
+    private boolean registered;
+    private boolean released;
+    private boolean connected;
+    private boolean terminalFailureReported;
+    private TerminalListener terminalListener;
 
     public CustomServiceConnection(ServiceCommunicator serviceCommunicator){
         this.serviceCommunicator=serviceCommunicator;
     }
 
     @Override
-    public void onServiceConnected(ComponentName name, IBinder iBinder) {
+    public synchronized void onServiceConnected(ComponentName name, IBinder iBinder) {
+        if (released || connected) {
+            return;
+        }
+        connected = true;
         serviceCommunicator.initializeCommunication(new Messenger(iBinder));
         for(int i = 0; i< callbacksToAddOnBind.size(); i++) {
             serviceCommunicator.addCallback(callbacksToAddOnBind.get(i));
@@ -49,9 +67,80 @@ public class CustomServiceConnection implements ServiceConnection {
     }
 
     @Override
-    public void onServiceDisconnected(ComponentName name) {}
+    public synchronized void onServiceDisconnected(ComponentName name) {
+        connected = false;
+        disconnectCommunication();
+    }
 
-    public void onServiceDisconnected(){
+    @Override
+    public void onBindingDied(ComponentName name) {
+        reportTerminalFailure();
+    }
+
+    @Override
+    public void onNullBinding(ComponentName name) {
+        reportTerminalFailure();
+    }
+
+    public synchronized boolean markRegistered() {
+        if (released || registered) {
+            return false;
+        }
+        registered = true;
+        return true;
+    }
+
+    public void reportBindFailure() {
+        reportTerminalFailure();
+    }
+
+    public void disconnect(Unbinder unbinder) {
+        boolean shouldUnbind;
+        synchronized (this) {
+            if (released) {
+                return;
+            }
+            released = true;
+            shouldUnbind = registered;
+            registered = false;
+            connected = false;
+        }
+        if (shouldUnbind) {
+            try {
+                unbinder.unbind(this);
+            } catch (RuntimeException ignored) {
+                // The framework may have already removed a dead registration.
+            }
+        }
+        disconnectCommunication();
+    }
+
+    public synchronized boolean isRegistered() {
+        return registered && !released;
+    }
+
+    public synchronized void setTerminalListener(TerminalListener listener) {
+        terminalListener = listener;
+    }
+
+    private synchronized void reportTerminalFailure() {
+        connected = false;
+        disconnectCommunication();
+        if (terminalFailureReported || released) {
+            return;
+        }
+        terminalFailureReported = true;
+        for (ServiceCommunicatorListener listener : callbacksToRespondOnBind) {
+            if (listener != null) {
+                listener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+            }
+        }
+        if (terminalListener != null) {
+            terminalListener.onTerminal();
+        }
+    }
+
+    private void disconnectCommunication(){
         for(int i=0;i<callbacksToAddOnBind.size();i++) {
             serviceCommunicator.removeCallback(callbacksToAddOnBind.get(i));
         }

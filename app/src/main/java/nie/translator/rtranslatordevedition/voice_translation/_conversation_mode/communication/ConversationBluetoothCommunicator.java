@@ -162,22 +162,13 @@ public class ConversationBluetoothCommunicator {
                         break;
                     }
                     case "d": {
+                        global.getRecentPeersDataManager().upsertRecentPeerIdentity(
+                                message.getText(), message.getSender().getUniqueName());
                         if (source == BluetoothCommunicator.SERVER) {
                             sendID(message.getSender());
                         } else if (source == BluetoothCommunicator.CLIENT) {
                             sendImage(message.getSender());
                         }
-                        global.getRecentPeersDataManager().getRecentPeer(message.getText(), new RecentPeersDataManager.RecentPeerListener() {
-                            @Override
-                            public void onRecentPeerObtained(RecentPeer recentPeer) {
-                                Bitmap image = null;
-                                if (recentPeer != null) {
-                                    image = recentPeer.getUserImage();
-                                }
-                                // addition of the peer in recent devices in db or update if it is already present
-                                global.getRecentPeersDataManager().insertRecentPeer(message.getText(), message.getSender().getUniqueName(), image);
-                            }
-                        });
                         break;
                     }
                 }
@@ -192,26 +183,18 @@ public class ConversationBluetoothCommunicator {
                         if (source == BluetoothCommunicator.SERVER) {
                             sendImage(data.getSender());
                         }
-                        global.getRecentPeersDataManager().getRecentPeers(new RecentPeersDataManager.RecentPeersListener() {
-                            @Override
-                            public void onRecentPeersObtained(ArrayList<RecentPeer> recentPeers) {
-                                Bitmap image = null;
-                                if (!data.getText().equals("null")) {
-                                    image = Tools.convertBytesToBitmap(data.getData());
-                                }
-                                for (RecentPeer recentPeer : recentPeers) {
-                                    if (data.getSender().getUniqueName().equals(recentPeer.getUniqueName())) {
-                                        global.getRecentPeersDataManager().insertRecentPeer(recentPeer.getDeviceID(), recentPeer.getUniqueName(), image);
-                                    }
-                                }
-                                int index = connectedPeers.indexOf(data.getSender());
-                                if (index != -1) {
-                                    GuiPeer clonePeer = (GuiPeer) connectedPeers.get(index).clone();
-                                    connectedPeers.get(index).setUserImage(image);
-                                    notifyPeerUpdated(clonePeer, connectedPeers.get(index));
-                                }
-                            }
-                        });
+                        Bitmap image = null;
+                        if (!data.getText().equals("null")) {
+                            image = Tools.convertBytesToBitmap(data.getData());
+                        }
+                        global.getRecentPeersDataManager().updateRecentPeerImageByName(
+                                data.getSender().getUniqueName(), image);
+                        int index = connectedPeers.indexOf(data.getSender());
+                        if (index != -1) {
+                            GuiPeer clonePeer = (GuiPeer) connectedPeers.get(index).clone();
+                            connectedPeers.get(index).setUserImage(image);
+                            notifyPeerUpdated(clonePeer, connectedPeers.get(index));
+                        }
                         break;
                     }
                 }
@@ -221,16 +204,8 @@ public class ConversationBluetoothCommunicator {
             public void onPeerUpdated(final Peer peer, final Peer newPeer) {
                 if (!peer.getUniqueName().equals(newPeer.getUniqueName())) {
                     // update the peer name on recent devices
-                    global.getRecentPeersDataManager().getRecentPeers(new RecentPeersDataManager.RecentPeersListener() {
-                        @Override
-                        public void onRecentPeersObtained(ArrayList<RecentPeer> recentPeers) {
-                            for (RecentPeer recentPeer : recentPeers) {
-                                if (peer.getUniqueName().equals(recentPeer.getUniqueName())) {
-                                    global.getRecentPeersDataManager().insertRecentPeer(recentPeer.getDeviceID(), newPeer.getUniqueName(), recentPeer.getUserImage());
-                                }
-                            }
-                        }
-                    });
+                    global.getRecentPeersDataManager().updateRecentPeerName(
+                            peer.getUniqueName(), newPeer.getUniqueName());
                 }
                 int index = connectedPeers.indexOf(peer);
                 if (index != -1) {

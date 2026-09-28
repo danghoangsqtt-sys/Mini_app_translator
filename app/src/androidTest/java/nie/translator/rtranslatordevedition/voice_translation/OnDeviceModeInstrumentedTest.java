@@ -38,6 +38,25 @@ import org.junit.Test;
 
 /** API 36 UI/lifecycle smoke only; it makes no transcription, offline-quality, or Bluetooth claim. */
 public class OnDeviceModeInstrumentedTest {
+    @Test public void stalePersistedConversationStartsOnPairingInstead() throws Exception {
+        final android.app.Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        PreferenceManager.getDefaultSharedPreferences(targetContext).edit()
+                .putInt(VoiceTranslationActivity.PREF_FRAGMENT,
+                        VoiceTranslationActivity.CONVERSATION_FRAGMENT)
+                .commit();
+        Intent intent = new Intent(targetContext, VoiceTranslationActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        final VoiceTranslationActivity activity = (VoiceTranslationActivity)
+                instrumentation.startActivitySync(intent);
+        instrumentation.waitForIdleSync();
+        assertEquals(VoiceTranslationActivity.PAIRING_FRAGMENT, activity.getCurrentFragment());
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override public void run() { activity.finish(); }
+        });
+        instrumentation.waitForIdleSync();
+    }
+
     @Test public void conversationNotificationPendingIntentIsValidOnTargetSPlus() throws Exception {
         final android.app.Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         Context targetContext = InstrumentationRegistry.getTargetContext();

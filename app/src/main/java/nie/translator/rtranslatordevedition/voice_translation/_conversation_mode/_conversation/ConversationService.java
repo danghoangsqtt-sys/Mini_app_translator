@@ -29,6 +29,7 @@ import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.gui.messages.GuiMessage;
 import nie.translator.rtranslatordevedition.tools.gui.peers.GuiPeer;
 import nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationService;
+import nie.translator.rtranslatordevedition.voice_translation.VoiceTranslationActivity;
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode.communication.ConversationBluetoothCommunicator;
 
 import com.bluetooth.communicator.tools.Timer;
@@ -143,6 +144,8 @@ public class ConversationService extends VoiceTranslationService {
             public void onDisconnected(GuiPeer peer, int peersLeft) {
                 super.onDisconnected(peer, peersLeft);
                 if (peersLeft == 0) {
+                    VoiceTranslationActivity.persistFragmentPreference(
+                            ConversationService.this, VoiceTranslationActivity.PAIRING_FRAGMENT);
                     stopSelf();
                 }
             }
@@ -257,6 +260,7 @@ public class ConversationService extends VoiceTranslationService {
     public void onDestroy() {
         // Mark lifecycle ended before Bluetooth teardown can synchronously emit SCO callbacks.
         closed = true;
+        VoiceTranslationActivity.persistFragmentPreference(this, VoiceTranslationActivity.PAIRING_FRAGMENT);
         ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
         if (communicator != null && communicationCallback != null) { communicator.removeCallback(communicationCallback); }
         scoReconnectCoordinator.destroy();

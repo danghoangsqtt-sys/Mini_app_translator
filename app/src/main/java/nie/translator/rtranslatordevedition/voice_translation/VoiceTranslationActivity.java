@@ -52,6 +52,7 @@ import nie.translator.rtranslatordevedition.api_management.ApiManagementActivity
 import nie.translator.rtranslatordevedition.settings.SettingsActivity;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.CustomServiceConnection;
+import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.tools.Tools;
 import nie.translator.rtranslatordevedition.tools.gui.animations.CustomAnimator;
 import nie.translator.rtranslatordevedition.tools.gui.peers.GuiPeer;
@@ -81,6 +82,7 @@ public class VoiceTranslationActivity extends GeneralActivity {
     public static final int BLUETOOTH_UNAVAILABLE = -11;
     public static final int BLUETOOTH_DISCOVERY_UNSUPPORTED = -12;
     public static final int BLUETOOTH_LIBRARY_FAILURE = -13;
+    public static final String PREF_FRAGMENT = "fragment";
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 2;
     private static final String BLUETOOTH_SCAN_PERMISSION = "android.permission.BLUETOOTH_SCAN";
     private static final String BLUETOOTH_CONNECT_PERMISSION = "android.permission.BLUETOOTH_CONNECT";
@@ -143,7 +145,25 @@ public class VoiceTranslationActivity extends GeneralActivity {
         super.onStart();
         // when we return to the app's gui based on the service that was saved in the last closure we choose which fragment to start
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        setFragment(sharedPreferences.getInt("fragment", DEFAULT_FRAGMENT));
+        int savedFragment = sharedPreferences.getInt(PREF_FRAGMENT, DEFAULT_FRAGMENT);
+        setFragment(resolveInitialFragment(savedFragment, hasActiveConversationSession()));
+    }
+
+    static int resolveInitialFragment(int savedFragment, boolean hasActiveConversationSession) {
+        if (savedFragment == CONVERSATION_FRAGMENT && !hasActiveConversationSession) {
+            return PAIRING_FRAGMENT;
+        }
+        if (savedFragment != PAIRING_FRAGMENT
+                && savedFragment != CONVERSATION_FRAGMENT
+                && savedFragment != WALKIE_TALKIE_FRAGMENT) {
+            return PAIRING_FRAGMENT;
+        }
+        return savedFragment;
+    }
+
+    private boolean hasActiveConversationSession() {
+        ConversationBluetoothCommunicator communicator = global.getBluetoothCommunicator();
+        return communicator != null && !communicator.getConnectedPeersList().isEmpty();
     }
 
     @Override
@@ -225,17 +245,14 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public void saveFragment() {
-        new Thread("saveFragment") {
-            @Override
-            public void run() {
-                super.run();
-                //save fragment
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(VoiceTranslationActivity.this);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putInt("fragment", getCurrentFragment());
-                editor.apply();
-            }
-        }.start();
+        persistFragmentPreference(this, getCurrentFragment());
+    }
+
+    public static void persistFragmentPreference(Context context, int fragmentName) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(PREF_FRAGMENT, fragmentName)
+                .apply();
     }
 
     public int getCurrentFragment() {
@@ -538,8 +555,17 @@ public class VoiceTranslationActivity extends GeneralActivity {
             @Override
             public void onSuccess(CustomLocale result) {
                 intent.putExtra("notification", notification);
-                startService(intent);
-                responseListener.onSuccess();
+                try {
+                    if (startService(intent) != null) {
+                        responseListener.onSuccess();
+                    } else {
+                        persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
+                        responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                    }
+                } catch (RuntimeException error) {
+                    persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
+                    responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                }
             }
 
             @Override
@@ -562,8 +588,15 @@ public class VoiceTranslationActivity extends GeneralActivity {
                     public void onSuccess(CustomLocale result) {
                         intent.putExtra("secondLanguage", result);
                         intent.putExtra("notification", notification);
-                        startService(intent);
-                        responseListener.onSuccess();
+                        try {
+                            if (startService(intent) != null) {
+                                responseListener.onSuccess();
+                            } else {
+                                responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                            }
+                        } catch (RuntimeException error) {
+                            responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
+                        }
                     }
 
                     @Override
@@ -588,8 +621,22 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 CustomServiceConnection conversationServiceConnection = new CustomServiceConnection(new ConversationService.ConversationServiceCommunicator(connectionId));
                 connectionId++;
                 conversationServiceConnection.addCallbacks(callback, responseListener);
-                conversationServiceConnections.add(conversationServiceConnection);
-                bindService(new Intent(VoiceTranslationActivity.this, ConversationService.class), conversationServiceConnection, BIND_ABOVE_CLIENT);
+                conversationServiceConnection.setTerminalListener(new CustomServiceConnection.TerminalListener() {
+                    @Override public void onTerminal() {
+                        releaseConnection(conversationServiceConnections, conversationServiceConnection);
+                    }
+                });
+                boolean bound = false;
+                try {
+                    bound = bindService(new Intent(VoiceTranslationActivity.this, ConversationService.class), conversationServiceConnection, BIND_ABOVE_CLIENT);
+                } catch (RuntimeException ignored) {
+                    // Report through the same recoverable service-connection path below.
+                }
+                if (bound && conversationServiceConnection.markRegistered()) {
+                    conversationServiceConnections.add(conversationServiceConnection);
+                } else {
+                    conversationServiceConnection.reportBindFailure();
+                }
             }
 
             @Override
@@ -607,8 +654,22 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 CustomServiceConnection walkieTalkieServiceConnection = new CustomServiceConnection(new WalkieTalkieService.WalkieTalkieServiceCommunicator(connectionId));
                 connectionId++;
                 walkieTalkieServiceConnection.addCallbacks(callback, responseListener);
-                walkieTalkieServiceConnections.add(walkieTalkieServiceConnection);
-                bindService(new Intent(VoiceTranslationActivity.this, WalkieTalkieService.class), walkieTalkieServiceConnection, BIND_ABOVE_CLIENT);
+                walkieTalkieServiceConnection.setTerminalListener(new CustomServiceConnection.TerminalListener() {
+                    @Override public void onTerminal() {
+                        releaseConnection(walkieTalkieServiceConnections, walkieTalkieServiceConnection);
+                    }
+                });
+                boolean bound = false;
+                try {
+                    bound = bindService(new Intent(VoiceTranslationActivity.this, WalkieTalkieService.class), walkieTalkieServiceConnection, BIND_ABOVE_CLIENT);
+                } catch (RuntimeException ignored) {
+                    // Report through the same recoverable service-connection path below.
+                }
+                if (bound && walkieTalkieServiceConnection.markRegistered()) {
+                    walkieTalkieServiceConnections.add(walkieTalkieServiceConnection);
+                } else {
+                    walkieTalkieServiceConnection.reportBindFailure();
+                }
             }
 
             @Override
@@ -618,7 +679,7 @@ public class VoiceTranslationActivity extends GeneralActivity {
         });
     }
 
-    public void disconnectFromConversationService(ConversationService.ConversationServiceCommunicator conversationServiceCommunicator) {
+    public synchronized void disconnectFromConversationService(ConversationService.ConversationServiceCommunicator conversationServiceCommunicator) {
         int index = -1;
         boolean found = false;
         for (int i = 0; i < conversationServiceConnections.size() && !found; i++) {
@@ -629,12 +690,11 @@ public class VoiceTranslationActivity extends GeneralActivity {
         }
         if (index != -1) {
             CustomServiceConnection serviceConnection = conversationServiceConnections.remove(index);
-            unbindService(serviceConnection);
-            serviceConnection.onServiceDisconnected();
+            releaseConnection(conversationServiceConnections, serviceConnection);
         }
     }
 
-    public void disconnectFromWalkieTalkieService(WalkieTalkieService.WalkieTalkieServiceCommunicator walkieTalkieServiceCommunicator) {
+    public synchronized void disconnectFromWalkieTalkieService(WalkieTalkieService.WalkieTalkieServiceCommunicator walkieTalkieServiceCommunicator) {
         int index = -1;
         boolean found = false;
         for (int i = 0; i < walkieTalkieServiceConnections.size() && !found; i++) {
@@ -645,9 +705,18 @@ public class VoiceTranslationActivity extends GeneralActivity {
         }
         if (index != -1) {
             CustomServiceConnection serviceConnection = walkieTalkieServiceConnections.remove(index);
-            unbindService(serviceConnection);
-            serviceConnection.onServiceDisconnected();
+            releaseConnection(walkieTalkieServiceConnections, serviceConnection);
         }
+    }
+
+    private synchronized void releaseConnection(ArrayList<CustomServiceConnection> connections,
+                                                CustomServiceConnection serviceConnection) {
+        connections.remove(serviceConnection);
+        serviceConnection.disconnect(new CustomServiceConnection.Unbinder() {
+            @Override public void unbind(android.content.ServiceConnection connection) {
+                unbindService(connection);
+            }
+        });
     }
 
     public void stopConversationService() {
