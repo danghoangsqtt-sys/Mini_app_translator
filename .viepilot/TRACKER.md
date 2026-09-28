@@ -55,9 +55,9 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | resolved (Phase 2, task 2.4) |
 | BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | resolved (Phase 2, task 2.5) |
 | BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Low | closed/reclassified future capability; no production fix (Phase 2, task 2.6) |
-| BUG-013 | 🐛 | Android 12+ Bluetooth permission matrix over-requests location/Wi-Fi permissions | High | in_progress (Phase 9, task 9.10; physical QA remains in 9.7) |
+| BUG-013 | 🐛 | Android 12+ Bluetooth permission matrix over-requests location/Wi-Fi permissions | High | resolved in code/API 36 (`cc08c4f`); physical matrix remains 9.7 |
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | in_progress (Phase 3, task 3.4 — code committed, device QA pending) |
-| BUG-015 | 🐛 | Foreground voice-service launch/promotion order is not modern-Android compliant | High | planned (Phase 9, task 9.10; manifest types already present) |
+| BUG-015 | 🐛 | Foreground voice-service launch/promotion order is not modern-Android compliant | High | resolved in code/API 36 (`cc08c4f`); physical matrix remains 9.7 |
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | resolved (Phase 5, task 5.1) |
 | BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; canonical `688f395`) |
 | BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | resolved (Phase 7, task 7.2; local tag `mini-app-translator-vp-p6-complete`) |
@@ -135,6 +135,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-28**: `/vp-audit` deep continuation kept Tier 1/2 state consistent and re-opened `BUG-013`, `BUG-029`, and `BUG-030` on narrower residual criteria. It promoted `ENH-007` to High after proving the active Bluetooth dependency logs full Conversation payloads/peer addresses and that the tags survive R8 in the release DEX. It auto-logged `BUG-031` for unbounded peer-controlled Bluetooth reassembly/image decode. Host evidence: 154/154 JVM tests, lint 0 errors/136 warnings, debug APK unchanged, and unsigned R8 release assembly PASS; release remains NO-GO.
 - **2026-09-28**: `/vp-evolve ENH-007 BUG-031 BUG-013 BUG-029 BUG-030 BUG-015` extended Phase 9 with Tasks 9.9–9.12 instead of creating a post-release milestone. The sequence is transport/privacy bounds → permissions/foreground lifecycle → cancellable binding → bounded persistence; Task 9.7 is blocked until all four pass. No app version or release state changed during planning.
 - **2026-09-28**: `/vp-auto` completed Task 9.9 at `6ff92b8`: vendored reviewed BluetoothCommunicator 1.0.6 source, removed payload/address logs, bounded pre-reassembly state, moved bounded peer-image decode off-main, sanitized first-party logs, and added an R8 DEX privacy gate. Evidence: 163 JVM tests, 23 API 36 instrumentation tests, lint 0 errors/119 warnings, debug/release assembly and DEX privacy PASS. Physical legacy framing interoperability remains Task 9.7.
+- **2026-09-28**: `/vp-auto` completed Task 9.10 at `cc08c4f`: API 31+ now requests only Bluetooth scan/connect/advertise, legacy location stops at API 30, unused Wi-Fi/background permissions were removed, and both modes use prompt typed foreground promotion with recoverable start failure. Evidence: 166 JVM tests, 23 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug assembly PASS. Physical API 23/31/34 and two-phone checks remain Task 9.7.
 
 ## Version info
 

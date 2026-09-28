@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 8/12 complete
-- **Current task**: 9.10 — Permission and foreground-service lifecycle correction (`in_progress`)
+- **Tasks**: 9/12 complete
+- **Current task**: 9.11 — Cancellable asynchronous service binding (`in_progress`)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -19,8 +19,8 @@
 | 9.7 — Full QA and release-candidate gate | blocked by 9.9–9.12; release NO-GO | Resume only after the deep-audit blockers pass; then same two phones must confirm the complete fix set |
 | 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
 | 9.9 — Production privacy and bounded Bluetooth ingress | done — automated/API 36/release PASS | `6ff92b8`; 163 JVM, 23 instrumentation, lint 0/119; R8 DEX privacy gate PASS; physical interoperability remains 9.7 |
-| 9.10 — Permission and foreground-service lifecycle correction | in_progress | `BUG-013`, `BUG-015`; API 23/30/31/33+ permission matrix and prompt typed foreground promotion |
-| 9.11 — Cancellable asynchronous service binding | planned | `BUG-029`; initiation handle/generation, late-callback suppression, orphan-service cleanup |
+| 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
+| 9.11 — Cancellable asynchronous service binding | in_progress | `BUG-029`; initiation handle/generation, late-callback suppression, orphan-service cleanup |
 | 9.12 — Bounded recent-peer persistence | planned | `BUG-030`; bounded/coalescing serial work with visible deterministic failures |
 
 ## PM control rules
@@ -100,3 +100,10 @@
 - **Verification**: 154 JVM tests and 21 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; `git diff --check` clean.
 - **APK**: 79,115,713 bytes; SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`.
 - **Persistence gate**: implementation/evidence is persisted through `5c9c70e`; the final closeout state is also pushed with `HEAD == origin/master`, ahead/behind `0/0`. Task 9.8 is done and control returns to 9.7. Physical two-phone confirmation remains mandatory for release.
+
+## Task 9.10 implementation evidence
+
+- **Planning / implementation**: local task baseline tag `mini-app-translator-vp-p9-t10`; implementation `cc08c4f`. No push, release tag, version, signing, or physical-device claim.
+- **Permissions**: API 31+ requests exactly Bluetooth scan/connect/advertise; API 29–30 retains fine location; API 23–28 retains coarse location. Unused Wi-Fi, Nearby Wi-Fi, and background-location declarations were removed.
+- **Foreground lifecycle**: both modes launch with `ContextCompat.startForegroundService`; the base service promotes in `onStartCommand`, contains start failures, stays foreground across bind/rebind, and removes its notification on teardown. Conversation uses microphone plus connected-device types; Walkie uses microphone only.
+- **Verification**: 166 JVM tests and 23 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/122 warnings; `git diff --check` clean; debug APK assembled. API 23/31/34 and two-phone permission/Bluetooth confirmation remain Task 9.7.

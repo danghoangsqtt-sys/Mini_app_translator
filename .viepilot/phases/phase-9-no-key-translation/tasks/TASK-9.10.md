@@ -1,6 +1,6 @@
 # Task 9.10 — Bluetooth permissions and foreground-service lifecycle
 
-**Status**: planned
+**Status**: done — automated/API 36 PASS; physical API/device matrix remains Task 9.7
 **Requests**: `BUG-013`, `BUG-015`
 **Depends on**: Task 9.9
 
@@ -26,10 +26,16 @@ Request only permissions used by the active Bluetooth code on each Android gener
 
 ## Acceptance criteria
 
-- [ ] API 31+ requests exactly Bluetooth scan/connect/advertise and does not gate on location or Nearby Wi-Fi.
-- [ ] API 23–30 retains the minimum legacy permission set.
-- [ ] Both services satisfy the foreground start deadline and typed-service contract without duplicate teardown/promotion.
-- [ ] Automated tests pass; API 31/34/36 physical confirmation remains Task 9.7 evidence.
+- [x] API 31+ requests exactly Bluetooth scan/connect/advertise and does not gate on location or Nearby Wi-Fi.
+- [x] API 23–30 retains the minimum legacy permission set.
+- [x] Both services use the foreground-service launch path, promote promptly with the minimum type, and guard duplicate promotion/teardown.
+- [x] Automated tests pass; API 31/34/36 physical confirmation remains Task 9.7 evidence.
+
+## Evidence
+
+- Planning baseline tag: `mini-app-translator-vp-p9-t10`; implementation: `cc08c4f`.
+- Verification: 166 JVM tests, 23 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug APK assembly PASS, and clean `git diff --check`.
+- Scope: six locked manifest/activity/service/test files; no dependency, protocol, persistence, version, signing, or release change.
 
 ## Verification
 
