@@ -20,15 +20,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import nie.translator.rtranslatordevedition.database.AppDatabase;
 import nie.translator.rtranslatordevedition.database.dao.MyDao;
 import nie.translator.rtranslatordevedition.database.entities.RecentPeerEntity;
@@ -36,7 +38,7 @@ import nie.translator.rtranslatordevedition.tools.Tools;
 
 /** Serializes all recent-peer reads and writes so Bluetooth handshake frames cannot race Room. */
 public class RecentPeersDataManager {
-    private static final String TAG = "RecentPeersData";
+    static final int MAX_PENDING_DATABASE_TASKS = 32;
 
     interface Store {
         void insert(RecentPeerEntity entity);
@@ -47,25 +49,56 @@ public class RecentPeersDataManager {
     }
 
     private final Store store;
-    private final Executor databaseExecutor;
+    public enum Operation { INSERT, IDENTITY, IMAGE, NAME, DELETE, READ_ALL, READ_ONE, QUEUE }
+    public enum FailureReason { QUEUE_FULL, CLOSED, STORE_ERROR }
+
+    public static final class PersistenceFailure {
+        private final Operation operation;
+        private final FailureReason reason;
+
+        private PersistenceFailure(Operation operation, FailureReason reason) {
+            this.operation = operation;
+            this.reason = reason;
+        }
+
+        public Operation getOperation() { return operation; }
+        public FailureReason getReason() { return reason; }
+    }
+
+    public interface PersistenceFailureListener {
+        void onPersistenceFailure(PersistenceFailure failure);
+    }
+
+    private final BoundedSerialExecutor databaseExecutor;
     private final Executor callbackExecutor;
+    private final ArrayList<PersistenceFailureListener> failureListeners = new ArrayList<>();
+    private final AtomicLong operationSequence = new AtomicLong();
 
     public RecentPeersDataManager(Context context) {
         this(new RoomStore(AppDatabase.getInstance(context).myDao()), createDatabaseExecutor(), mainExecutor());
     }
 
     RecentPeersDataManager(Store store, Executor databaseExecutor, Executor callbackExecutor) {
+        this(store, new BoundedSerialExecutor(databaseExecutor, MAX_PENDING_DATABASE_TASKS),
+                callbackExecutor);
+    }
+
+    RecentPeersDataManager(Store store, BoundedSerialExecutor databaseExecutor,
+                           Executor callbackExecutor) {
         this.store = store;
         this.databaseExecutor = databaseExecutor;
         this.callbackExecutor = callbackExecutor;
     }
 
     private static ExecutorService createDatabaseExecutor() {
-        return Executors.newSingleThreadExecutor(new ThreadFactory() {
+        ThreadFactory factory = new ThreadFactory() {
             @Override public Thread newThread(Runnable runnable) {
                 return new Thread(runnable, "recent-peers-db");
             }
-        });
+        };
+        return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<Runnable>(1), factory,
+                new ThreadPoolExecutor.AbortPolicy());
     }
 
     private static Executor mainExecutor() {
@@ -84,16 +117,19 @@ public class RecentPeersDataManager {
 
     void insertRecentPeerData(@NonNull final String deviceId, final String uniqueName,
                               @Nullable final byte[] userImage) {
-        databaseExecutor.execute(new Runnable() {
+        final byte[] image = copy(userImage);
+        submitWrite(operationKey("insert", deviceId, uniqueName),
+                Operation.INSERT, new Runnable() {
             @Override public void run() {
-                store.insert(entity(deviceId, uniqueName, userImage));
+                store.insert(entity(deviceId, uniqueName, image));
             }
         });
     }
 
     /** Upserts handshake identity while retaining an image received during an earlier session. */
     public void upsertRecentPeerIdentity(@NonNull final String deviceId, final String uniqueName) {
-        databaseExecutor.execute(new Runnable() {
+        submitWrite(operationKey("identity", deviceId, uniqueName),
+                Operation.IDENTITY, new Runnable() {
             @Override public void run() {
                 RecentPeerEntity current = store.loadById(deviceId);
                 byte[] image = current == null ? null : current.userImage;
@@ -109,11 +145,12 @@ public class RecentPeersDataManager {
 
     void updateRecentPeerImageDataByName(@NonNull final String uniqueName,
                                          @Nullable final byte[] imageData) {
-        databaseExecutor.execute(new Runnable() {
+        final byte[] image = copy(imageData);
+        submitWrite(operationKey("image", uniqueName), Operation.IMAGE, new Runnable() {
             @Override public void run() {
                 RecentPeerEntity current = store.loadByName(uniqueName);
                 if (current != null) {
-                    store.insert(entity(current.deviceId, current.uniqueName, imageData));
+                    store.insert(entity(current.deviceId, current.uniqueName, image));
                 }
             }
         });
@@ -121,7 +158,8 @@ public class RecentPeersDataManager {
 
     public void updateRecentPeerName(@NonNull final String oldUniqueName,
                                      @NonNull final String newUniqueName) {
-        databaseExecutor.execute(new Runnable() {
+        submitWrite(operationKey("name", oldUniqueName, newUniqueName),
+                Operation.NAME, new Runnable() {
             @Override public void run() {
                 RecentPeerEntity current = store.loadByName(oldUniqueName);
                 if (current != null) {
@@ -132,15 +170,19 @@ public class RecentPeersDataManager {
     }
 
     public void deleteRecentPeer(final RecentPeer peer) {
-        databaseExecutor.execute(new Runnable() {
+        final String deviceId = peer == null ? "" : peer.getDeviceID();
+        final String uniqueName = peer == null ? "" : peer.getUniqueName();
+        final byte[] image = peer == null ? null : peer.getUserImageData();
+        submitWrite(operationKey("delete", deviceId), Operation.DELETE, new Runnable() {
             @Override public void run() {
-                store.delete(entity(peer.getDeviceID(), peer.getUniqueName(), peer.getUserImageData()));
+                store.delete(entity(deviceId, uniqueName, image));
             }
         });
     }
 
     public void getRecentPeers(final RecentPeersListener responseListener) {
-        databaseExecutor.execute(new Runnable() {
+        boolean accepted = submit("read-all:" + operationSequence.incrementAndGet(), false,
+                Operation.READ_ALL, new Runnable() {
             @Override public void run() {
                 final ArrayList<RecentPeer> peers = new ArrayList<>();
                 try {
@@ -151,15 +193,22 @@ public class RecentPeersDataManager {
                         }
                     }
                 } catch (RuntimeException error) {
-                    Log.e(TAG, "Unable to load recent peers", error);
+                    reportFailure(Operation.READ_ALL, FailureReason.STORE_ERROR);
                 }
-                callbackExecutor.execute(new Runnable() {
+                dispatchCallback(new Runnable() {
                     @Override public void run() {
                         responseListener.onRecentPeersObtained(new ArrayList<>(peers));
                     }
                 });
             }
         });
+        if (!accepted) {
+            dispatchCallback(new Runnable() {
+                @Override public void run() {
+                    responseListener.onRecentPeersObtained(new ArrayList<RecentPeer>());
+                }
+            });
+        }
     }
 
     public interface RecentPeersListener {
@@ -176,7 +225,9 @@ public class RecentPeersDataManager {
 
     private void loadOne(final String key, final boolean byName,
                          final RecentPeerListener responseListener) {
-        databaseExecutor.execute(new Runnable() {
+        final Operation operation = Operation.READ_ONE;
+        boolean accepted = submit("read-one:" + operationSequence.incrementAndGet(), false,
+                operation, new Runnable() {
             @Override public void run() {
                 RecentPeer value = null;
                 try {
@@ -185,16 +236,21 @@ public class RecentPeersDataManager {
                         value = entity.getRecentPeer();
                     }
                 } catch (RuntimeException error) {
-                    Log.e(TAG, "Unable to load recent peer", error);
+                    reportFailure(operation, FailureReason.STORE_ERROR);
                 }
                 final RecentPeer result = value;
-                callbackExecutor.execute(new Runnable() {
+                dispatchCallback(new Runnable() {
                     @Override public void run() {
                         responseListener.onRecentPeerObtained(result);
                     }
                 });
             }
         });
+        if (!accepted) {
+            dispatchCallback(new Runnable() {
+                @Override public void run() { responseListener.onRecentPeerObtained(null); }
+            });
+        }
     }
 
     public interface RecentPeerListener {
@@ -203,6 +259,91 @@ public class RecentPeersDataManager {
 
     private static String normalize(@Nullable String value) {
         return value == null ? "" : value;
+    }
+
+    private static String operationKey(String operation, String... values) {
+        StringBuilder key = new StringBuilder(operation);
+        for (String value : values) {
+            String normalized = normalize(value);
+            key.append(':').append(normalized.length()).append('#').append(normalized);
+        }
+        return key.toString();
+    }
+
+    private void submitWrite(String key, final Operation operation, final Runnable task) {
+        submit(key, true, operation, new Runnable() {
+            @Override public void run() {
+                try {
+                    task.run();
+                } catch (RuntimeException error) {
+                    reportFailure(operation, FailureReason.STORE_ERROR);
+                }
+            }
+        });
+    }
+
+    private boolean submit(String key, boolean coalesce, Operation operation, Runnable task) {
+        BoundedSerialExecutor.SubmitResult result = databaseExecutor.submit(key, coalesce, task);
+        if (result == BoundedSerialExecutor.SubmitResult.REJECTED) {
+            reportFailure(operation, FailureReason.QUEUE_FULL);
+            return false;
+        }
+        if (result == BoundedSerialExecutor.SubmitResult.CLOSED) {
+            reportFailure(operation, FailureReason.CLOSED);
+            return false;
+        }
+        return true;
+    }
+
+    public synchronized void addFailureListener(PersistenceFailureListener listener) {
+        if (listener != null && !failureListeners.contains(listener)) {
+            failureListeners.add(listener);
+        }
+    }
+
+    public synchronized void removeFailureListener(PersistenceFailureListener listener) {
+        failureListeners.remove(listener);
+    }
+
+    private void reportFailure(final Operation operation, final FailureReason reason) {
+        final ArrayList<PersistenceFailureListener> snapshot;
+        synchronized (this) {
+            snapshot = new ArrayList<>(failureListeners);
+        }
+        if (snapshot.isEmpty()) {
+            return;
+        }
+        dispatchCallback(new Runnable() {
+            @Override public void run() {
+                PersistenceFailure failure = new PersistenceFailure(operation, reason);
+                for (PersistenceFailureListener listener : snapshot) {
+                    try {
+                        listener.onPersistenceFailure(failure);
+                    } catch (RuntimeException ignored) {
+                        // One observer cannot prevent other sanitized failure notifications.
+                    }
+                }
+            }
+        });
+    }
+
+    private void dispatchCallback(Runnable callback) {
+        try {
+            callbackExecutor.execute(callback);
+        } catch (RuntimeException ignored) {
+            // The callback owner has gone away; never kill the database worker.
+        }
+    }
+
+    public void close() {
+        int dropped = databaseExecutor.shutdownNow();
+        if (dropped > 0) {
+            reportFailure(Operation.QUEUE, FailureReason.CLOSED);
+        }
+    }
+
+    private static byte[] copy(@Nullable byte[] value) {
+        return value == null ? null : Arrays.copyOf(value, value.length);
     }
 
     private static RecentPeerEntity entity(String deviceId, String uniqueName, @Nullable byte[] image) {

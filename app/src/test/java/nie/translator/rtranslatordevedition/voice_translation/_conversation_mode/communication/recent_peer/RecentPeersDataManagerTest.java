@@ -24,7 +24,7 @@ public class RecentPeersDataManagerTest {
         manager.updateRecentPeerImageDataByName("peer", image);
 
         assertEquals(0, store.rows.size());
-        assertEquals(2, database.size());
+        assertEquals(1, database.size());
         database.runAll();
         assertArrayEquals(image, store.rows.get("device").userImage);
     }
@@ -57,6 +57,104 @@ public class RecentPeersDataManagerTest {
         assertTrue(second[0].isEmpty());
     }
 
+    @Test public void imageBurstCoalescesAndPersistsOnlyLatestDefensiveBytes() {
+        FakeStore store = new FakeStore();
+        ManualExecutor worker = new ManualExecutor();
+        BoundedSerialExecutor bounded = new BoundedSerialExecutor(worker, 4);
+        RecentPeersDataManager manager = new RecentPeersDataManager(store, bounded, Runnable::run);
+        manager.upsertRecentPeerIdentity("device", "peer");
+        byte[] latest = null;
+        for (int index = 0; index < 100; index++) {
+            latest = new byte[] {(byte) index};
+            manager.updateRecentPeerImageDataByName("peer", latest);
+        }
+        latest[0] = 0;
+
+        assertEquals(2, bounded.pendingCount());
+        worker.runAll();
+        assertArrayEquals(new byte[] {99}, store.rows.get("device").userImage);
+    }
+
+    @Test public void overflowIsReportedOnCallbackExecutorWithoutSensitiveData() {
+        FakeStore store = new FakeStore();
+        ManualExecutor worker = new ManualExecutor();
+        ManualExecutor callbacks = new ManualExecutor();
+        BoundedSerialExecutor bounded = new BoundedSerialExecutor(worker, 2);
+        RecentPeersDataManager manager = new RecentPeersDataManager(store, bounded, callbacks);
+        final ArrayList<RecentPeersDataManager.PersistenceFailure> failures = new ArrayList<>();
+        manager.addFailureListener(failures::add);
+
+        manager.upsertRecentPeerIdentity("one", "peer-one");
+        manager.upsertRecentPeerIdentity("two", "peer-two");
+        manager.upsertRecentPeerIdentity("three", "peer-three");
+
+        assertTrue(failures.isEmpty());
+        callbacks.runAll();
+        assertEquals(1, failures.size());
+        assertEquals(RecentPeersDataManager.Operation.IDENTITY, failures.get(0).getOperation());
+        assertEquals(RecentPeersDataManager.FailureReason.QUEUE_FULL, failures.get(0).getReason());
+    }
+
+    @Test public void storeFailureIsReportedAndFollowingWriteStillRuns() {
+        FakeStore store = new FakeStore();
+        store.failNextInsert = true;
+        ManualExecutor worker = new ManualExecutor();
+        ManualExecutor callbacks = new ManualExecutor();
+        RecentPeersDataManager manager = new RecentPeersDataManager(store, worker, callbacks);
+        final ArrayList<RecentPeersDataManager.PersistenceFailure> failures = new ArrayList<>();
+        manager.addFailureListener(failures::add);
+
+        manager.upsertRecentPeerIdentity("bad", "first");
+        manager.upsertRecentPeerIdentity("good", "second");
+        worker.runAll();
+        callbacks.runAll();
+
+        assertEquals(1, failures.size());
+        assertEquals(RecentPeersDataManager.FailureReason.STORE_ERROR, failures.get(0).getReason());
+        assertTrue(store.rows.containsKey("good"));
+    }
+
+    @Test public void closeDropsPendingAndPostCloseWritesFailDeterministically() {
+        FakeStore store = new FakeStore();
+        ManualExecutor worker = new ManualExecutor();
+        ManualExecutor callbacks = new ManualExecutor();
+        RecentPeersDataManager manager = new RecentPeersDataManager(store, worker, callbacks);
+        final ArrayList<RecentPeersDataManager.PersistenceFailure> failures = new ArrayList<>();
+        manager.addFailureListener(failures::add);
+        manager.upsertRecentPeerIdentity("device", "peer");
+
+        manager.close();
+        manager.updateRecentPeerName("peer", "new-peer");
+        worker.runAll();
+        callbacks.runAll();
+
+        assertTrue(store.rows.isEmpty());
+        assertEquals(2, failures.size());
+        assertEquals(RecentPeersDataManager.Operation.QUEUE, failures.get(0).getOperation());
+        assertEquals(RecentPeersDataManager.FailureReason.CLOSED, failures.get(0).getReason());
+        assertEquals(RecentPeersDataManager.Operation.NAME, failures.get(1).getOperation());
+        assertEquals(RecentPeersDataManager.FailureReason.CLOSED, failures.get(1).getReason());
+    }
+
+    @Test public void failingObserverCannotHideSanitizedFailureFromOtherObservers() {
+        FakeStore store = new FakeStore();
+        store.failNextInsert = true;
+        ManualExecutor worker = new ManualExecutor();
+        RecentPeersDataManager manager = new RecentPeersDataManager(store, worker, Runnable::run);
+        final int[] observed = {0};
+        manager.addFailureListener(value -> { throw new IllegalStateException("observer"); });
+        manager.addFailureListener(value -> {
+            observed[0]++;
+            assertEquals(RecentPeersDataManager.Operation.IDENTITY, value.getOperation());
+            assertEquals(RecentPeersDataManager.FailureReason.STORE_ERROR, value.getReason());
+        });
+
+        manager.upsertRecentPeerIdentity("device", "peer");
+        worker.runAll();
+
+        assertEquals(1, observed[0]);
+    }
+
     private static RecentPeerEntity entity(String id, String name, byte[] image) {
         RecentPeerEntity entity = new RecentPeerEntity();
         entity.deviceId = id;
@@ -75,7 +173,14 @@ public class RecentPeersDataManagerTest {
 
     private static final class FakeStore implements RecentPeersDataManager.Store {
         private final Map<String, RecentPeerEntity> rows = new LinkedHashMap<>();
-        @Override public void insert(RecentPeerEntity entity) { rows.put(entity.deviceId, entity); }
+        private boolean failNextInsert;
+        @Override public void insert(RecentPeerEntity entity) {
+            if (failNextInsert) {
+                failNextInsert = false;
+                throw new IllegalStateException("database unavailable");
+            }
+            rows.put(entity.deviceId, entity);
+        }
         @Override public void delete(RecentPeerEntity entity) { rows.remove(entity.deviceId); }
         @Override public RecentPeerEntity[] loadAll() { return rows.values().toArray(new RecentPeerEntity[0]); }
         @Override public RecentPeerEntity loadById(String deviceId) { return rows.get(deviceId); }

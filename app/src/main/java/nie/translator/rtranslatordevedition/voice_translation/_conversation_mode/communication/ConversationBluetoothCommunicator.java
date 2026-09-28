@@ -49,6 +49,8 @@ public class ConversationBluetoothCommunicator {
     private ArrayList<Callback> clientCallbacks = new ArrayList<>();
     private Global global;
     private Handler mainHandler;
+    private final RecentPeersDataManager.PersistenceFailureListener persistenceFailureListener;
+    private boolean destroyed;
     private ArrayList<Peer> connectingPeers = new ArrayList<>();
     private ArrayList<GuiPeer> connectedPeers = new ArrayList<>();
     private final ThreadPoolExecutor peerImageExecutor = new ThreadPoolExecutor(
@@ -61,7 +63,14 @@ public class ConversationBluetoothCommunicator {
     public ConversationBluetoothCommunicator(final Global global, String name, int strategy) {
         this.global = global;
         mainHandler = new Handler(Looper.getMainLooper());
+        persistenceFailureListener = new RecentPeersDataManager.PersistenceFailureListener() {
+            @Override public void onPersistenceFailure(
+                    RecentPeersDataManager.PersistenceFailure failure) {
+                notifyPersistenceFailure(failure.getOperation(), failure.getReason());
+            }
+        };
         bluetoothCommunicator = new BluetoothCommunicator(global, name, strategy);
+        global.getRecentPeersDataManager().addFailureListener(persistenceFailureListener);
         BluetoothCommunicator.Callback bluetoothCommunicatorCallback = new BluetoothCommunicator.Callback() {
             @Override
             public void onAdvertiseStarted() {
@@ -408,6 +417,8 @@ public class ConversationBluetoothCommunicator {
     }
 
     public void destroy(BluetoothCommunicator.DestroyCallback callback) {
+        destroyed = true;
+        global.getRecentPeersDataManager().removeFailureListener(persistenceFailureListener);
         peerImageExecutor.shutdownNow();
         bluetoothCommunicator.destroy(callback);
     }
@@ -508,6 +519,16 @@ public class ConversationBluetoothCommunicator {
         }
     }
 
+    private void notifyPersistenceFailure(RecentPeersDataManager.Operation operation,
+                                          RecentPeersDataManager.FailureReason reason) {
+        if (destroyed) {
+            return;
+        }
+        for (int i = 0; i < clientCallbacks.size(); i++) {
+            clientCallbacks.get(i).onRecentPeerPersistenceFailure(operation, reason);
+        }
+    }
+
     public static abstract class Callback {
         public void onSearchStarted() {
         }
@@ -549,6 +570,10 @@ public class ConversationBluetoothCommunicator {
         }
 
         public void onBluetoothLeNotSupported() {
+        }
+
+        public void onRecentPeerPersistenceFailure(RecentPeersDataManager.Operation operation,
+                                                   RecentPeersDataManager.FailureReason reason) {
         }
     }
 }
