@@ -45,6 +45,10 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 | 9.6 | Make legacy Cloud explicitly optional, finish migration UI/privacy copy, and close audit blockers `BUG-024`/`BUG-025` | Default journey contains no key/billing requirement; service restart and Settings dispatch regressions covered; no credential bundled |
 | 9.7 | Full regression, device matrix, APK/release-candidate gate | Automated suite + physical two-phone evidence + PM approval |
 | 9.8 | Remediate audit findings `BUG-027`–`BUG-030` before resuming the physical gate | State consistency, safe mode restore, exact service binding, serialized recent-peer persistence, focused regression tests |
+| 9.9 | Remove production data logging and bound the Bluetooth ingress/image pipeline (`ENH-007`, `BUG-031`) | Reviewed local transport source has bounded reassembly; malformed/oversized input is dropped; release DEX contains no sensitive log tags |
+| 9.10 | Correct the Android 12+ permission matrix and foreground-service launch contract (`BUG-013`, `BUG-015`) | Bluetooth-only permission requests on API 31+; prompt typed foreground promotion; lifecycle tests pass |
+| 9.11 | Make asynchronous service connection initiation cancellable (`BUG-029`) | Fragment stop cancels pre-bind/late-bind work for both modes; failed starts/binds leave no orphan service or callback |
+| 9.12 | Bound and coalesce recent-peer persistence (`BUG-030`) | Fixed-capacity serial work, deterministic rejection/failure behavior, and burst/Room-failure regression coverage |
 
 ## Phase acceptance criteria
 
@@ -56,7 +60,8 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 - [ ] API 23, 31, 34, and 36 checks are recorded; physical two-phone Bluetooth evidence exists.
 - [ ] `clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest` passes with zero lint errors.
 - [ ] PM reviews the diff and test evidence before any tag, push, or release claim.
-- [ ] `BUG-027`–`BUG-030` are resolved and verified before the two-phone Task 9.7 retest is accepted.
+- [ ] `BUG-027`–`BUG-031`, `BUG-013`, `BUG-015`, and `ENH-007` are resolved and verified before the two-phone Task 9.7 retest is accepted.
+- [ ] Release bytecode contains no Conversation payload/peer-identifier logging, and the active transport bounds incomplete and oversized peer-controlled input before reassembly.
 
 ## Verification baseline
 

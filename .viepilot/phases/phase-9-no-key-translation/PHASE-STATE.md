@@ -1,12 +1,12 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 7/8 complete
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS with Task 9.8 fixes, Gate C awaits two-phone retest, Gates B/D blocked)
+- **Tasks**: 7/12 complete
+- **Current task**: 9.9 — Production privacy and bounded Bluetooth ingress (`in_progress`; prerequisite to resume Task 9.7)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
-- **Coder**: TERRA 5.6
+- **Coder**: Codex (`vp-auto` inline execution)
 
 | Task | Status | Control point |
 |---|---|---|
@@ -16,8 +16,12 @@
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
-| 9.7 — Full QA and release-candidate gate | in_progress — Gate A PASS after `BUG-026`; release NO-GO | Same two phones must confirm hotfix; API 23/31/34, remaining physical/accessibility QA, legal identity, signing, and release approval remain |
+| 9.7 — Full QA and release-candidate gate | blocked by 9.9–9.12; release NO-GO | Resume only after the deep-audit blockers pass; then same two phones must confirm the complete fix set |
 | 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
+| 9.9 — Production privacy and bounded Bluetooth ingress | in_progress | `ENH-007`, `BUG-031`; transport source review, ingress limits, safe off-main image decode, release-artifact privacy proof |
+| 9.10 — Permission and foreground-service lifecycle correction | planned | `BUG-013`, `BUG-015`; API 23/30/31/33+ permission matrix and prompt typed foreground promotion |
+| 9.11 — Cancellable asynchronous service binding | planned | `BUG-029`; initiation handle/generation, late-callback suppression, orphan-service cleanup |
+| 9.12 — Bounded recent-peer persistence | planned | `BUG-030`; bounded/coalescing serial work with visible deterministic failures |
 
 ## PM control rules
 

@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; Task 9.8 persisted and automated/API 36 PASS; two-phone retest pending; Gates B/D blocked)",
+  "current_task": "9.9 — Production privacy and bounded Bluetooth ingress (in_progress; Tasks 9.10–9.12 follow before Task 9.7 resumes)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -39,7 +39,7 @@
     "sanitized_candidate": "adopted as canonical master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved; old history retained in local backup branch"
   },
   "requests": {
-    "bug_count": 30,
+    "bug_count": 31,
     "enh_count": 22,
     "source": "vp-audit/vp-debug 2026-09-19 through 2026-09-28",
     "status": "mixed: resolved, in_progress, planned, and new"
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Task 9.8 is persisted through 5c9c70e and control is back at Task 9.7. Install debug APK SHA-256 0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7 on the same two phones; confirm connect, background/relaunch, disconnect/reconnect, Conversation exchange, Bluetooth/SCO, and peer-image retention. Send logs from both phones if either app exits. API 23/31/34, remaining physical/accessibility QA, legal identity, signing, version/tag, and release approval remain blocked."
+  "resume_hint": "Run Task 9.9 first: replace the opaque BluetoothCommunicator binary with reviewed Apache-2.0 source, remove payload/address logs, bound fragment reassembly, and validate/decode peer images off the main thread. Then execute Tasks 9.10–9.12 in order. Do not resume physical Task 9.7 or publish until all four deep-hardening tasks pass; API 23/31/34, two-phone interoperability, accessibility, legal identity, signing, version/tag, and release approval remain blocked."
 }

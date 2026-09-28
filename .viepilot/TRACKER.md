@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS with Task 9.8 fixes, two-phone retest pending, Gates B/D blocked).
+- **Current task**: 9.9 — Production privacy and bounded Bluetooth ingress (`in_progress`); Tasks 9.10–9.12 follow before Task 9.7 may resume.
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 7/8 tasks; 9.8 done, 9.7 physical/release gate remains NO-GO |
+| 9 — No-Key On-Device Translation | in_progress | 7/12 tasks; 9.9 active, 9.10–9.12 planned, 9.7 blocked/NO-GO |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -55,9 +55,9 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-010 | 🐛 | `WalkieTalkieService.onDestroy` unconditional `unbindService` crash | Medium | resolved (Phase 2, task 2.4) |
 | BUG-011 | 🐛 | Stale delayed `Handler` runnable after `ConversationService` teardown | Medium | resolved (Phase 2, task 2.5) |
 | BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Low | closed/reclassified future capability; no production fix (Phase 2, task 2.6) |
-| BUG-013 | 🐛 | Missing Android 12+ Bluetooth runtime permissions (blocks safe targetSdk 31+ upgrade) | High | in_progress (Phase 3, task 3.2 — code committed, device QA pending) |
+| BUG-013 | 🐛 | Android 12+ Bluetooth permission matrix over-requests location/Wi-Fi permissions | High | in_progress (Phase 9, task 9.10; physical QA remains in 9.7) |
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | in_progress (Phase 3, task 3.4 — code committed, device QA pending) |
-| BUG-015 | 🐛 | Foreground voice services missing service types/type permissions | High | in_progress (Phase 3, task 3.5 — code committed, device QA pending) |
+| BUG-015 | 🐛 | Foreground voice-service launch/promotion order is not modern-Android compliant | High | planned (Phase 9, task 9.10; manifest types already present) |
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | resolved (Phase 5, task 5.1) |
 | BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; canonical `688f395`) |
 | BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | resolved (Phase 7, task 7.2; local tag `mini-app-translator-vp-p6-complete`) |
@@ -69,7 +69,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ENH-004 | 🔧 | `FileLog` hardcoded legacy path + unclosed resource | Low | new |
 | ENH-005 | 🔧 | Deprecated `AsyncTask` / no-Looper `Handler()` usage | Low | new |
 | ENH-006 | 🔧 | Swallowed exceptions via `printStackTrace()` only | Low | new |
-| ENH-007 | 🔧 | Debug/error logs without `BuildConfig.DEBUG` guard | Low | new |
+| ENH-007 | 🔧 | Production logs expose Conversation payloads and peer identifiers | High | in_progress (Phase 9, task 9.9) |
 | ENH-008 | 🔧 | gRPC `channel.shutdown()` without `awaitTermination` | Low | new |
 | ENH-009 | 🔧 | Unsynchronized field race in `RecognizerService.languageCode` | Low | new |
 | ENH-010 | 🔧 | Dead fragment-action constants (removed account/password flow) | Low | new |
@@ -88,8 +88,9 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-026 | 🐛 | Android 12+ crashes when Conversation builds a notification PendingIntent without a mutability flag | Critical | code/emulator resolved (Phase 9, task 9.7; `24ee245`); same two-phone retest pending |
 | BUG-027 | 🐛 | ROADMAP and backlog statuses drift from canonical Phase 9 state | Medium | resolved locally (Phase 9, task 9.8; `c2bc8fe`) |
 | BUG-028 | 🐛 | Persisted mode restore can re-enter a Conversation crash loop | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
-| BUG-029 | 🐛 | Service binding recorded before bind success can crash during unbind | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
-| BUG-030 | 🐛 | Recent-peer ID/image persistence race can drop profile images | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
+| BUG-029 | 🐛 | Service binding ownership and pre-connect Fragment stop race | High | planned (Phase 9, task 9.11) |
+| BUG-030 | 🐛 | Recent-peer persistence ordering and unbounded work queue | High | planned (Phase 9, task 9.12) |
+| BUG-031 | 🐛 | Unbounded inbound Bluetooth payload reassembly/image decode | High | in_progress (Phase 9, task 9.9) |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | resolved (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | in_progress (tasks 5.3–5.5 done; task 5.6 device/release QA pending) |
 | ENH-020 | 🔧 | Add Wi-Fi Hotspot transport alongside Bluetooth | Medium | proposed (Phase 10) |
@@ -131,6 +132,8 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-28**: `/vp-evolve BUG-027 BUG-028 BUG-029 BUG-030` added Phase 9 Task 9.8 as an audit-stabilization prerequisite before Task 9.7 Gate C resumes. The plan locks four control points: canonical state sync, safe persisted-mode restore, exact service-binding ownership, and serialized recent-peer persistence. No app version/dependency/release state changed; Task 9.7 remains NO-GO pending full automated and physical two-phone verification.
 - **2026-09-28**: `/vp-auto` implemented Task 9.8 locally at `ce265bd`: stale Conversation restore requires a proven connected peer, terminal Conversation state clears the persisted mode, Activity service registrations are success-gated/idempotent, and recent-peer identity/image writes share one serial executor with direct addressed updates. Verification: 154 JVM tests, 21 Pixel 7a API 36 instrumentation tests, lint 0 errors/136 warnings, APK SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`. Commits remain local pending persistence review; Task 9.7 and the release remain NO-GO.
 - **2026-09-28**: PM persistence review fast-forwarded Task 9.8 through state commit `5c9c70e`; `HEAD == origin/master`, ahead/behind `0/0`. Task 9.8 is done and control returned to Task 9.7. No tag/version/signing action occurred; the new APK must pass the same two-phone connect/relaunch/disconnect/reconnect and peer-image checks before Gate C can advance.
+- **2026-09-28**: `/vp-audit` deep continuation kept Tier 1/2 state consistent and re-opened `BUG-013`, `BUG-029`, and `BUG-030` on narrower residual criteria. It promoted `ENH-007` to High after proving the active Bluetooth dependency logs full Conversation payloads/peer addresses and that the tags survive R8 in the release DEX. It auto-logged `BUG-031` for unbounded peer-controlled Bluetooth reassembly/image decode. Host evidence: 154/154 JVM tests, lint 0 errors/136 warnings, debug APK unchanged, and unsigned R8 release assembly PASS; release remains NO-GO.
+- **2026-09-28**: `/vp-evolve ENH-007 BUG-031 BUG-013 BUG-029 BUG-030 BUG-015` extended Phase 9 with Tasks 9.9–9.12 instead of creating a post-release milestone. The sequence is transport/privacy bounds → permissions/foreground lifecycle → cancellable binding → bounded persistence; Task 9.7 is blocked until all four pass. No app version or release state changed during planning.
 
 ## Version info
 
