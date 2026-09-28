@@ -29,6 +29,7 @@ All notable changes to this fork will be documented in this file.
 
 ### Fixed
 
+- Prevent Android 12+ from crashing when Conversation starts by making the foreground-notification `PendingIntent` explicitly immutable (`BUG-026`).
 - Reject null voice-service restart intents with explicit non-sticky shutdown instead of dereferencing missing notification/language extras (`BUG-024`).
 - Route the Settings missing-TTS event through the correct message key without falling through to the generic error callback (`BUG-025`).
 - Made first-run onboarding reach the main UI without a Google Cloud credential and removed obsolete Cloud/RTranslator promotional assets (`BUG-021`, `BUG-022`).

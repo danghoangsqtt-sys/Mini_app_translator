@@ -1,6 +1,6 @@
 # Task 9.7 — Full regression and release-candidate gate
 
-**Status**: in_progress — automated evidence collection; physical-device, accessibility, legal-owner, signing, and release approval remain mandatory
+**Status**: in_progress — Gate A PASS after `BUG-026` hotfix; physical two-phone retest, accessibility, legal-owner, signing, and release approval remain mandatory
 **Depends on**: Tasks 9.1–9.6 persisted through PM state commit `a229d14`
 **Owner split**: PM owns the gate, evidence, release decision, state, version/signing/tag/push; implementation changes are allowed only for defects proven during this task
 
@@ -100,4 +100,4 @@ git diff --check
 
 ## Completion evidence
 
-Gate A passed on 2026-09-27 after fixing one stale README BLE requirement and adding a regression guard: 143 JVM tests, 19 API 36 instrumentation tests, lint 0 errors/136 warnings, clean diff check, fresh-install/permission-cycle runtime smoke, and debug APK SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`. Gates B/C/D remain blocked; canonical detail is in `evidence/TASK-9.7-QA.md`. Task progress remains 6/7 until all four gates pass.
+Gate A passed again on 2026-09-28 after reproducing and fixing `BUG-026`, the Android 12+ Conversation notification `PendingIntent` crash reported on two physical phones: 143 JVM tests, 20 API 36 instrumentation tests, lint 0 errors/136 warnings, focused persisted-Conversation relaunch smokes with denied and granted permissions, and debug APK SHA-256 `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D`. Gate C requires the same two phones to confirm the hotfix and continue Bluetooth/SCO QA; Gates B/D remain blocked. Canonical detail is in `evidence/TASK-9.7-QA.md`. Task progress remains 6/7 until all four gates pass.

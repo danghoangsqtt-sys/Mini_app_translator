@@ -1,8 +1,8 @@
-# Task 9.7 QA Evidence — 2026-09-27
+# Task 9.7 QA Evidence — 2026-09-27, updated 2026-09-28
 
 ## Decision
 
-**PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. Gates B, C, and D remain mandatory and blocked by missing API 23/31/34 runtime images or devices, two physical phones, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
+**PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. A real two-phone connection attempt exposed `BUG-026`, a deterministic Android 12+ Conversation-start crash; the hotfix passes emulator reproduction/regression but still requires confirmation on the same two phones. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
 
 Task 9.7 and Phase 9 remain `in_progress` at 6/7 tasks. No version bump, signed-release claim, completion tag, release tag, or publication is authorized by this evidence.
 
@@ -13,6 +13,8 @@ Task 9.7 and Phase 9 remain `in_progress` at 6/7 tasks. No version bump, signed-
 - Planning baseline: `3db5ec19a2d98955b9754207272c3abd8b92c22a` (`mini-app-translator-vp-p9-t7`).
 - QA defect fix: `3b16037315033510751f5f1f6350c3fe31d25448`.
 - Fix scope: README capability wording plus a focused regression assertion; no shipping source/resource/Gradle/version/signing change.
+- Physical-device crash hotfix: `24ee245e3cb9ceb5c3bf605f15e823f132d5437e` (`BUG-026`).
+- Hotfix scope: add `FLAG_IMMUTABLE` to the Conversation/Walkie foreground-notification `PendingIntent` and add an API 36 instrumentation regression; no resource/Gradle/version/signing change.
 - Pre-gate repository state: planning baseline synchronized with `origin/master`, ahead/behind `0/0`, with only the pre-existing untracked `.viepilot/debug/`.
 
 ## Environment inventory
@@ -37,12 +39,12 @@ git diff --check
 Results:
 
 - JVM: 143 tests, 0 failures, 0 errors, 0 skipped.
-- Instrumentation: 19 tests, 0 failures, 0 errors, 0 skipped on Pixel 7a API 36.
+- Instrumentation: 20 tests, 0 failures, 0 errors, 0 skipped on Pixel 7a API 36.
 - Lint: 0 errors, 136 warnings.
 - `git diff --check`: clean.
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`.
-- APK size: 79,115,707 bytes.
-- APK SHA-256: `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`.
+- APK size: 79,115,725 bytes.
+- APK SHA-256: `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D`.
 
 The instrumentation suite includes production on-device engine composition/lifecycle, Android SpeechRecognizer behavior, model prepare/translate/delete, a separate translation using an already downloaded model without another download, model-management UI opening, credential encryption/migration/delete, and database/service lifecycle coverage.
 
@@ -55,6 +57,8 @@ The instrumentation suite includes production on-device engine composition/lifec
 - Runtime permission cycle for `RECORD_AUDIO`, `BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT`, `BLUETOOTH_ADVERTISE`, and `NEARBY_WIFI_DEVICES`: denied launch, grant launch, revoke launch, and re-grant launch all produced no FATAL/app ANR. The emulator was restored to fresh-install denied permissions after this cycle.
 - Light and dark initial Notice screen smokes at font scale 2.0 launched without crash. Visual inspection found the required notice text and Forward control visible without clipping on that screen. Font scale was restored to 1.0 and night mode to `auto`.
 - TalkBack is installed on the emulator, but navigation, spoken labels, focus order, and the complete 200% font screen matrix require human observation and therefore remain Gate C, not PASS.
+- Pre-fix reproduction: forcing persisted preference `fragment=1` on API 36 produced a main-thread FATAL `IllegalArgumentException` at `VoiceTranslationActivity.buildNotification`: target S+ requires `FLAG_IMMUTABLE` or `FLAG_MUTABLE`. This matches the physical sequence because connection success stores the Conversation fragment before its service notification is built.
+- Post-fix reproduction: the same persisted-Conversation launch remained alive without FATAL both before and after granting microphone/Nearby permissions. The focused notification test and full 20-test instrumentation suite passed.
 
 ### Source/content guard
 
@@ -75,10 +79,12 @@ The instrumentation suite includes production on-device engine composition/lifec
 
 Installing additional large SDK images was not implicitly authorized. A complete supported-version PASS requires recorded runs on API 23, 31, and 34.
 
-## Gate C — BLOCKED/PARTIAL
+## Gate C — FAIL THEN HOTFIXED; PHYSICAL RETEST REQUIRED
 
 - PASS on API 36 emulator: on-device engine instrumentation; ML Kit model prepare/translate/delete; already-downloaded-model translation; initial-screen light/dark/200% font crash/clip smoke.
-- BLOCKED: two physical phones for discovery, permission recovery, connect/disconnect/reconnect, background/foreground, Conversation exchange, Bluetooth/SCO audio routing, and alternating WalkieTalkie turns.
+- FAIL on the first two-phone attempt: both phones discovered each other and connected, then both apps terminated immediately; reopening repeated the termination loop.
+- Root cause reproduced: `TaskStackBuilder.getPendingIntent` was called with only `FLAG_UPDATE_CURRENT` while targeting SDK 36. Android 12+ throws before Conversation service startup, and the persisted Conversation fragment re-entered that crash on every relaunch.
+- Code/emulator hotfix: commit `24ee245` adds `FLAG_IMMUTABLE`; deterministic API 36 reproduction and regression pass. The same two phones must install the new APK and confirm connect, relaunch recovery, disconnect/reconnect, Conversation exchange, and Bluetooth/SCO before this gate can pass.
 - BLOCKED: physical microphone/speech quality and recognizer present/absent behavior.
 - BLOCKED: human TalkBack navigation/labels/focus order and complete-screen 200% font/adaptive-icon/splash review.
 - BLOCKED: physical low-storage and user-driven model download failure/cancel/delete behavior.
@@ -92,8 +98,8 @@ Installing additional large SDK images was not implicitly authorized. A complete
 
 ## Required continuation
 
-1. Provide or authorize runnable API 23, 31, and 34 devices/system images.
-2. Connect two physical Android phones with USB debugging for the Bluetooth/SCO and speech/product matrix.
-3. Perform the human TalkBack/200% font/light-dark/icon/splash review on representative physical hardware.
-4. Supply/approve publisher-controller identity and privacy contact for legal review.
-5. Supply/authorize release signing and explicitly approve version assignment and release actions only after Gates B/C pass.
+1. Install the debug APK with SHA-256 `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D` on both phones and repeat connection/relaunch/disconnect/reconnect. Send bug reports from both phones if either app terminates again.
+2. Continue two-phone Conversation text/audio, Bluetooth/SCO, WalkieTalkie direction, permission recovery, and offline-model checks after connection remains stable.
+3. Provide or authorize runnable API 23, 31, and 34 devices/system images.
+4. Perform the human TalkBack/200% font/light-dark/icon/splash review on representative physical hardware.
+5. Supply/approve publisher-controller identity and privacy contact for legal review, then authorize release signing/version actions only after Gates B/C pass.

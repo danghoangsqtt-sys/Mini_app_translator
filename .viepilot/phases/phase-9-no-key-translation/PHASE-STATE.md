@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 6/7 complete
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS, Gates B/C/D blocked on devices/human/legal/signing input)
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; Gate A PASS after `BUG-026`, Gate C awaits two-phone hotfix retest, Gates B/D blocked)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -16,7 +16,7 @@
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
-| 9.7 — Full QA and release-candidate gate | in_progress — Gate A PASS; release NO-GO | Gates B/C/D require API 23/31/34, two physical phones, accessibility review, legal identity, signing, and explicit release approval |
+| 9.7 — Full QA and release-candidate gate | in_progress — Gate A PASS after `BUG-026`; release NO-GO | Same two phones must confirm hotfix; API 23/31/34, remaining physical/accessibility QA, legal identity, signing, and release approval remain |
 
 ## PM control rules
 
@@ -82,7 +82,8 @@
 ## Task 9.7 partial evidence
 
 - **Planning baseline / QA fix**: `3db5ec1` / `3b16037`; the only fix removes the stale README claim that Bluetooth Low Energy is required and adds a focused regression guard.
-- **Gate A**: 143 JVM tests and 19 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; fresh-install, relaunch, force-stop recreation, permission grant/revoke/re-grant, and initial-screen 200% font light/dark smokes had no app FATAL/ANR.
-- **APK**: 79,115,707 bytes; SHA-256 `BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A`.
-- **Release NO-GO**: API 23/31/34 lack runnable devices/images; no physical phone is attached; two-phone Bluetooth/SCO, physical speech, complete TalkBack/visual QA, controller identity/legal approval, release signing, version assignment, signed artifact, tag, and publication remain blocked.
+- **Physical finding / hotfix**: both real phones connected then entered a reproducible Android 12+ crash loop because the service notification `PendingIntent` lacked a mutability flag. `BUG-026` is fixed in code at `24ee245` with `FLAG_IMMUTABLE` and focused instrumentation; same-device retest is pending.
+- **Gate A**: 143 JVM tests and 20 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/136 warnings; persisted-Conversation relaunch with denied/granted permissions no longer produced FATAL.
+- **APK**: 79,115,725 bytes; SHA-256 `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D`.
+- **Release NO-GO**: API 23/31/34 lack runnable devices/images; two-phone hotfix/Conversation/Bluetooth-SCO, physical speech, complete TalkBack/visual QA, controller identity/legal approval, release signing, version assignment, signed artifact, tag, and publication remain incomplete.
 - **Canonical evidence**: `evidence/TASK-9.7-QA.md`.

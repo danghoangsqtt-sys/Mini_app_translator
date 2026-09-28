@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; Gate A PASS on API 36, Gates B/C/D blocked)",
+  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; Gate A PASS after BUG-026 hotfix, two-phone retest pending, Gates B/D blocked)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -39,9 +39,9 @@
     "sanitized_candidate": "adopted as canonical master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved; old history retained in local backup branch"
   },
   "requests": {
-    "bug_count": 25,
+    "bug_count": 26,
     "enh_count": 22,
-    "source": "vp-audit 2026-09-19 through 2026-09-26",
+    "source": "vp-audit/vp-debug 2026-09-19 through 2026-09-28",
     "status": "mixed: resolved, in_progress, planned, and new"
   },
   "scope_reduction": {
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Phase 9 Task 9.7 Gate A passed after QA fix 3b16037: 143 JVM tests, 19 API 36 instrumentation tests, lint 0 errors/136 warnings, fresh-install/permission/runtime smoke, and APK SHA-256 BD98BB5C24BA08DE8287A899449C0C084457058A681E6ADCC2AF9F0A7F5BFD2A. Canonical evidence is evidence/TASK-9.7-QA.md. Do not advance beyond 6/7 or claim release PASS while API 23/31/34, two physical phones with Bluetooth/SCO and speech/product QA, human TalkBack/200% font review, publisher/controller legal confirmation, authorized release signing, version/tag, and explicit release approval remain blocked. 1.2.0 remains NO-GO."
+  "resume_hint": "Phase 9 Task 9.7 Gate A passed after BUG-026 hotfix 24ee245: 143 JVM tests, 20 API 36 instrumentation tests, lint 0 errors/136 warnings, persisted-Conversation crash-loop reproduction now stable, and APK SHA-256 D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D. Canonical evidence is evidence/TASK-9.7-QA.md. The user must install this APK on the same two phones and confirm connect/relaunch/disconnect/reconnect before Gate C advances. Do not claim release PASS while API 23/31/34, remaining Bluetooth/SCO/speech/product QA, human TalkBack/200% font review, publisher/controller legal confirmation, signing, version/tag, and release approval remain blocked."
 }
