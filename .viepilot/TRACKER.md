@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.9 — Production privacy and bounded Bluetooth ingress (`in_progress`); Tasks 9.10–9.12 follow before Task 9.7 may resume.
+- **Current task**: 9.10 — Permission and foreground-service lifecycle correction (`in_progress`); Tasks 9.11–9.12 follow before Task 9.7 may resume.
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 7/12 tasks; 9.9 active, 9.10–9.12 planned, 9.7 blocked/NO-GO |
+| 9 — No-Key On-Device Translation | in_progress | 8/12 tasks; 9.9 done, 9.10 active, 9.11–9.12 planned, 9.7 blocked/NO-GO |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -69,7 +69,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ENH-004 | 🔧 | `FileLog` hardcoded legacy path + unclosed resource | Low | new |
 | ENH-005 | 🔧 | Deprecated `AsyncTask` / no-Looper `Handler()` usage | Low | new |
 | ENH-006 | 🔧 | Swallowed exceptions via `printStackTrace()` only | Low | new |
-| ENH-007 | 🔧 | Production logs expose Conversation payloads and peer identifiers | High | in_progress (Phase 9, task 9.9) |
+| ENH-007 | 🔧 | Production logs expose Conversation payloads and peer identifiers | High | resolved (Phase 9, task 9.9; `6ff92b8`) |
 | ENH-008 | 🔧 | gRPC `channel.shutdown()` without `awaitTermination` | Low | new |
 | ENH-009 | 🔧 | Unsynchronized field race in `RecognizerService.languageCode` | Low | new |
 | ENH-010 | 🔧 | Dead fragment-action constants (removed account/password flow) | Low | new |
@@ -90,7 +90,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-028 | 🐛 | Persisted mode restore can re-enter a Conversation crash loop | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
 | BUG-029 | 🐛 | Service binding ownership and pre-connect Fragment stop race | High | planned (Phase 9, task 9.11) |
 | BUG-030 | 🐛 | Recent-peer persistence ordering and unbounded work queue | High | planned (Phase 9, task 9.12) |
-| BUG-031 | 🐛 | Unbounded inbound Bluetooth payload reassembly/image decode | High | in_progress (Phase 9, task 9.9) |
+| BUG-031 | 🐛 | Unbounded inbound Bluetooth payload reassembly/image decode | High | code/emulator resolved (Phase 9, task 9.9; `6ff92b8`); physical interop due 9.7 |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | resolved (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | in_progress (tasks 5.3–5.5 done; task 5.6 device/release QA pending) |
 | ENH-020 | 🔧 | Add Wi-Fi Hotspot transport alongside Bluetooth | Medium | proposed (Phase 10) |
@@ -134,6 +134,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-28**: PM persistence review fast-forwarded Task 9.8 through state commit `5c9c70e`; `HEAD == origin/master`, ahead/behind `0/0`. Task 9.8 is done and control returned to Task 9.7. No tag/version/signing action occurred; the new APK must pass the same two-phone connect/relaunch/disconnect/reconnect and peer-image checks before Gate C can advance.
 - **2026-09-28**: `/vp-audit` deep continuation kept Tier 1/2 state consistent and re-opened `BUG-013`, `BUG-029`, and `BUG-030` on narrower residual criteria. It promoted `ENH-007` to High after proving the active Bluetooth dependency logs full Conversation payloads/peer addresses and that the tags survive R8 in the release DEX. It auto-logged `BUG-031` for unbounded peer-controlled Bluetooth reassembly/image decode. Host evidence: 154/154 JVM tests, lint 0 errors/136 warnings, debug APK unchanged, and unsigned R8 release assembly PASS; release remains NO-GO.
 - **2026-09-28**: `/vp-evolve ENH-007 BUG-031 BUG-013 BUG-029 BUG-030 BUG-015` extended Phase 9 with Tasks 9.9–9.12 instead of creating a post-release milestone. The sequence is transport/privacy bounds → permissions/foreground lifecycle → cancellable binding → bounded persistence; Task 9.7 is blocked until all four pass. No app version or release state changed during planning.
+- **2026-09-28**: `/vp-auto` completed Task 9.9 at `6ff92b8`: vendored reviewed BluetoothCommunicator 1.0.6 source, removed payload/address logs, bounded pre-reassembly state, moved bounded peer-image decode off-main, sanitized first-party logs, and added an R8 DEX privacy gate. Evidence: 163 JVM tests, 23 API 36 instrumentation tests, lint 0 errors/119 warnings, debug/release assembly and DEX privacy PASS. Physical legacy framing interoperability remains Task 9.7.
 
 ## Version info
 

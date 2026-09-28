@@ -1,6 +1,6 @@
 # Task 9.9 — Production privacy and bounded Bluetooth ingress
 
-**Status**: in_progress
+**Status**: done — automated/API 36/release-artifact PASS; physical legacy-peer interoperability remains Task 9.7
 **Requests**: `ENH-007`, `BUG-031`
 **Depends on**: Task 9.8 persisted baseline `5c9c70e`; Task 9.7 remains blocked
 
@@ -31,11 +31,18 @@ Remove release-reachable Conversation payload/peer-address logs and replace the 
 
 ## Acceptance criteria
 
-- [ ] Normal 1.0.6 peer framing remains compatible.
-- [ ] Oversized, out-of-order, excessive, timed-out, malformed, and unknown-header input cannot grow retained state without bounds or reach UI/Room.
-- [ ] Image decode does not run on the Bluetooth/main callback and respects encoded-byte/dimension/pixel caps.
-- [ ] Debug diagnostics contain event metadata only; release DEX contains no sensitive transport/recognizer tags.
-- [ ] Focused tests plus full JVM/lint/debug/release gates pass.
+- [x] Normal 1.0.6 public API/framing is preserved in the reviewed vendored source; physical old/new APK interoperability remains a Task 9.7 gate.
+- [x] Oversized, out-of-order, excessive, timed-out, malformed, and unknown-header input cannot grow retained state without bounds or reach UI/Room.
+- [x] Image decode does not run on the Bluetooth/main callback and respects encoded-byte/dimension/pixel caps.
+- [x] Debug diagnostics contain event metadata only; release DEX contains no sensitive transport/recognizer tags.
+- [x] Focused tests plus full JVM/lint/debug/release gates pass.
+
+## Evidence
+
+- Planning baseline: `311a887`; implementation: `6ff92b8`.
+- Exact upstream 1.0.6 sources are vendored with SHA-256 provenance; the binary dependency is absent from `debugRuntimeClasspath`.
+- Reassembly limits: 64 KiB text, 256 KiB data, 1,024 fragments, four incomplete IDs per stream/channel, 10-second timeout, bounded recent-ID dedupe.
+- Verification: 163 JVM tests and 23 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/119 warnings; debug and unsigned R8 release APKs assembled; `verifyReleasePrivacy` passed.
 
 ## Verification
 

@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 7/12 complete
-- **Current task**: 9.9 — Production privacy and bounded Bluetooth ingress (`in_progress`; prerequisite to resume Task 9.7)
+- **Tasks**: 8/12 complete
+- **Current task**: 9.10 — Permission and foreground-service lifecycle correction (`in_progress`)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -18,8 +18,8 @@
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
 | 9.7 — Full QA and release-candidate gate | blocked by 9.9–9.12; release NO-GO | Resume only after the deep-audit blockers pass; then same two phones must confirm the complete fix set |
 | 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
-| 9.9 — Production privacy and bounded Bluetooth ingress | in_progress | `ENH-007`, `BUG-031`; transport source review, ingress limits, safe off-main image decode, release-artifact privacy proof |
-| 9.10 — Permission and foreground-service lifecycle correction | planned | `BUG-013`, `BUG-015`; API 23/30/31/33+ permission matrix and prompt typed foreground promotion |
+| 9.9 — Production privacy and bounded Bluetooth ingress | done — automated/API 36/release PASS | `6ff92b8`; 163 JVM, 23 instrumentation, lint 0/119; R8 DEX privacy gate PASS; physical interoperability remains 9.7 |
+| 9.10 — Permission and foreground-service lifecycle correction | in_progress | `BUG-013`, `BUG-015`; API 23/30/31/33+ permission matrix and prompt typed foreground promotion |
 | 9.11 — Cancellable asynchronous service binding | planned | `BUG-029`; initiation handle/generation, late-callback suppression, orphan-service cleanup |
 | 9.12 — Bounded recent-peer persistence | planned | `BUG-030`; bounded/coalescing serial work with visible deterministic failures |
 

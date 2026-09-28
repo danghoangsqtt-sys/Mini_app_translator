@@ -31,6 +31,7 @@ All notable changes to this fork will be documented in this file.
 
 ### Fixed
 
+- Removed release-reachable Conversation payload/peer-address logs, bounded Bluetooth fragment reassembly before full allocation, and validated/downsampled peer images on a bounded worker (`ENH-007`, `BUG-031`).
 - Prevent stale persisted Conversation state from replaying a failed session on every cold launch; terminal disconnect/service teardown now downgrades safely to Pairing (`BUG-028`).
 - Make Conversation/Walkie service registration success-gated and teardown idempotent across false bind, null binding, binding death, and already-unregistered races (`BUG-029`).
 - Serialize recent-peer identity/image persistence and update the addressed peer directly so handshake ordering cannot silently drop profile images (`BUG-030`).

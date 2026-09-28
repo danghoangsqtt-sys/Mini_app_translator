@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.9 — Production privacy and bounded Bluetooth ingress (in_progress; Tasks 9.10–9.12 follow before Task 9.7 resumes)",
+  "current_task": "9.10 — Permission and foreground-service lifecycle correction (in_progress; Task 9.9 automated/API 36/R8 PASS)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Run Task 9.9 first: replace the opaque BluetoothCommunicator binary with reviewed Apache-2.0 source, remove payload/address logs, bound fragment reassembly, and validate/decode peer images off the main thread. Then execute Tasks 9.10–9.12 in order. Do not resume physical Task 9.7 or publish until all four deep-hardening tasks pass; API 23/31/34, two-phone interoperability, accessibility, legal identity, signing, version/tag, and release approval remain blocked."
+  "resume_hint": "Task 9.9 is implemented at 6ff92b8 with 163 JVM, 23 API 36 instrumentation, lint 0/119, and R8 DEX privacy PASS. Continue Task 9.10: correct the API-specific Bluetooth permission arrays and foreground-service launch/promotion order. Then execute 9.11–9.12. Do not resume physical Task 9.7 or publish until all deep-hardening tasks pass; API 23/31/34, two-phone interoperability, accessibility, legal identity, signing, version/tag, and release approval remain blocked."
 }
