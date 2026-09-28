@@ -1,6 +1,6 @@
 # Task 9.12 — Bounded recent-peer persistence
 
-**Status**: planned
+**Status**: done — automated/API 36/release PASS
 **Request**: `BUG-030`
 **Depends on**: Task 9.11
 
@@ -24,10 +24,17 @@ Retain Task 9.8 ordering guarantees while replacing the unbounded executor queue
 
 ## Acceptance criteria
 
-- [ ] Pending work has a small documented upper bound independent of peer traffic volume.
-- [ ] Latest same-peer state is retained without violating identity/image ordering.
-- [ ] Overflow and Room failures are observable, sanitized, and do not kill the worker.
-- [ ] Existing deterministic ordering test and full quality gates pass.
+- [x] Pending work has a small documented upper bound independent of peer traffic volume.
+- [x] Latest same-peer state is retained without violating identity/image ordering.
+- [x] Overflow and Room failures are observable, sanitized, and do not kill the worker.
+- [x] Existing deterministic ordering test and full quality gates pass.
+
+## Evidence
+
+- Planning baseline / implementation: `mini-app-translator-vp-p9-t12` / `484e67f`.
+- The internal queue holds at most 32 pending tasks and one running task; the single backing worker has an `ArrayBlockingQueue` capacity of one. Same-key updates replace pending work in place.
+- Tests cover 100-image coalescing, distinct-key overflow, identity-before-image ordering, defensive bytes/lists, Room exception recovery, observer isolation, shutdown, and post-close rejection.
+- Final gate: 184 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug + unsigned release assembly, R8 DEX privacy PASS, and clean `git diff --check`.
 
 ## Verification
 

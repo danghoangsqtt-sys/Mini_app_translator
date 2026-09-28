@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.12 — Bounded recent-peer persistence (in_progress; Tasks 9.9–9.11 automated/API 36 PASS)",
+  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; PENDING HUMAN, release NO-GO)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Task 9.11 is implemented at 066002c with 174 JVM, 24 API 36 instrumentation, lint 0/122, and debug assembly PASS. Continue Task 9.12: replace the unbounded recent-peer executor with bounded keyed/coalescing serial work, sanitized observable failures, defensive snapshots, and shutdown tests. Do not resume physical Task 9.7 or publish until 9.12 passes; API 23/31/34, two-phone interoperability, accessibility, legal identity, signing, version/tag, and release approval remain blocked."
+  "resume_hint": "Tasks 9.9–9.12 are complete locally through implementation 484e67f. Final clean gate: 184 JVM, 24 API 36 instrumentation, lint 0/122, debug/unsigned release assembly and R8 DEX privacy PASS. Resume Task 9.7 on the same two physical phones using the debug APK: connect, exchange text/images, disconnect/reconnect, background/foreground, relaunch, and capture sanitized logs. API 23/31/34, accessibility, legal identity, signing, version/tag, push, and release approval remain blocked or require PM/human action."
 }

@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.10 — Permission and foreground-service lifecycle correction (`in_progress`); Tasks 9.11–9.12 follow before Task 9.7 may resume.
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`, PENDING HUMAN). Tasks 9.9–9.12 are automated/API 36 PASS; release remains NO-GO pending physical/API/accessibility/legal/signing approval.
 - **Branch**: sanitized `master` is canonical and synchronized with `origin/master`; pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -27,7 +27,7 @@
 | 6 — Bug Fix Sprint | complete | 10/10 tasks |
 | 7 — Operational State & Build Portability | complete | 4/4 tasks |
 | 8 — Release Readiness & Project Closure | blocked / `1.2.0` NO-GO | 2/7 historical tasks; remainder superseded |
-| 9 — No-Key On-Device Translation | in_progress | 8/12 tasks; 9.9 done, 9.10 active, 9.11–9.12 planned, 9.7 blocked/NO-GO |
+| 9 — No-Key On-Device Translation | in_progress | 11/12 tasks; 9.9–9.12 done, 9.7 PENDING HUMAN/NO-GO |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0/6 tasks |
 
 **Phase 2 final gate**: PM accepted the limited waiver at `d7c591f`: 39/39 JVM tests,
@@ -89,7 +89,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-027 | 🐛 | ROADMAP and backlog statuses drift from canonical Phase 9 state | Medium | resolved locally (Phase 9, task 9.8; `c2bc8fe`) |
 | BUG-028 | 🐛 | Persisted mode restore can re-enter a Conversation crash loop | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
 | BUG-029 | 🐛 | Service binding ownership and pre-connect Fragment stop race | High | planned (Phase 9, task 9.11) |
-| BUG-030 | 🐛 | Recent-peer persistence ordering and unbounded work queue | High | planned (Phase 9, task 9.12) |
+| BUG-030 | 🐛 | Recent-peer persistence ordering and unbounded work queue | High | resolved (`484e67f`; bounded/coalescing queue and observable failures) |
 | BUG-031 | 🐛 | Unbounded inbound Bluetooth payload reassembly/image decode | High | code/emulator resolved (Phase 9, task 9.9; `6ff92b8`); physical interop due 9.7 |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | resolved (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | in_progress (tasks 5.3–5.5 done; task 5.6 device/release QA pending) |
@@ -137,6 +137,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-28**: `/vp-auto` completed Task 9.9 at `6ff92b8`: vendored reviewed BluetoothCommunicator 1.0.6 source, removed payload/address logs, bounded pre-reassembly state, moved bounded peer-image decode off-main, sanitized first-party logs, and added an R8 DEX privacy gate. Evidence: 163 JVM tests, 23 API 36 instrumentation tests, lint 0 errors/119 warnings, debug/release assembly and DEX privacy PASS. Physical legacy framing interoperability remains Task 9.7.
 - **2026-09-28**: `/vp-auto` completed Task 9.10 at `cc08c4f`: API 31+ now requests only Bluetooth scan/connect/advertise, legacy location stops at API 30, unused Wi-Fi/background permissions were removed, and both modes use prompt typed foreground promotion with recoverable start failure. Evidence: 166 JVM tests, 23 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug assembly PASS. Physical API 23/31/34 and two-phone checks remain Task 9.7.
 - **2026-09-28**: `/vp-auto` completed Task 9.11 at `066002c`: Conversation and Walkie now own a synchronous cancellable bind handle from initiation, no longer use communicator ID `0`, atomically bind/register against cancellation, clear stopped-Fragment callbacks, and stop only otherwise-orphan pre-connect starts. Evidence: 174 JVM tests, 24 Pixel 7a API 36 instrumentation tests including late-framework-connect suppression, lint 0 errors/122 warnings, and debug assembly PASS.
+- **2026-09-28**: `/vp-auto` completed Task 9.12 at `484e67f`: recent-peer work now has a 32-task pending cap plus one running task, coalesces same-key updates, defensively copies image bytes, survives Room/observer failures, reports sanitized failures through the Conversation callback, and rejects work after shutdown. Final clean gate: 184 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug/unsigned release assembly and R8 DEX privacy PASS. Tasks 9.9–9.12 no longer block Task 9.7; physical/human/signing gates still do.
 
 ## Version info
 

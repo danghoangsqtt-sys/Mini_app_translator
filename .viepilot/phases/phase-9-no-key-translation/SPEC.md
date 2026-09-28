@@ -58,10 +58,10 @@ Deliver a launchable, testable Mini Conversation that does not require end users
 - [ ] Missing/unsupported capabilities never terminate the foreground activity.
 - [ ] Bluetooth pairing states are accurate and recoverable.
 - [ ] API 23, 31, 34, and 36 checks are recorded; physical two-phone Bluetooth evidence exists.
-- [ ] `clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest` passes with zero lint errors.
+- [x] `clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest` passes with zero lint errors on the available API 36 emulator.
 - [ ] PM reviews the diff and test evidence before any tag, push, or release claim.
-- [ ] `BUG-027`–`BUG-031`, `BUG-013`, `BUG-015`, and `ENH-007` are resolved and verified before the two-phone Task 9.7 retest is accepted.
-- [ ] Release bytecode contains no Conversation payload/peer-identifier logging, and the active transport bounds incomplete and oversized peer-controlled input before reassembly.
+- [x] `BUG-027`–`BUG-031`, `BUG-013`, `BUG-015`, and `ENH-007` are resolved in code/automated gates before the two-phone Task 9.7 retest is accepted.
+- [x] Release bytecode contains no Conversation payload/peer-identifier logging, and the active transport bounds incomplete and oversized peer-controlled input before reassembly.
 
 ## Verification baseline
 

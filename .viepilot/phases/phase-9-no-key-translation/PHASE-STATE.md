@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 10/12 complete
-- **Current task**: 9.12 — Bounded recent-peer persistence (`in_progress`)
+- **Tasks**: 11/12 complete
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; PENDING HUMAN, release NO-GO)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -16,12 +16,12 @@
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
-| 9.7 — Full QA and release-candidate gate | blocked by 9.9–9.12; release NO-GO | Resume only after the deep-audit blockers pass; then same two phones must confirm the complete fix set |
+| 9.7 — Full QA and release-candidate gate | in_progress — automated hardening PASS; PENDING HUMAN; release NO-GO | Tasks 9.9–9.12 passed; resume on the same two phones plus the remaining API/accessibility/signing/legal matrix |
 | 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
 | 9.9 — Production privacy and bounded Bluetooth ingress | done — automated/API 36/release PASS | `6ff92b8`; 163 JVM, 23 instrumentation, lint 0/119; R8 DEX privacy gate PASS; physical interoperability remains 9.7 |
 | 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
 | 9.11 — Cancellable asynchronous service binding | done — automated/API 36 PASS | `066002c`; 174 JVM, 24 instrumentation, lint 0/122; exact pending/active ownership |
-| 9.12 — Bounded recent-peer persistence | in_progress | `BUG-030`; bounded/coalescing serial work with visible deterministic failures |
+| 9.12 — Bounded recent-peer persistence | done — automated/API 36/release PASS | `484e67f`; 184 JVM, 24 instrumentation, lint 0/122, R8 privacy PASS |
 
 ## PM control rules
 
@@ -114,3 +114,11 @@
 - **Ownership**: each Fragment receives an immediate idempotent handle instead of a communicator ID `0`; cancellation clears Fragment callbacks and covers pending language lookup, foreground start, framework bind, registered connection, and late framework delivery.
 - **Cleanup**: bind and registration are atomic against cancellation; only registered work is unbound; false/null/dead binding and canceled pre-connect starts release exact ownership and stop an otherwise orphan foreground service.
 - **Verification**: 174 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug assembly PASS, and clean `git diff --check`. The new device test proves exact-once unbind and suppression of a late `onServiceConnected` callback.
+
+## Task 9.12 implementation evidence
+
+- **Planning / implementation**: local baseline tag `mini-app-translator-vp-p9-t12`; implementation `484e67f`. No push, version, signing, release tag, or publication.
+- **Bounds/order**: at most 32 pending repository tasks plus one running task; the backing worker queue is also fixed at one. Same-key state coalesces in place, so identity remains before image and the newest same-peer image survives bursts.
+- **Failures/ownership**: queue-full, closed, and Room/runtime failures become sanitized operation/reason enums on the callback executor and propagate through the Conversation callback boundary; observer failures cannot kill the serial worker. Inputs and returned lists remain defensive; shutdown rejects new writes and clears pending work.
+- **Final automated gate**: clean build passed with 184 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug and unsigned R8 release assembly, release DEX privacy verification, and clean `git diff --check`.
+- **Artifacts**: debug APK 79,131,957 bytes, SHA-256 `8A84332BB1341B20EF2992CCD09002C69D8E5989C216F6A684336EB61682CC42`; unsigned release APK 70,877,265 bytes, SHA-256 `5B42E8698E365820C7751F484EE186082358FE9B3D2F1E358D3B113C393232E9`.

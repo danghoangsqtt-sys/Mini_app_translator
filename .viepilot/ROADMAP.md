@@ -169,12 +169,12 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | done — `83fdeb2`; PM automated/emulator PASS |
 | 9.5 | Integrate default engines into Conversation and WalkieTalkie | done — `ab6094c`; PM automated/emulator PASS |
 | 9.6 | Make legacy Cloud opt-in, finish migration/privacy UX, and fix audit blockers | done — `8a8882b`; PM automated/emulator PASS |
-| 9.7 | Run full automated/device regression and release-candidate gate | blocked by Tasks 9.9–9.12; release remains NO-GO |
+| 9.7 | Run full automated/device regression and release-candidate gate | in_progress — automated hardening PASS; physical/human/signing gates remain NO-GO |
 | 9.8 | Fix audit state/restore/binding/recent-peer races (`BUG-027`–`BUG-030`) | done — PM automated/API 36 PASS; persisted through `5c9c70e` |
 | 9.9 | Remove sensitive production logging and bound Bluetooth ingress/image work (`ENH-007`, `BUG-031`) | done — `6ff92b8`; automated/API 36/R8 PASS; physical interoperability due 9.7 |
 | 9.10 | Correct Bluetooth permission and foreground-service runtime contracts (`BUG-013`, `BUG-015`) | done — `cc08c4f`; automated/API 36 PASS |
 | 9.11 | Cancel asynchronous bind initiation and suppress late Fragment callbacks (`BUG-029`) | done — `066002c`; automated/API 36 PASS |
-| 9.12 | Bound/coalesce recent-peer persistence and report write failures (`BUG-030`) | in_progress |
+| 9.12 | Bound/coalesce recent-peer persistence and report write failures (`BUG-030`) | done — `484e67f`; automated/API 36/R8 PASS |
 
 **Release rule**: `1.2.0` must not be published. Phase 9 must prove a credential-free speech → translation → TTS path and clear the physical-device gates before any release claim.
 
