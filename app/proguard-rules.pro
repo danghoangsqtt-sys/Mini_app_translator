@@ -24,3 +24,17 @@
 -dontwarn com.google.errorprone.annotations.**
 -keep class io.grpc.internal.DnsNameResolveProvider
 -keep class io.grpc.okhttp.OkHttpChannelProvider
+
+# Release builds must not expose conversation content, peer identifiers, or exception details in Logcat.
+# Debug builds remain unminified and retain sanitized operational diagnostics.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+    public static int w(...);
+    public static int e(...);
+    public static int wtf(...);
+}
+-assumenosideeffects class java.lang.Throwable {
+    public void printStackTrace();
+}

@@ -54,10 +54,10 @@ public class ConsumptionsDataManager {
         if (isCurrentHourUltimateHour) {
             ultimateHour.consumption += credit;
             dao.updateHours(ultimateHour);
-            Log.e("consuptionUpdated", "last hour consuption: " + ultimateHour.consumption);
+            Log.d("Consumption", "Updated current usage bucket");
         } else {
             currentHour.consumption = credit;
-            Log.e("consuptionUpdated", "last hour created, consuption: " + currentHour.consumption);
+            Log.d("Consumption", "Created current usage bucket");
             dao.insertHours(currentHour);
         }
     }

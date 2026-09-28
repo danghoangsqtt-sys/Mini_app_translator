@@ -35,6 +35,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -71,6 +72,10 @@ public class Tools {
     public static final int CONNECTION_SERVICE = 0;
     public static final int CONVERSATION_SERVICE = 1;
     public static final int WALKIE_TALKIE_SERVICE = 2;
+    public static final int MAX_PEER_IMAGE_ENCODED_BYTES = 192 * 1024;
+    private static final int MAX_PEER_IMAGE_SOURCE_DIMENSION = 4096;
+    private static final long MAX_PEER_IMAGE_SOURCE_PIXELS = 16L * 1024L * 1024L;
+    private static final int MAX_PEER_IMAGE_DIMENSION = 256;
 
     public static synchronized String convertBitmapToString(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -92,6 +97,67 @@ public class Tools {
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
+    /** Decodes an untrusted peer image under fixed encoded and allocation budgets. */
+    @Nullable
+    public static Bitmap decodePeerImage(@Nullable byte[] imageBytes) {
+        if (imageBytes == null || imageBytes.length == 0
+                || imageBytes.length > MAX_PEER_IMAGE_ENCODED_BYTES) {
+            return null;
+        }
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, bounds);
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0
+                || bounds.outWidth > MAX_PEER_IMAGE_SOURCE_DIMENSION
+                || bounds.outHeight > MAX_PEER_IMAGE_SOURCE_DIMENSION
+                || (long) bounds.outWidth * bounds.outHeight > MAX_PEER_IMAGE_SOURCE_PIXELS) {
+            return null;
+        }
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inSampleSize = 1;
+        while (bounds.outWidth / options.inSampleSize > MAX_PEER_IMAGE_DIMENSION
+                || bounds.outHeight / options.inSampleSize > MAX_PEER_IMAGE_DIMENSION) {
+            options.inSampleSize *= 2;
+        }
+        try {
+            Bitmap decoded = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
+            if (decoded == null) {
+                return null;
+            }
+            if (decoded.getWidth() <= MAX_PEER_IMAGE_DIMENSION
+                    && decoded.getHeight() <= MAX_PEER_IMAGE_DIMENSION) {
+                return decoded;
+            }
+            float scale = Math.min(
+                    (float) MAX_PEER_IMAGE_DIMENSION / decoded.getWidth(),
+                    (float) MAX_PEER_IMAGE_DIMENSION / decoded.getHeight());
+            Bitmap scaled = Bitmap.createScaledBitmap(decoded,
+                    Math.max(1, Math.round(decoded.getWidth() * scale)),
+                    Math.max(1, Math.round(decoded.getHeight() * scale)), true);
+            if (scaled != decoded) {
+                decoded.recycle();
+            }
+            return scaled;
+        } catch (RuntimeException | OutOfMemoryError ignored) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static byte[] encodePeerImage(@Nullable Bitmap image) {
+        if (image == null) {
+            return null;
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (!image.compress(Bitmap.CompressFormat.JPEG, 90, stream)) {
+            return null;
+        }
+        byte[] bytes = stream.toByteArray();
+        return bytes.length <= MAX_PEER_IMAGE_ENCODED_BYTES ? bytes : null;
+    }
+
     public static Bitmap convertDrawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
@@ -110,7 +176,6 @@ public class Tools {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, quality, baos);
         ret = baos.toByteArray();
-        image.recycle();
         return ret;
     }
 

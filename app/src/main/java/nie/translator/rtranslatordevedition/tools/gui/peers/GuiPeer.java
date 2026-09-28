@@ -23,7 +23,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 import nie.translator.rtranslatordevedition.tools.Tools;
 import com.bluetooth.communicator.Peer;
@@ -33,11 +33,7 @@ public class GuiPeer extends Peer implements Listable {
 
     public GuiPeer(Peer peer, @Nullable Bitmap userImage) {
         super(peer);
-        if (userImage != null) {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            userImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            this.userImage = stream.toByteArray();
-        }
+        this.userImage = Tools.encodePeerImage(userImage);
     }
 
     public GuiPeer(BluetoothDevice device, String uniqueName, boolean isConnected) {
@@ -46,38 +42,29 @@ public class GuiPeer extends Peer implements Listable {
 
     public GuiPeer(BluetoothDevice device, String uniqueName, boolean isConnected, @Nullable Bitmap userImage) {
         super(device, uniqueName, isConnected);
-        if (userImage != null) {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            userImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            this.userImage = stream.toByteArray();
-        }
+        this.userImage = Tools.encodePeerImage(userImage);
     }
 
     public GuiPeer(BluetoothDevice device, String uniqueName, boolean isConnected, @Nullable byte[] userImage) {
         super(device, uniqueName, isConnected);
-        this.userImage = userImage;
+        this.userImage = userImage == null || userImage.length > Tools.MAX_PEER_IMAGE_ENCODED_BYTES
+                ? null : Arrays.copyOf(userImage, userImage.length);
     }
 
     public Bitmap getUserImage() {
         if (userImage != null) {
-            return Tools.convertBytesToBitmap(userImage);
+            return Tools.decodePeerImage(userImage);
         } else {
             return null;
         }
     }
 
     public byte[] getUserImageData() {
-        return userImage;
+        return userImage == null ? null : Arrays.copyOf(userImage, userImage.length);
     }
 
     public void setUserImage(Bitmap userImage) {
-        if (userImage != null) {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            userImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            this.userImage = stream.toByteArray();
-        } else {
-            this.userImage = null;
-        }
+        this.userImage = Tools.encodePeerImage(userImage);
     }
 
     //parcelable implementation

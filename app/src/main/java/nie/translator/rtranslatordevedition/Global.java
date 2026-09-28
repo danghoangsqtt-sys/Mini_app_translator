@@ -518,7 +518,7 @@ public class Global extends Application {
 
                         @Override
                         public void onFailure(IOException exception) {
-                            Log.e("token", "Failed to obtain access token.", exception);
+                            Log.e("TokenRefresh", "Access token unavailable");
                             if (exception.getCause() instanceof UnknownHostException) {
                                 responseListener.onFailure(new int[]{ErrorCodes.MISSED_CONNECTION}, -1);
                             } else if (getApiKeyFileName().length() == 0) {

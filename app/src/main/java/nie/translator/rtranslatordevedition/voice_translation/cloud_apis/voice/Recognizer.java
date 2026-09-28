@@ -134,7 +134,7 @@ public class Recognizer extends CloudApi {
                         String text = alternative.getTranscript();
                         if (text != null) {
                             if (isFinal) {
-                                Log.e("recognizerResultFinal", text);
+                                Log.d("LegacyRecognizer", "Final result received");
                                 if (returnResultOnlyAtTheEnd) {
                                     ultimateFinalResult.setText(
                                             ultimateFinalResult.getText() + " " + text);
@@ -143,7 +143,7 @@ public class Recognizer extends CloudApi {
                                     ultimateInterimResult = new CloudApiResult("");
                                 }
                             } else {
-                                Log.e("recognizerResult", text);
+                                Log.d("LegacyRecognizer", "Partial result received");
                                 ultimateInterimResult.setText(text);
                             }
                             if (!returnResultOnlyAtTheEnd) {

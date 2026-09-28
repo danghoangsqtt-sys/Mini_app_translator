@@ -27,7 +27,13 @@ import com.bluetooth.communicator.Peer;
 import com.gallery.imageselector.GalleryImageSelector;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.tools.Tools;
@@ -37,12 +43,19 @@ import nie.translator.rtranslatordevedition.voice_translation._conversation_mode
 
 
 public class ConversationBluetoothCommunicator {
+    private static final byte[] NULL_IMAGE = "null".getBytes(StandardCharsets.UTF_8);
+    private static final int MAX_PENDING_IMAGE_DECODES = 4;
     private BluetoothCommunicator bluetoothCommunicator;
     private ArrayList<Callback> clientCallbacks = new ArrayList<>();
     private Global global;
     private Handler mainHandler;
     private ArrayList<Peer> connectingPeers = new ArrayList<>();
     private ArrayList<GuiPeer> connectedPeers = new ArrayList<>();
+    private final ThreadPoolExecutor peerImageExecutor = new ThreadPoolExecutor(
+            1, 1, 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<Runnable>(MAX_PENDING_IMAGE_DECODES),
+            runnable -> new Thread(runnable, "peer-image-decode"),
+            new ThreadPoolExecutor.AbortPolicy());
 
 
     public ConversationBluetoothCommunicator(final Global global, String name, int strategy) {
@@ -162,6 +175,9 @@ public class ConversationBluetoothCommunicator {
                         break;
                     }
                     case "d": {
+                        if (!isValidDeviceId(message.getText())) {
+                            break;
+                        }
                         global.getRecentPeersDataManager().upsertRecentPeerIdentity(
                                 message.getText(), message.getSender().getUniqueName());
                         if (source == BluetoothCommunicator.SERVER) {
@@ -179,22 +195,10 @@ public class ConversationBluetoothCommunicator {
                 super.onDataReceived(data, source);
                 switch (data.getHeader()) {
                     case "i": {
-                        // adding the peer image to recent devices
                         if (source == BluetoothCommunicator.SERVER) {
                             sendImage(data.getSender());
                         }
-                        Bitmap image = null;
-                        if (!data.getText().equals("null")) {
-                            image = Tools.convertBytesToBitmap(data.getData());
-                        }
-                        global.getRecentPeersDataManager().updateRecentPeerImageByName(
-                                data.getSender().getUniqueName(), image);
-                        int index = connectedPeers.indexOf(data.getSender());
-                        if (index != -1) {
-                            GuiPeer clonePeer = (GuiPeer) connectedPeers.get(index).clone();
-                            connectedPeers.get(index).setUserImage(image);
-                            notifyPeerUpdated(clonePeer, connectedPeers.get(index));
-                        }
+                        processPeerImage(data);
                         break;
                     }
                 }
@@ -295,6 +299,53 @@ public class ConversationBluetoothCommunicator {
         }
     }
 
+    private static boolean isValidDeviceId(String deviceId) {
+        return deviceId != null && deviceId.matches("[0-9a-fA-F]{16}");
+    }
+
+    private void processPeerImage(final Message data) {
+        final byte[] raw = data.getData();
+        if (raw == null || raw.length == 0 || raw.length > Tools.MAX_PEER_IMAGE_ENCODED_BYTES) {
+            return;
+        }
+        final byte[] encoded = Arrays.copyOf(raw, raw.length);
+        final Peer sender = (Peer) data.getSender().clone();
+        try {
+            peerImageExecutor.execute(new Runnable() {
+                @Override public void run() {
+                    final Bitmap image;
+                    if (Arrays.equals(encoded, NULL_IMAGE)) {
+                        image = null;
+                    } else {
+                        image = Tools.decodePeerImage(encoded);
+                        if (image == null) {
+                            return;
+                        }
+                    }
+                    mainHandler.post(new Runnable() {
+                        @Override public void run() {
+                            applyPeerImage(sender, image);
+                        }
+                    });
+                }
+            });
+        } catch (RejectedExecutionException ignored) {
+            // The fixed queue is full; dropping stale image work protects the connection/UI.
+        }
+    }
+
+    private void applyPeerImage(Peer sender, Bitmap image) {
+        int index = connectedPeers.indexOf(sender);
+        if (index == -1) {
+            return;
+        }
+        global.getRecentPeersDataManager().updateRecentPeerImageByName(
+                sender.getUniqueName(), image);
+        GuiPeer clonePeer = (GuiPeer) connectedPeers.get(index).clone();
+        connectedPeers.get(index).setUserImage(image);
+        notifyPeerUpdated(clonePeer, connectedPeers.get(index));
+    }
+
     public void setName(String name) {
         bluetoothCommunicator.setName(name);
     }
@@ -357,6 +408,7 @@ public class ConversationBluetoothCommunicator {
     }
 
     public void destroy(BluetoothCommunicator.DestroyCallback callback) {
+        peerImageExecutor.shutdownNow();
         bluetoothCommunicator.destroy(callback);
     }
 

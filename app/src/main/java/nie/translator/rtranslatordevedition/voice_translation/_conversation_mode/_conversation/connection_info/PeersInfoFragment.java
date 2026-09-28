@@ -83,7 +83,7 @@ public class PeersInfoFragment extends Fragment {
                 super.onConnectionRequest(peer);
                 if (peer != null) {
                     String time = DateFormat.getDateTimeInstance().format(new Date());
-                    FileLog.appendLog("\nnearby " + time + ": received connection request from:" + peer.getUniqueName());
+                    FileLog.appendLog("Bluetooth connection request received");
                     connectionRequestDialog = new RequestDialog(activity, getResources().getString(R.string.dialog_confirm_connection_request) + peer.getName() + " ?", 15000, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
