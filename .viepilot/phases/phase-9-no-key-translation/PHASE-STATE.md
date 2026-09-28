@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 9/12 complete
-- **Current task**: 9.11 — Cancellable asynchronous service binding (`in_progress`)
+- **Tasks**: 10/12 complete
+- **Current task**: 9.12 — Bounded recent-peer persistence (`in_progress`)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -20,8 +20,8 @@
 | 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
 | 9.9 — Production privacy and bounded Bluetooth ingress | done — automated/API 36/release PASS | `6ff92b8`; 163 JVM, 23 instrumentation, lint 0/119; R8 DEX privacy gate PASS; physical interoperability remains 9.7 |
 | 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
-| 9.11 — Cancellable asynchronous service binding | in_progress | `BUG-029`; initiation handle/generation, late-callback suppression, orphan-service cleanup |
-| 9.12 — Bounded recent-peer persistence | planned | `BUG-030`; bounded/coalescing serial work with visible deterministic failures |
+| 9.11 — Cancellable asynchronous service binding | done — automated/API 36 PASS | `066002c`; 174 JVM, 24 instrumentation, lint 0/122; exact pending/active ownership |
+| 9.12 — Bounded recent-peer persistence | in_progress | `BUG-030`; bounded/coalescing serial work with visible deterministic failures |
 
 ## PM control rules
 
@@ -107,3 +107,10 @@
 - **Permissions**: API 31+ requests exactly Bluetooth scan/connect/advertise; API 29–30 retains fine location; API 23–28 retains coarse location. Unused Wi-Fi, Nearby Wi-Fi, and background-location declarations were removed.
 - **Foreground lifecycle**: both modes launch with `ContextCompat.startForegroundService`; the base service promotes in `onStartCommand`, contains start failures, stays foreground across bind/rebind, and removes its notification on teardown. Conversation uses microphone plus connected-device types; Walkie uses microphone only.
 - **Verification**: 166 JVM tests and 23 Pixel 7a API 36 instrumentation tests passed; lint 0 errors/122 warnings; `git diff --check` clean; debug APK assembled. API 23/31/34 and two-phone permission/Bluetooth confirmation remain Task 9.7.
+
+## Task 9.11 implementation evidence
+
+- **Planning / implementation**: local baseline tag `mini-app-translator-vp-p9-t11`; implementation `066002c`. No push, version, signing, or release action.
+- **Ownership**: each Fragment receives an immediate idempotent handle instead of a communicator ID `0`; cancellation clears Fragment callbacks and covers pending language lookup, foreground start, framework bind, registered connection, and late framework delivery.
+- **Cleanup**: bind and registration are atomic against cancellation; only registered work is unbound; false/null/dead binding and canceled pre-connect starts release exact ownership and stop an otherwise orphan foreground service.
+- **Verification**: 174 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug assembly PASS, and clean `git diff --check`. The new device test proves exact-once unbind and suppression of a late `onServiceConnected` callback.

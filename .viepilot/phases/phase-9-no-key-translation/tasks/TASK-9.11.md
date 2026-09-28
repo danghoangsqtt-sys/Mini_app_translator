@@ -1,6 +1,6 @@
 # Task 9.11 — Cancellable asynchronous service binding
 
-**Status**: planned
+**Status**: done — automated/API 36 PASS
 **Request**: `BUG-029`
 **Depends on**: Task 9.10
 
@@ -26,10 +26,17 @@ Give Conversation and Walkie fragments a synchronous, cancellable ownership hand
 
 ## Acceptance criteria
 
-- [ ] `onStop()` cancels the exact pending/active request without placeholder communicator IDs.
-- [ ] No stopped Fragment is retained or receives restore/error callbacks.
-- [ ] Failure/cancellation cannot leave an orphan started service or illegal unbind.
-- [ ] Normal reconnect and configuration flow remain functional and idempotent.
+- [x] `onStop()` cancels the exact pending/active request without placeholder communicator IDs.
+- [x] No stopped Fragment is retained or receives restore/error callbacks.
+- [x] Failure/cancellation cannot leave an orphan started service or illegal unbind.
+- [x] Normal reconnect and configuration flow remain functional and idempotent.
+
+## Evidence
+
+- Planning baseline / implementation: `mini-app-translator-vp-p9-t11` / `066002c`.
+- An immediate `ServiceConnectionHandle` owns callbacks and cancellation from initiation; `CustomServiceConnection` clears retained callbacks on release and rejects late delivery.
+- Binding plus registration is synchronized against cancellation, and Activity pending/active lists are finalized atomically before callbacks can outlive their Fragment.
+- Verification: 174 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug assembly PASS, and clean `git diff --check`.
 
 ## Verification
 
