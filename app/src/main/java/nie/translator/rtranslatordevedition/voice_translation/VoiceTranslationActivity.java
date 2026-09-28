@@ -40,6 +40,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -87,7 +88,6 @@ public class VoiceTranslationActivity extends GeneralActivity {
     private static final String BLUETOOTH_SCAN_PERMISSION = "android.permission.BLUETOOTH_SCAN";
     private static final String BLUETOOTH_CONNECT_PERMISSION = "android.permission.BLUETOOTH_CONNECT";
     private static final String BLUETOOTH_ADVERTISE_PERMISSION = "android.permission.BLUETOOTH_ADVERTISE";
-    private static final String NEARBY_WIFI_DEVICES_PERMISSION = "android.permission.NEARBY_WIFI_DEVICES";
     //objects
     private Global global;
     private Fragment fragment;
@@ -402,18 +402,8 @@ public class VoiceTranslationActivity extends GeneralActivity {
     }
 
     public static String[] getRequiredNearbyPermissionsForSdk(int sdkInt) {
-        if (sdkInt >= Build.VERSION_CODES.TIRAMISU) {
-            return new String[]{
-                    BLUETOOTH_SCAN_PERMISSION,
-                    BLUETOOTH_CONNECT_PERMISSION,
-                    BLUETOOTH_ADVERTISE_PERMISSION,
-                    NEARBY_WIFI_DEVICES_PERMISSION,
-            };
-        }
         if (sdkInt >= Build.VERSION_CODES.S) {
             return new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
                     BLUETOOTH_SCAN_PERMISSION,
                     BLUETOOTH_CONNECT_PERMISSION,
                     BLUETOOTH_ADVERTISE_PERMISSION,
@@ -423,7 +413,6 @@ public class VoiceTranslationActivity extends GeneralActivity {
             return new String[]{
                     Manifest.permission.BLUETOOTH,
                     Manifest.permission.BLUETOOTH_ADMIN,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION,
             };
         }
@@ -556,12 +545,8 @@ public class VoiceTranslationActivity extends GeneralActivity {
             public void onSuccess(CustomLocale result) {
                 intent.putExtra("notification", notification);
                 try {
-                    if (startService(intent) != null) {
-                        responseListener.onSuccess();
-                    } else {
-                        persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
-                        responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
-                    }
+                    ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
+                    responseListener.onSuccess();
                 } catch (RuntimeException error) {
                     persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
                     responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
@@ -589,11 +574,8 @@ public class VoiceTranslationActivity extends GeneralActivity {
                         intent.putExtra("secondLanguage", result);
                         intent.putExtra("notification", notification);
                         try {
-                            if (startService(intent) != null) {
-                                responseListener.onSuccess();
-                            } else {
-                                responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
-                            }
+                            ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
+                            responseListener.onSuccess();
                         } catch (RuntimeException error) {
                             responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
                         }

@@ -15,22 +15,12 @@
         android:name="android.permission.BLUETOOTH_ADMIN"
         android:maxSdkVersion="30" />
     <uses-permission
-        android:name="android.permission.ACCESS_WIFI_STATE"
-        android:maxSdkVersion="31" />
-    <uses-permission
-        android:name="android.permission.CHANGE_WIFI_STATE"
-        android:maxSdkVersion="31" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-    <uses-permission
         android:name="android.permission.ACCESS_FINE_LOCATION"
         android:minSdkVersion="29"
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="30" />
     <uses-permission
         android:name="android.permission.ACCESS_COARSE_LOCATION"
-        android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
-        android:maxSdkVersion="30" />
+        android:maxSdkVersion="28" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:minSdkVersion="31"
@@ -41,9 +31,6 @@
     <uses-permission
         android:name="android.permission.BLUETOOTH_ADVERTISE"
         android:minSdkVersion="31" />
-    <uses-permission
-        android:name="android.permission.NEARBY_WIFI_DEVICES"
-        android:minSdkVersion="33" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <!-- GalleryImageSelector declares this legacy permission transitively; SAF image providers grant URI access. -->
@@ -117,7 +104,7 @@
         <service
             android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie.WalkieTalkieService"
             android:exported="false"
-            android:foregroundServiceType="microphone|connectedDevice" />
+            android:foregroundServiceType="microphone" />
         <service
             android:name="nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode.recognizer_services.FirstLanguageRecognizerService"
             android:exported="false" />

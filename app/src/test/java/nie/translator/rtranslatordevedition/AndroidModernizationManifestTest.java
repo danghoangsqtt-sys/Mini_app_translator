@@ -19,6 +19,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class AndroidModernizationManifestTest {
     private static final File MANIFEST = new File("src/main/AndroidManifest.xml");
@@ -32,15 +33,11 @@ public class AndroidModernizationManifestTest {
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("30", permission(document, "android.permission.BLUETOOTH_ADMIN")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
-        assertEquals("31", permission(document, "android.permission.ACCESS_WIFI_STATE")
-                .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
-        assertEquals("31", permission(document, "android.permission.CHANGE_WIFI_STATE")
-                .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("29", permission(document, "android.permission.ACCESS_FINE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
-        assertEquals("32", permission(document, "android.permission.ACCESS_FINE_LOCATION")
+        assertEquals("30", permission(document, "android.permission.ACCESS_FINE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
-        assertEquals("32", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
+        assertEquals("28", permission(document, "android.permission.ACCESS_COARSE_LOCATION")
                 .getAttributeNS(ANDROID_NAMESPACE, "maxSdkVersion"));
         assertEquals("neverForLocation", permission(document, "android.permission.BLUETOOTH_SCAN")
                 .getAttributeNS(ANDROID_NAMESPACE, "usesPermissionFlags"));
@@ -50,8 +47,11 @@ public class AndroidModernizationManifestTest {
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
         assertEquals("31", permission(document, "android.permission.BLUETOOTH_ADVERTISE")
                 .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
-        assertEquals("33", permission(document, "android.permission.NEARBY_WIFI_DEVICES")
-                .getAttributeNS(ANDROID_NAMESPACE, "minSdkVersion"));
+        assertNull(permission(document, "android.permission.ACCESS_WIFI_STATE"));
+        assertNull(permission(document, "android.permission.CHANGE_WIFI_STATE"));
+        assertNull(permission(document, "android.permission.CHANGE_WIFI_MULTICAST_STATE"));
+        assertNull(permission(document, "android.permission.NEARBY_WIFI_DEVICES"));
+        assertNull(permission(document, "android.permission.ACCESS_BACKGROUND_LOCATION"));
     }
 
     @Test
@@ -64,21 +64,12 @@ public class AndroidModernizationManifestTest {
         String[] fineLocation = {
                 "android.permission.BLUETOOTH",
                 "android.permission.BLUETOOTH_ADMIN",
-                "android.permission.ACCESS_COARSE_LOCATION",
                 "android.permission.ACCESS_FINE_LOCATION"
         };
         String[] android12 = {
-                "android.permission.ACCESS_COARSE_LOCATION",
-                "android.permission.ACCESS_FINE_LOCATION",
                 "android.permission.BLUETOOTH_SCAN",
                 "android.permission.BLUETOOTH_CONNECT",
                 "android.permission.BLUETOOTH_ADVERTISE"
-        };
-        String[] android12L = {
-                "android.permission.BLUETOOTH_SCAN",
-                "android.permission.BLUETOOTH_CONNECT",
-                "android.permission.BLUETOOTH_ADVERTISE",
-                "android.permission.NEARBY_WIFI_DEVICES"
         };
 
         assertArrayEquals(legacy, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(23));
@@ -87,8 +78,8 @@ public class AndroidModernizationManifestTest {
         assertArrayEquals(fineLocation, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(30));
         assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(31));
         assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(32));
-        assertArrayEquals(android12L, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(33));
-        assertArrayEquals(android12L, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(36));
+        assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(33));
+        assertArrayEquals(android12, VoiceTranslationActivity.getRequiredNearbyPermissionsForSdk(36));
     }
 
     @Test
@@ -114,7 +105,7 @@ public class AndroidModernizationManifestTest {
         assertEquals("microphone|connectedDevice", component(document, "service",
                 "nie.translator.rtranslatordevedition.voice_translation._conversation_mode._conversation.ConversationService")
                 .getAttributeNS(ANDROID_NAMESPACE, "foregroundServiceType"));
-        assertEquals("microphone|connectedDevice", component(document, "service",
+        assertEquals("microphone", component(document, "service",
                 "nie.translator.rtranslatordevedition.voice_translation._walkie_talkie_mode._walkie_talkie.WalkieTalkieService")
                 .getAttributeNS(ANDROID_NAMESPACE, "foregroundServiceType"));
         assertEquals("", component(document, "service",

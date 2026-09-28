@@ -17,6 +17,7 @@
 package nie.translator.rtranslatordevedition.voice_translation._conversation_mode._conversation;
 
 import android.content.Context;
+import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -56,6 +57,17 @@ public class ConversationService extends VoiceTranslationService {
     private Handler mainHandler;
     private ScoReconnectCoordinator scoReconnectCoordinator;
     private boolean closed;
+
+    @Override
+    protected int getForegroundServiceTypes() {
+        return ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                | ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+    }
+
+    @Override
+    protected boolean requiresBluetoothConnectForForeground() {
+        return true;
+    }
 
 
     @Override

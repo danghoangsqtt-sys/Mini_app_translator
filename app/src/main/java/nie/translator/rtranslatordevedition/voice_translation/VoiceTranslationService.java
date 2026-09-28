@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import nie.translator.rtranslatordevedition.GeneralService;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
+import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.tools.TTS;
 import nie.translator.rtranslatordevedition.tools.Tools;
 import nie.translator.rtranslatordevedition.tools.gui.messages.GuiMessage;
@@ -88,6 +89,7 @@ public abstract class VoiceTranslationService extends GeneralService {
     private boolean isEditTextOpen = false;
     private int utterancesCurrentlySpeaking = 0;
     private final Object mLock = new Object();
+    private boolean foregroundStarted;
 
 
     @Override
@@ -140,6 +142,9 @@ public abstract class VoiceTranslationService extends GeneralService {
         }
         if (notification == null) {
             notification = intent.getParcelableExtra("notification");
+        }
+        if (!promoteToForeground()) {
+            stopSelf(startId);
         }
         return START_NOT_STICKY;
     }
@@ -243,10 +248,11 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     @Override
     public synchronized void onDestroy() {
-        super.onDestroy();
+        removeForegroundNotification();
         // Stop listening to voice
         stopVoiceRecorder();
         speechOutput.close();
+        super.onDestroy();
     }
 
     // communication
@@ -259,40 +265,63 @@ public abstract class VoiceTranslationService extends GeneralService {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        promoteToForeground();
         return true;
     }
 
-    private void promoteToForeground() {
+    protected int getForegroundServiceTypes() {
+        return ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+    }
+
+    protected boolean requiresBluetoothConnectForForeground() {
+        return false;
+    }
+
+    private boolean promoteToForeground() {
+        if (foregroundStarted) {
+            return true;
+        }
         if (notification == null) {
-            return;
+            return false;
         }
         if (!Tools.hasPermissions(this, Manifest.permission.RECORD_AUDIO)) {
             notifyError(new int[]{MISSING_MIC_PERMISSION}, -1);
-            return;
+            return false;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (requiresBluetoothConnectForForeground()
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 && !Tools.hasPermissions(this, Manifest.permission.BLUETOOTH_CONNECT)) {
             notifyError(new int[]{MISSING_NEARBY_PERMISSION}, -1);
+            return false;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(11, notification, getForegroundServiceTypes());
+            } else {
+                startForeground(11, notification);
+            }
+            foregroundStarted = true;
+            return true;
+        } catch (RuntimeException ignored) {
+            notifyError(new int[]{ErrorCodes.ERROR}, -1);
+            return false;
+        }
+    }
+
+    private void removeForegroundNotification() {
+        if (!foregroundStarted) {
             return;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(11, notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-                            | ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(Service.STOP_FOREGROUND_REMOVE);
         } else {
-            startForeground(11, notification);
+            stopForeground(true);
         }
+        foregroundStarted = false;
     }
 
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            stopForeground(Service.STOP_FOREGROUND_REMOVE);
-        } else {
-            stopForeground(true);
-        }
     }
 
     protected boolean executeCommand(int command, Bundle data) {
