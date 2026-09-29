@@ -23,6 +23,19 @@ Prove the no-key flow across the supported Android range and two physical phones
 - `.viepilot/phases/phase-9-no-key-translation/evidence/TASK-9.7-QA.md`
 - `.viepilot/TRACKER.md`
 - `.viepilot/HANDOFF.json`
+- `.viepilot/requests/BUG-032.md`
+- `.viepilot/requests/BUG-033.md`
+- `images/call_icon.png`
+- `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/VoiceTranslationActivity.java`
+- `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/VoiceTranslationFragment.java`
+- `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/_conversation_mode/_conversation/main/ConversationMainFragment.java`
+- `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/_walkie_talkie_mode/_walkie_talkie/WalkieTalkieFragment.java`
+- `app/src/main/res/layout/fragment_pairing.xml`
+- `app/src/main/res/drawable-nodpi/call_icon.png`
+- `app/src/main/res/values/strings.xml`
+- `app/src/main/res/values-it/strings.xml`
+- `app/src/test/java/nie/translator/rtranslatordevedition/voice_translation/VoiceServiceLaunchPolicyTest.java`
+- `app/src/test/java/nie/translator/rtranslatordevedition/voice_translation/WalkieTalkieIconContractTest.java`
 - `app/build/outputs/apk/debug/app-debug.apk` (generated evidence only; never commit)
 - `app/build/reports/tests/testDebugUnitTest/` (generated evidence only; never commit)
 - `app/build/reports/lint-results-debug.html` and `app/build/reports/lint-results-debug.xml` (generated evidence only; never commit)
@@ -37,6 +50,19 @@ No application source, resource, Gradle, README, privacy, or CHANGELOG path is i
 - `evidence/TASK-9.7-QA.md`: record environment inventory, exact commands, test/lint counts, APK size/hash/install result, runtime smokes, matrix status, defects, and blockers.
 - `TRACKER.md`: keep the project-level phase/task status and decision log synchronized with the evidence.
 - `HANDOFF.json`: expose the exact resume point and the human inputs still required.
+- `BUG-032.md`: preserve the physical report, deterministic API 36 stack trace, permission precondition, and physical retest requirement.
+- `VoiceTranslationActivity.java`: refuse to call `startForegroundService()` until the runtime permissions required by the declared foreground-service types are present, returning a recoverable reason instead.
+- `VoiceTranslationFragment.java`, `ConversationMainFragment.java`, and `WalkieTalkieFragment.java`: request microphone permission before service launch, resume binding only after grant, and leave the persisted mode safely after denial.
+- `images/call_icon.png`, `drawable-nodpi/call_icon.png`, `fragment_pairing.xml`, and localized strings: retain the supplied source asset and use it as the visible WalkieTalkie action icon with an accurate accessibility label.
+- Focused JVM contracts: cover the launch-permission truth table, enforce guard-before-start ordering, and reject a blank/opaque replacement icon.
+
+## 2026-09-29 physical incident recovery plan
+
+- Reproduction: on API 36, revoke `RECORD_AUDIO`, persist/open WalkieTalkie, and wait past the foreground-service deadline. Baseline terminates with `RemoteServiceException$ForegroundServiceDidNotStartInTimeException` from `VoiceTranslationActivity.startWalkieTalkieService()`.
+- Root cause: both modes call `ContextCompat.startForegroundService()` before microphone permission is guaranteed. `VoiceTranslationService.promoteToForeground()` then returns without calling `startForeground()`, which leaves Android's mandatory foreground-start deadline armed and kills the process. Persisted WalkieTalkie state replays the crash after relaunch.
+- Repair: perform a caller-side permission preflight before every foreground-service start and make the fragments own the permission-request/retry lifecycle. The service retains its defensive permission check but is never deliberately launched into an impossible promotion state.
+- UI repair: replace the existing opaque white `walkie_talkie_white_icon.png` affordance with the user-supplied transparent `call_icon.png`; do not redraw or reinterpret the supplied artwork.
+- Verification: focused JVM tests, full JVM/lint/debug build, API 36 instrumentation, deterministic denied-permission cold/relaunch smoke held beyond the service deadline, granted-permission Walkie service smoke, icon resource inspection, and `git diff --check`.
 
 ## Best practices
 

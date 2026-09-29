@@ -1,8 +1,10 @@
-# Task 9.7 QA Evidence — 2026-09-27, updated 2026-09-28
+# Task 9.7 QA Evidence — 2026-09-27, updated 2026-09-29
 
 ## Decision
 
 **PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. A real two-phone connection attempt exposed `BUG-026`, a deterministic Android 12+ Conversation-start crash; the hotfix passes emulator reproduction/regression but still requires confirmation on the same two phones. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
+
+The 2026-09-29 physical retest failed again: Conversation terminated immediately after connection, and a fresh-install WalkieTalkie activation also terminated then replayed on relaunch. API 36 now deterministically reproduces `BUG-032`: with `RECORD_AUDIO` denied, the app calls `startForegroundService()` but deliberately skips `startForeground()`, causing `ForegroundServiceDidNotStartInTimeException`. `BUG-033` also confirms that the old Walkie action PNG is an opaque white rectangle. Both findings are in active repair; no previous automated PASS is being used to override the physical failure.
 
 Task 9.7 and Phase 9 remain `in_progress`; Task 9.8 raised Phase 9 to 7/8 complete. No version bump, signed-release claim, completion tag, release tag, or publication is authorized by this evidence.
 
