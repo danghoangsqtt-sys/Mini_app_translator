@@ -175,7 +175,7 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.10 | Correct Bluetooth permission and foreground-service runtime contracts (`BUG-013`, `BUG-015`) | done — `cc08c4f`; automated/API 36 PASS |
 | 9.11 | Cancel asynchronous bind initiation and suppress late Fragment callbacks (`BUG-029`) | done — `066002c`; automated/API 36 PASS |
 | 9.12 | Bound/coalesce recent-peer persistence and report write failures (`BUG-030`) | done — `484e67f`; automated/API 36/R8 PASS |
-| 9.13 | Add privacy-safe crash/exit diagnostics and a user-exported report (`ENH-006`) | in_progress |
+| 9.13 | Add privacy-safe crash/exit diagnostics and a user-exported report (`ENH-006`) | in_progress — implementation/local gates PASS (`489e569`); persistence pending |
 | 9.14 | Make voice-service promotion and permission-result ownership recreation-safe (`BUG-015`, `BUG-032`) | planned |
 | 9.15 | Make voice UI snapshots/callbacks generation-safe (`BUG-034`) | planned |
 | 9.16 | Bound session queues and Binder history (`BUG-035`) | planned |

@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 11/17 complete
-- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`in_progress`; doc-first/stack preflight complete)
+- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`in_progress`; implementation/local gates PASS, persistence pending)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -22,7 +22,7 @@
 | 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
 | 9.11 — Cancellable asynchronous service binding | done — automated/API 36 PASS | `066002c`; 174 JVM, 24 instrumentation, lint 0/122; exact pending/active ownership |
 | 9.12 — Bounded recent-peer persistence | done — automated/API 36/release PASS | `484e67f`; 184 JVM, 24 instrumentation, lint 0/122, R8 privacy PASS |
-| 9.13 — Privacy-safe crash diagnostics and error visibility | in_progress | `ENH-006`; contract refined to enum-only state, ≤128-byte process summary, fixed-schema SAF export, sanitized IPC/FGS failure evidence |
+| 9.13 — Privacy-safe crash diagnostics and error visibility | in_progress — persistence pending | `489e569`; 201 JVM, 26 API 36 instrumentation, lint 0/122, debug/release/R8 privacy PASS; no push authorized |
 | 9.14 — Promotion-first services and recreation-safe permissions | planned | `BUG-015`, `BUG-032`; depends on 9.13 |
 | 9.15 — Generation-safe voice UI snapshot/callbacks | planned | `BUG-034`; depends on 9.14 |
 | 9.16 — Bounded session queues and Binder-safe history | planned | `BUG-035`; depends on 9.15 |
@@ -132,3 +132,12 @@
 - **Failures/ownership**: queue-full, closed, and Room/runtime failures become sanitized operation/reason enums on the callback executor and propagate through the Conversation callback boundary; observer failures cannot kill the serial worker. Inputs and returned lists remain defensive; shutdown rejects new writes and clears pending work.
 - **Final automated gate**: clean build passed with 184 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug and unsigned R8 release assembly, release DEX privacy verification, and clean `git diff --check`.
 - **Artifacts**: debug APK 79,131,957 bytes, SHA-256 `8A84332BB1341B20EF2992CCD09002C69D8E5989C216F6A684336EB61682CC42`; unsigned release APK 70,877,265 bytes, SHA-256 `5B42E8698E365820C7751F484EE186082358FE9B3D2F1E358D3B113C393232E9`.
+
+## Task 9.13 local implementation evidence
+
+- **Planning / implementation**: local checkpoint `mini-app-translator-vp-p9-t13`; implementation `489e569`. No push, done/release tag, version, signing, telemetry, backend, or permission change.
+- **Diagnostics/privacy**: a 16-event enum-only ring and ≤128-byte process summary preserve sanitized lifecycle/error categories; API 30+ maps the latest platform exit without reading descriptions, traces, process names, memory samples, or identifiers. Settings exports a fixed-schema ≤8 KiB report through SAF only.
+- **Visibility**: scoped Messenger/Handler, service-start/bind, permission, and foreground-promotion failures now produce bounded categories instead of raw `printStackTrace()` output or invisible generic failure only.
+- **Final automated gate**: 201 JVM tests, 26 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug and unsigned release assembly, R8 DEX privacy verification, and clean `git diff --check`.
+- **Artifacts**: debug APK 79,370,448 bytes, SHA-256 `497EF8EF079F7044FBA9B50087855BCE9F58CBC136E5C497A46386E3F50F271C`; unsigned release APK 71,006,077 bytes, SHA-256 `A47DC92E8D7A9781224F6D8723ACBFB79754649E5D5874281A40ADB4A31DCE5C`.
+- **Control point**: technical gates are green, but ViePilot cannot mark PASS or start dependent Task 9.14 until the unpushed branch is durably persisted or the PM selects another control-point action.
