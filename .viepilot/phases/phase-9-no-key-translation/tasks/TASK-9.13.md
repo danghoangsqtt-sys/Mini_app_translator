@@ -1,6 +1,6 @@
 # Task 9.13 — Privacy-safe crash diagnostics and error visibility
 
-**Status**: planned — next executable task
+**Status**: in_progress — doc-first and stack preflight complete
 **Request**: `ENH-006`
 **Depends on**: audit baseline `5c9de7a`; Task 9.7 remains blocked
 
@@ -14,20 +14,41 @@ Make the next runtime failure diagnosable without collecting conversation conten
 - `app/src/main/java/nie/translator/rtranslatordevedition/GeneralService.java`
 - `app/src/main/java/nie/translator/rtranslatordevedition/api_management/ApiManagementFragment.java`
 - `app/src/main/java/nie/translator/rtranslatordevedition/tools/services_communication/ServiceCommunicator.java`
-- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/**` (new)
+- `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/VoiceTranslationActivity.java`
+- `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/VoiceTranslationService.java`
+- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/DiagnosticEvent.java` (new)
+- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/DiagnosticState.java` (new)
+- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/ProcessExitRecord.java` (new)
+- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/Api30ProcessExitReader.java` (new)
+- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/DiagnosticReport.java` (new)
+- `app/src/main/java/nie/translator/rtranslatordevedition/diagnostics/AppDiagnostics.java` (new)
 - `app/src/main/java/nie/translator/rtranslatordevedition/settings/SettingsFragment.java`
 - `app/src/main/res/xml/preferences.xml`
 - `app/src/main/res/values/strings.xml`
 - `app/src/main/res/values-it/strings.xml`
-- Focused tests under `app/src/test/` and `app/src/androidTest/`
+- `app/src/test/java/nie/translator/rtranslatordevedition/diagnostics/DiagnosticStateTest.java` (new)
+- `app/src/test/java/nie/translator/rtranslatordevedition/diagnostics/ProcessExitRecordTest.java` (new)
+- `app/src/test/java/nie/translator/rtranslatordevedition/diagnostics/DiagnosticReportTest.java` (new)
+- `app/src/test/java/nie/translator/rtranslatordevedition/diagnostics/DiagnosticPrivacySourceTest.java` (new)
+- `app/src/androidTest/java/nie/translator/rtranslatordevedition/diagnostics/AppDiagnosticsInstrumentedTest.java` (new)
 
-## Plan
+## Implementation Notes
 
-1. Add a small diagnostics boundary with enums for mode, lifecycle stage, error category, and last operation. Never accept free-form recognized/translated text, peer identity/address, credential fields, audio, model content, URI, or throwable messages.
-2. On API 30+, write a process-state summary no larger than 128 bytes and read/deduplicate the latest `ApplicationExitInfo` record after relaunch. On API 23–29, report process-exit history as unavailable rather than inventing an exit cause.
-3. Replace `printStackTrace()`-only and generic voice-service/IPC failure paths with sanitized categories plus the existing user-visible recoverable error where applicable. Do not upload telemetry or request new permissions.
-4. Add a Settings action that uses Storage Access Framework `ACTION_CREATE_DOCUMENT` to export a plain-text snapshot containing app/build/API/device class, permission booleans, selected mode, bounded lifecycle milestones, queue counters, and the last exit reason.
-5. Add privacy guards that reject sensitive keys/tags and release-artifact checks proving diagnostic code contains no payload/peer/credential logging.
+- `diagnostics/DiagnosticEvent.java`: define the only accepted mode, lifecycle-stage, operation, and error-category values; events contain a sequence number and enums only.
+- `diagnostics/DiagnosticState.java`: own a synchronized fixed-size event ring plus overflow-safe counters; encode/decode a strict versioned process summary capped at 128 UTF-8 bytes and reject malformed/free-form summaries.
+- `diagnostics/ProcessExitRecord.java` and `Api30ProcessExitReader.java`: map API 30+ `ApplicationExitInfo` reason/status/importance/timestamp and the validated prior process summary without reading descriptions, traces, process names, PSS/RSS, or identifiers; API 23–29 returns `UNAVAILABLE`.
+- `diagnostics/DiagnosticReport.java`: render a fixed-key UTF-8 report with app version, API/device class, permission states, selected mode, current bounded events/counters, and mapped prior exit; run a deny-list privacy guard before returning bytes.
+- `diagnostics/AppDiagnostics.java` and `Global.java`: initialize once at process start, expose enum-only record calls, update `ActivityManager.setProcessStateSummary()` on API 30+, and provide a bounded report/export API. Any platform failure is contained and represented only by a sanitized category.
+- `GeneralService.java` and `ServiceCommunicator.java`: replace remote IPC `printStackTrace()` paths with a sanitized diagnostic event, clear the dead Messenger, and never retain or log exception text.
+- `ApiManagementFragment.java` and `SettingsFragment.java`: replace same-process Messenger round trips with direct Handler messages. Settings also owns the SAF `ACTION_CREATE_DOCUMENT` result, writes from the application context, and posts localized success/failure feedback without retaining the URI.
+- `VoiceTranslationActivity.java` and `VoiceTranslationService.java`: record caller start and service promotion failures with fixed mode/stage/operation/category values while preserving current recovery behavior. Promotion ordering itself remains Task 9.14.
+- `preferences.xml` and localized strings: add a Diagnostics category and export action only; do not request storage, logcat, account, or network permissions.
+- JVM tests: prove platform-reason mapping, strict summary bounds/parsing, bounded ring behavior, fixed-schema privacy, and source-level absence of raw exception/trace/device-ID access in the diagnostics package.
+- API 36 instrumentation: prove process initialization, enum-only recording, bounded sanitized export bytes, and an `ACTION_CREATE_DOCUMENT` intent without new permissions or network access.
+
+Best practices: keep Android API 30 references isolated behind the SDK guard, use application context only, close output streams with try-with-resources, use defensive immutable snapshots, never pass conversation/peer/credential/audio/model values into diagnostics, and keep all failures recoverable.
+
+Expected verification: all existing and new JVM/instrumentation tests pass, lint reports zero errors, debug and unsigned release assemble, `verifyReleasePrivacy` passes, and `git diff --check` is clean.
 
 ## Acceptance criteria
 
@@ -49,6 +70,6 @@ git diff --check
 
 ## Forbidden changes
 
-- No analytics/crash-reporting SDK, backend upload, logcat-reading permission, credential access, database schema change, version bump, tag, push, or release claim.
+- No analytics/crash-reporting SDK, backend upload, logcat-reading permission, credential access, database schema change, version bump, push, release/phase tag, or release claim. The local ViePilot task checkpoint tag is allowed.
 - Do not include raw `ApplicationExitInfo` traces or human-readable system descriptions in the exported file; map only stable reason/status fields.
 - Do not touch `.viepilot/debug/`.

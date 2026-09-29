@@ -2,7 +2,7 @@
 
 - **Status**: in_progress
 - **Tasks**: 11/17 complete
-- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`planned`; next executable task)
+- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`in_progress`; doc-first/stack preflight complete)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -22,7 +22,7 @@
 | 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
 | 9.11 — Cancellable asynchronous service binding | done — automated/API 36 PASS | `066002c`; 174 JVM, 24 instrumentation, lint 0/122; exact pending/active ownership |
 | 9.12 — Bounded recent-peer persistence | done — automated/API 36/release PASS | `484e67f`; 184 JVM, 24 instrumentation, lint 0/122, R8 privacy PASS |
-| 9.13 — Privacy-safe crash diagnostics and error visibility | planned — next | `ENH-006`; local export and API 30+ exit reason, no telemetry/sensitive content |
+| 9.13 — Privacy-safe crash diagnostics and error visibility | in_progress | `ENH-006`; contract refined to enum-only state, ≤128-byte process summary, fixed-schema SAF export, sanitized IPC/FGS failure evidence |
 | 9.14 — Promotion-first services and recreation-safe permissions | planned | `BUG-015`, `BUG-032`; depends on 9.13 |
 | 9.15 — Generation-safe voice UI snapshot/callbacks | planned | `BUG-034`; depends on 9.14 |
 | 9.16 — Bounded session queues and Binder-safe history | planned | `BUG-035`; depends on 9.15 |

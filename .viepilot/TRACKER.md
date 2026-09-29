@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`planned`, next). Tasks 9.13–9.17 sequence all selected crash-prevention findings; Task 9.7 is blocked and no new physical APK installation should be requested until Task 9.17 passes.
+- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`in_progress`; doc-first/stack preflight complete). Tasks 9.13–9.17 sequence all selected crash-prevention findings; Task 9.7 is blocked and no new physical APK installation should be requested until Task 9.17 passes.
 - **Branch**: sanitized `master` is canonical; the Task 9.7 recovery remains local and ahead of `origin/master`, with no push authorized. Pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -68,7 +68,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ENH-003 | 🔧 | Dead code with leak-prone patterns (`FileManager`, `EncryptionKey`) | Low | new |
 | ENH-004 | 🔧 | `FileLog` hardcoded legacy path + unclosed resource | Low | new |
 | ENH-005 | 🔧 | Deprecated `AsyncTask` / no-Looper `Handler()` usage | Low | new |
-| ENH-006 | 🔧 | Swallowed errors and missing privacy-safe field diagnostics | Medium | planned (Phase 9, task 9.13) |
+| ENH-006 | 🔧 | Swallowed errors and missing privacy-safe field diagnostics | Medium | in_progress (Phase 9, task 9.13) |
 | ENH-007 | 🔧 | Production logs expose Conversation payloads and peer identifiers | High | resolved (Phase 9, task 9.9; `6ff92b8`) |
 | ENH-008 | 🔧 | gRPC `channel.shutdown()` without `awaitTermination` | Low | new |
 | ENH-009 | 🔧 | Unsynchronized field race in `RecognizerService.languageCode` | Low | new |
