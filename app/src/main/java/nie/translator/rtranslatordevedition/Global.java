@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import nie.translator.rtranslatordevedition.api_management.ConsumptionsDataManager;
 import nie.translator.rtranslatordevedition.api_management.CredentialStore;
+import nie.translator.rtranslatordevedition.diagnostics.AppDiagnostics;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.voice_translation._conversation_mode.communication.ConversationBluetoothCommunicator;
@@ -77,6 +78,7 @@ public class Global extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        AppDiagnostics.initialize(this);
         mainHandler = new Handler(Looper.getMainLooper());
         tokenRefreshHandler = new Handler(Looper.getMainLooper());
         apiTokenCallbackDispatcher = new ApiTokenCallbackDispatcher(

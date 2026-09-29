@@ -22,8 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +36,8 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
+import nie.translator.rtranslatordevedition.diagnostics.AppDiagnostics;
+import nie.translator.rtranslatordevedition.diagnostics.DiagnosticEvent;
 import nie.translator.rtranslatordevedition.tools.CustomTime;
 import nie.translator.rtranslatordevedition.tools.gui.CustomDayGraphsPagerAdapter;
 import nie.translator.rtranslatordevedition.tools.gui.GuiTools;
@@ -183,30 +183,31 @@ public class ApiManagementFragment extends Fragment {
     }
 
     private void appearNoDataMessage() {
-        Messenger selfMessenger = new Messenger(selfHandler);
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
         bundle.putInt("command", APPEAR_NO_DATA_MESSAGE);
         message.setData(bundle);
-        try {
-            selfMessenger.send(message);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if (!selfHandler.sendMessage(message)) {
+            recordLocalDispatchFailure();
         }
     }
 
     private void appearGraphs() {
-        Messenger selfMessenger = new Messenger(selfHandler);
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
         bundle.putInt("command", APPEAR_GRAPHS);
         bundle.putParcelable("olderDate", databaseManager.getOlderDate());
         message.setData(bundle);
-        try {
-            selfMessenger.send(message);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if (!selfHandler.sendMessage(message)) {
+            recordLocalDispatchFailure();
         }
+    }
+
+    private void recordLocalDispatchFailure() {
+        AppDiagnostics.recordEvent(DiagnosticEvent.Mode.LEGACY_CLOUD,
+                DiagnosticEvent.Stage.UI_ACTION,
+                DiagnosticEvent.Operation.DISPATCH_LOCAL_UI,
+                DiagnosticEvent.ErrorCategory.INVALID_STATE);
     }
 
     private void onPageSelected(int index) {

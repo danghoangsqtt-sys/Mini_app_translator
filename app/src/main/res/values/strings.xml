@@ -157,6 +157,12 @@
     <string name="translation_models_error_unsupported">This language cannot be managed by on-device translation.</string>
     <string name="translation_models_error_generic">The model action failed. Try again.</string>
 
+    <string name="diagnostics_header">Diagnostics</string>
+    <string name="diagnostics_export_title">Export diagnostic report</string>
+    <string name="diagnostics_export_summary">Save a local privacy-safe report for troubleshooting. It excludes conversation content and personal identifiers.</string>
+    <string name="diagnostics_export_success">Diagnostic report saved</string>
+    <string name="diagnostics_export_failure">The diagnostic report could not be saved. Try another location.</string>
+
     <!-- Accessibility content descriptions for icon-only controls -->
     <string name="cd_app_logo">App logo</string>
     <string name="cd_user_photo">User profile photo</string>

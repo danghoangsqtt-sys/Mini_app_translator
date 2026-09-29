@@ -33,6 +33,8 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import nie.translator.rtranslatordevedition.GeneralService;
 import nie.translator.rtranslatordevedition.Global;
+import nie.translator.rtranslatordevedition.diagnostics.AppDiagnostics;
+import nie.translator.rtranslatordevedition.diagnostics.DiagnosticEvent;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.tools.TTS;
@@ -137,6 +139,10 @@ public abstract class VoiceTranslationService extends GeneralService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) {
+            AppDiagnostics.recordEvent(getDiagnosticMode(),
+                    DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                    DiagnosticEvent.Operation.PROMOTE_SERVICE,
+                    DiagnosticEvent.ErrorCategory.INVALID_STATE);
             stopSelf(startId);
             return START_NOT_STICKY;
         }
@@ -281,15 +287,27 @@ public abstract class VoiceTranslationService extends GeneralService {
             return true;
         }
         if (notification == null) {
+            AppDiagnostics.recordEvent(getDiagnosticMode(),
+                    DiagnosticEvent.Stage.FOREGROUND_PROMOTION,
+                    DiagnosticEvent.Operation.PROMOTE_SERVICE,
+                    DiagnosticEvent.ErrorCategory.INVALID_STATE);
             return false;
         }
         if (!Tools.hasPermissions(this, Manifest.permission.RECORD_AUDIO)) {
+            AppDiagnostics.recordEvent(getDiagnosticMode(),
+                    DiagnosticEvent.Stage.FOREGROUND_PROMOTION,
+                    DiagnosticEvent.Operation.PROMOTE_SERVICE,
+                    DiagnosticEvent.ErrorCategory.PERMISSION);
             notifyError(new int[]{MISSING_MIC_PERMISSION}, -1);
             return false;
         }
         if (requiresBluetoothConnectForForeground()
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 && !Tools.hasPermissions(this, Manifest.permission.BLUETOOTH_CONNECT)) {
+            AppDiagnostics.recordEvent(getDiagnosticMode(),
+                    DiagnosticEvent.Stage.FOREGROUND_PROMOTION,
+                    DiagnosticEvent.Operation.PROMOTE_SERVICE,
+                    DiagnosticEvent.ErrorCategory.PERMISSION);
             notifyError(new int[]{MISSING_NEARBY_PERMISSION}, -1);
             return false;
         }
@@ -300,11 +318,24 @@ public abstract class VoiceTranslationService extends GeneralService {
                 startForeground(11, notification);
             }
             foregroundStarted = true;
+            AppDiagnostics.recordEvent(getDiagnosticMode(),
+                    DiagnosticEvent.Stage.FOREGROUND_ACTIVE,
+                    DiagnosticEvent.Operation.PROMOTE_SERVICE,
+                    DiagnosticEvent.ErrorCategory.NONE);
             return true;
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException error) {
+            AppDiagnostics.recordFailure(getDiagnosticMode(),
+                    DiagnosticEvent.Stage.FOREGROUND_PROMOTION,
+                    DiagnosticEvent.Operation.PROMOTE_SERVICE, error);
             notifyError(new int[]{ErrorCodes.ERROR}, -1);
             return false;
         }
+    }
+
+    private DiagnosticEvent.Mode getDiagnosticMode() {
+        return requiresBluetoothConnectForForeground()
+                ? DiagnosticEvent.Mode.CONVERSATION
+                : DiagnosticEvent.Mode.WALKIE_TALKIE;
     }
 
     private void removeForegroundNotification() {

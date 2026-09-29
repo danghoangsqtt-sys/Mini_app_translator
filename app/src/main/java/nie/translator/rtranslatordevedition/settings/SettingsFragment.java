@@ -16,15 +16,18 @@
 
 package nie.translator.rtranslatordevedition.settings;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,8 +37,13 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.gallery.imageselector.GalleryImageSelector;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
+import nie.translator.rtranslatordevedition.diagnostics.AppDiagnostics;
+import nie.translator.rtranslatordevedition.diagnostics.DiagnosticEvent;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 
 
@@ -46,6 +54,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     //internet Lack types
     public static final int DOWNLOAD_LANGUAGES = 0;
     public static final int ON_MISSING_GOOGLE_TTS = 2;
+    private static final int REQUEST_EXPORT_DIAGNOSTICS = 4107;
     //variables
     private int downloads = 0;
     private boolean isDownloading = false;
@@ -159,6 +168,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        Preference exportDiagnostics = findPreference("exportDiagnostics");
+        if (exportDiagnostics != null) {
+            exportDiagnostics.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    try {
+                        startActivityForResult(
+                                AppDiagnostics.newExportIntent(), REQUEST_EXPORT_DIAGNOSTICS);
+                    } catch (RuntimeException error) {
+                        AppDiagnostics.recordFailure(DiagnosticEvent.Mode.SETTINGS,
+                                DiagnosticEvent.Stage.EXPORT,
+                                DiagnosticEvent.Operation.EXPORT_DIAGNOSTICS, error);
+                        Toast.makeText(requireContext().getApplicationContext(),
+                                R.string.diagnostics_export_failure, Toast.LENGTH_LONG).show();
+                    }
+                    return true;
+                }
+            });
+        }
+
         // change microphone sensibility initialization
         SeekBarPreference speechTimeoutPreference = (SeekBarPreference) findPreference("SpeechTimeoutSetting");
         speechTimeoutPreference.initialize(activity, SeekBarPreference.SPEECH_TIMEOUT_MODE);
@@ -189,8 +218,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_EXPORT_DIAGNOSTICS) {
+            if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+                exportDiagnostics(data.getData());
+            }
+            return;
+        }
         //call onActivityResult
-        userImageContainer.onActivityResult(requestCode, resultCode, data, true);
+        if (userImageContainer != null) {
+            userImageContainer.onActivityResult(requestCode, resultCode, data, true);
+        }
     }
 
     public boolean isDownloading() {
@@ -220,31 +257,78 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void notifyInternetLack(int action, String data) {
-        Messenger selfMessenger = new Messenger(selfHandler);
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
         bundle.putInt("type", ON_INTERNET_LACK);
         bundle.putInt("action", action);
         bundle.putString("newPassword", data);
         message.setData(bundle);
-        try {
-            selfMessenger.send(message);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if (!selfHandler.sendMessage(message)) {
+            recordLocalDispatchFailure();
         }
     }
 
     private void notifyMissingGoogleTTSDialog() {
-        Messenger selfMessenger = new Messenger(selfHandler);
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
         bundle.putInt("type", ON_MISSING_GOOGLE_TTS);
         message.setData(bundle);
-        try {
-            selfMessenger.send(message);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if (!selfHandler.sendMessage(message)) {
+            recordLocalDispatchFailure();
         }
+    }
+
+    private void exportDiagnostics(final Uri destination) {
+        final Context appContext = requireContext().getApplicationContext();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean success = false;
+                DiagnosticEvent.ErrorCategory failure = DiagnosticEvent.ErrorCategory.NONE;
+                AppDiagnostics diagnostics = AppDiagnostics.getOrInitialize(appContext);
+                AppDiagnostics.recordEvent(DiagnosticEvent.Mode.SETTINGS,
+                        DiagnosticEvent.Stage.EXPORT,
+                        DiagnosticEvent.Operation.EXPORT_DIAGNOSTICS,
+                        DiagnosticEvent.ErrorCategory.NONE);
+                try (OutputStream output = appContext.getContentResolver()
+                        .openOutputStream(destination, "w")) {
+                    if (output == null) {
+                        failure = DiagnosticEvent.ErrorCategory.IO;
+                    } else {
+                        diagnostics.writeReport(output);
+                        success = true;
+                    }
+                } catch (SecurityException error) {
+                    failure = DiagnosticEvent.ErrorCategory.SECURITY;
+                } catch (IOException error) {
+                    failure = DiagnosticEvent.ErrorCategory.IO;
+                } catch (RuntimeException error) {
+                    failure = DiagnosticEvent.ErrorCategory.fromThrowable(error);
+                }
+                if (!success) {
+                    AppDiagnostics.recordEvent(DiagnosticEvent.Mode.SETTINGS,
+                            DiagnosticEvent.Stage.EXPORT,
+                            DiagnosticEvent.Operation.EXPORT_DIAGNOSTICS, failure);
+                }
+                final boolean exportSucceeded = success;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(appContext, exportSucceeded
+                                        ? R.string.diagnostics_export_success
+                                        : R.string.diagnostics_export_failure,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }, "exportDiagnostics").start();
+    }
+
+    private void recordLocalDispatchFailure() {
+        AppDiagnostics.recordEvent(DiagnosticEvent.Mode.SETTINGS,
+                DiagnosticEvent.Stage.UI_ACTION,
+                DiagnosticEvent.Operation.DISPATCH_LOCAL_UI,
+                DiagnosticEvent.ErrorCategory.INVALID_STATE);
     }
 
 

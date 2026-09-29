@@ -22,6 +22,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import nie.translator.rtranslatordevedition.diagnostics.AppDiagnostics;
+import nie.translator.rtranslatordevedition.diagnostics.DiagnosticEvent;
 
 public abstract class ServiceCommunicator {
     protected Handler serviceHandler;
@@ -47,7 +49,11 @@ public abstract class ServiceCommunicator {
             try {
                 serviceMessenger.send(message);
             } catch (RemoteException e) {
-                e.printStackTrace();
+                AppDiagnostics.recordEvent(DiagnosticEvent.Mode.UNKNOWN,
+                        DiagnosticEvent.Stage.IPC,
+                        DiagnosticEvent.Operation.SEND_SERVICE_COMMAND,
+                        DiagnosticEvent.ErrorCategory.REMOTE_IPC);
+                serviceMessenger = null;
             }
         }
     }

@@ -153,6 +153,12 @@
     <string name="translation_models_error_unsupported">Questa lingua non può essere gestita dalla traduzione sul dispositivo.</string>
     <string name="translation_models_error_generic">Operazione sul modello non riuscita. Riprova.</string>
 
+    <string name="diagnostics_header">Diagnostica</string>
+    <string name="diagnostics_export_title">Esporta rapporto diagnostico</string>
+    <string name="diagnostics_export_summary">Salva un rapporto locale rispettoso della privacy per la risoluzione dei problemi. Esclude conversazioni e identificatori personali.</string>
+    <string name="diagnostics_export_success">Rapporto diagnostico salvato</string>
+    <string name="diagnostics_export_failure">Impossibile salvare il rapporto diagnostico. Prova un\'altra posizione.</string>
+
     <!-- Accessibility content descriptions for icon-only controls -->
     <string name="cd_app_logo">Logo dell\'app</string>
     <string name="cd_user_photo">Foto profilo utente</string>

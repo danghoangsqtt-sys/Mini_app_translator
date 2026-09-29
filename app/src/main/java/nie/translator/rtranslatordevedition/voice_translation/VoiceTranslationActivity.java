@@ -50,6 +50,8 @@ import nie.translator.rtranslatordevedition.GeneralActivity;
 import nie.translator.rtranslatordevedition.Global;
 import nie.translator.rtranslatordevedition.R;
 import nie.translator.rtranslatordevedition.api_management.ApiManagementActivity;
+import nie.translator.rtranslatordevedition.diagnostics.AppDiagnostics;
+import nie.translator.rtranslatordevedition.diagnostics.DiagnosticEvent;
 import nie.translator.rtranslatordevedition.settings.SettingsActivity;
 import nie.translator.rtranslatordevedition.tools.CustomLocale;
 import nie.translator.rtranslatordevedition.tools.CustomServiceConnection;
@@ -553,10 +555,18 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 }
                 int permissionError = getVoiceServicePermissionError(true);
                 if (permissionError != 0) {
+                    AppDiagnostics.recordEvent(DiagnosticEvent.Mode.CONVERSATION,
+                            DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                            DiagnosticEvent.Operation.START_CONVERSATION,
+                            DiagnosticEvent.ErrorCategory.PERMISSION);
                     responseListener.onFailure(new int[]{permissionError}, -1L);
                     return;
                 }
                 intent.putExtra("notification", notification);
+                AppDiagnostics.recordEvent(DiagnosticEvent.Mode.CONVERSATION,
+                        DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                        DiagnosticEvent.Operation.START_CONVERSATION,
+                        DiagnosticEvent.ErrorCategory.NONE);
                 try {
                     ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
                     if (handle.markServiceStarted()) {
@@ -565,6 +575,9 @@ public class VoiceTranslationActivity extends GeneralActivity {
                         stopConversationServiceIfUnused();
                     }
                 } catch (RuntimeException error) {
+                    AppDiagnostics.recordFailure(DiagnosticEvent.Mode.CONVERSATION,
+                            DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                            DiagnosticEvent.Operation.START_CONVERSATION, error);
                     if (!handle.isCancelled()) {
                         persistFragmentPreference(VoiceTranslationActivity.this, PAIRING_FRAGMENT);
                         responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
@@ -597,11 +610,19 @@ public class VoiceTranslationActivity extends GeneralActivity {
                         }
                         int permissionError = getVoiceServicePermissionError(false);
                         if (permissionError != 0) {
+                            AppDiagnostics.recordEvent(DiagnosticEvent.Mode.WALKIE_TALKIE,
+                                    DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                                    DiagnosticEvent.Operation.START_WALKIE_TALKIE,
+                                    DiagnosticEvent.ErrorCategory.PERMISSION);
                             responseListener.onFailure(new int[]{permissionError}, -1L);
                             return;
                         }
                         intent.putExtra("secondLanguage", result);
                         intent.putExtra("notification", notification);
+                        AppDiagnostics.recordEvent(DiagnosticEvent.Mode.WALKIE_TALKIE,
+                                DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                                DiagnosticEvent.Operation.START_WALKIE_TALKIE,
+                                DiagnosticEvent.ErrorCategory.NONE);
                         try {
                             ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
                             if (handle.markServiceStarted()) {
@@ -610,6 +631,9 @@ public class VoiceTranslationActivity extends GeneralActivity {
                                 stopWalkieTalkieServiceIfUnused();
                             }
                         } catch (RuntimeException error) {
+                            AppDiagnostics.recordFailure(DiagnosticEvent.Mode.WALKIE_TALKIE,
+                                    DiagnosticEvent.Stage.SERVICE_START_REQUESTED,
+                                    DiagnosticEvent.Operation.START_WALKIE_TALKIE, error);
                             if (!handle.isCancelled()) {
                                 responseListener.onFailure(new int[]{ErrorCodes.ERROR}, -1L);
                             }
@@ -693,7 +717,10 @@ public class VoiceTranslationActivity extends GeneralActivity {
                                 bound = conversationServiceConnection.markRegistered();
                             }
                         }
-                    } catch (RuntimeException ignored) {
+                    } catch (RuntimeException error) {
+                        AppDiagnostics.recordFailure(DiagnosticEvent.Mode.CONVERSATION,
+                                DiagnosticEvent.Stage.IPC,
+                                DiagnosticEvent.Operation.BIND_SERVICE, error);
                         // Report through the same recoverable service-connection path below.
                     }
                 }
@@ -757,7 +784,10 @@ public class VoiceTranslationActivity extends GeneralActivity {
                                 bound = walkieTalkieServiceConnection.markRegistered();
                             }
                         }
-                    } catch (RuntimeException ignored) {
+                    } catch (RuntimeException error) {
+                        AppDiagnostics.recordFailure(DiagnosticEvent.Mode.WALKIE_TALKIE,
+                                DiagnosticEvent.Stage.IPC,
+                                DiagnosticEvent.Operation.BIND_SERVICE, error);
                         // Report through the same recoverable service-connection path below.
                     }
                 }
