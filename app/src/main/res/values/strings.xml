@@ -176,6 +176,7 @@
     <string name="cd_microphone">Microphone</string>
     <string name="cd_search_cancel">Search for devices or cancel search</string>
     <string name="cd_start_pairing">Start pairing</string>
+    <string name="cd_start_walkie_talkie">Open WalkieTalkie</string>
     <string name="cd_reset_value">Reset to default value</string>
 
 </resources>

@@ -551,6 +551,11 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 if (handle.isCancelled()) {
                     return;
                 }
+                int permissionError = getVoiceServicePermissionError(true);
+                if (permissionError != 0) {
+                    responseListener.onFailure(new int[]{permissionError}, -1L);
+                    return;
+                }
                 intent.putExtra("notification", notification);
                 try {
                     ContextCompat.startForegroundService(VoiceTranslationActivity.this, intent);
@@ -590,6 +595,11 @@ public class VoiceTranslationActivity extends GeneralActivity {
                         if (handle.isCancelled()) {
                             return;
                         }
+                        int permissionError = getVoiceServicePermissionError(false);
+                        if (permissionError != 0) {
+                            responseListener.onFailure(new int[]{permissionError}, -1L);
+                            return;
+                        }
                         intent.putExtra("secondLanguage", result);
                         intent.putExtra("notification", notification);
                         try {
@@ -618,6 +628,26 @@ public class VoiceTranslationActivity extends GeneralActivity {
                 responseListener.onFailure(reasons, value);
             }
         });
+    }
+
+    private int getVoiceServicePermissionError(boolean requiresBluetoothConnect) {
+        boolean microphoneGranted = Tools.hasPermissions(this, Manifest.permission.RECORD_AUDIO);
+        boolean bluetoothConnectGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+                || Tools.hasPermissions(this, BLUETOOTH_CONNECT_PERMISSION);
+        return resolveVoiceServicePermissionError(
+                microphoneGranted, requiresBluetoothConnect, bluetoothConnectGranted);
+    }
+
+    static int resolveVoiceServicePermissionError(boolean microphoneGranted,
+                                                  boolean requiresBluetoothConnect,
+                                                  boolean bluetoothConnectGranted) {
+        if (!microphoneGranted) {
+            return VoiceTranslationService.MISSING_MIC_PERMISSION;
+        }
+        if (requiresBluetoothConnect && !bluetoothConnectGranted) {
+            return VoiceTranslationService.MISSING_NEARBY_PERMISSION;
+        }
+        return 0;
     }
 
     public synchronized ServiceConnectionHandle connectToConversationService(

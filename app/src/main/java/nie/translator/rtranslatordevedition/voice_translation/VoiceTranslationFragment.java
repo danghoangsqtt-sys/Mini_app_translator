@@ -40,6 +40,7 @@ import nie.translator.rtranslatordevedition.R;
 import nie.translator.rtranslatordevedition.api_management.ApiManagementActivity;
 import nie.translator.rtranslatordevedition.tools.ErrorCodes;
 import nie.translator.rtranslatordevedition.tools.ServiceConnectionHandle;
+import nie.translator.rtranslatordevedition.tools.Tools;
 import nie.translator.rtranslatordevedition.tools.gui.ButtonKeyboard;
 import nie.translator.rtranslatordevedition.tools.gui.ButtonMic;
 import nie.translator.rtranslatordevedition.tools.gui.ButtonSound;
@@ -67,6 +68,7 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
     protected VoiceTranslationService.VoiceTranslationServiceCommunicator voiceTranslationServiceCommunicator;
     protected VoiceTranslationService.VoiceTranslationServiceCallback voiceTranslationServiceCallback;
     protected ServiceConnectionHandle serviceConnectionHandle;
+    private boolean waitingForServicePermission;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -224,6 +226,18 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
     protected void connectToService() {
     }
 
+    /** Prevents an impossible microphone foreground-service start and owns the grant retry. */
+    protected final boolean prepareVoiceServiceConnection() {
+        if (Tools.hasPermissions(requireContext(), VoiceTranslationService.REQUIRED_PERMISSIONS)) {
+            waitingForServicePermission = false;
+            return true;
+        }
+        waitingForServicePermission = true;
+        requestPermissions(VoiceTranslationService.REQUIRED_PERMISSIONS,
+                VoiceTranslationService.REQUEST_CODE_REQUIRED_PERMISSIONS);
+        return false;
+    }
+
     @Override
     public void onStop() {
         super.onStop();
@@ -282,7 +296,9 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
         if (changeAspect) {
             microphone.setMute(true);
         }
-        voiceTranslationServiceCommunicator.stopMic(changeAspect);
+        if (voiceTranslationServiceCommunicator != null) {
+            voiceTranslationServiceCommunicator.stopMic(changeAspect);
+        }
     }
 
     protected void startSound() {
@@ -339,12 +355,28 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
             return;
         }
 
+        boolean servicePermissionRequest = waitingForServicePermission;
+        waitingForServicePermission = false;
+        boolean denied = grantResults.length == 0
+                || !Tools.hasPermissions(requireContext(), VoiceTranslationService.REQUIRED_PERMISSIONS);
         for (int grantResult : grantResults) {
-            if (grantResult == PackageManager.PERMISSION_DENIED) {
-                Toast.makeText(activity, R.string.error_missing_mic_permissions, Toast.LENGTH_LONG).show();
+            denied |= grantResult == PackageManager.PERMISSION_DENIED;
+        }
+        if (denied) {
+            Toast.makeText(activity, R.string.error_missing_mic_permissions, Toast.LENGTH_LONG).show();
+            if (servicePermissionRequest) {
+                VoiceTranslationActivity.persistFragmentPreference(
+                        requireContext(), VoiceTranslationActivity.PAIRING_FRAGMENT);
+                activity.exitFromVoiceTranslation();
+            } else {
                 deactivateInputs(DeactivableButton.DEACTIVATED_FOR_MISSING_MIC_PERMISSION);
-                return;
             }
+            return;
+        }
+
+        if (servicePermissionRequest) {
+            connectToService();
+            return;
         }
 
         // possible activation of the mic
@@ -494,6 +526,11 @@ public abstract class VoiceTranslationFragment extends Fragment implements Micro
                             connectToService();
                         }
                     });
+                    break;
+                case VoiceTranslationService.MISSING_MIC_PERMISSION:
+                    if (prepareVoiceServiceConnection()) {
+                        connectToService();
+                    }
                     break;
                 case ErrorCodes.MISSING_API_KEY: {
                     deactivateInputs(DeactivableButton.DEACTIVATED_FOR_MISSING_OR_WRONG_KEYFILE);

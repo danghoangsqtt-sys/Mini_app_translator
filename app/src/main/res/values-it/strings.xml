@@ -172,5 +172,6 @@
     <string name="cd_microphone">Microfono</string>
     <string name="cd_search_cancel">Cerca dispositivi o annulla la ricerca</string>
     <string name="cd_start_pairing">Avvia l\'accoppiamento</string>
+    <string name="cd_start_walkie_talkie">Apri WalkieTalkie</string>
     <string name="cd_reset_value">Ripristina il valore predefinito</string>
 </resources>

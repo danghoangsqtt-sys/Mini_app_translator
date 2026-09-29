@@ -186,6 +186,9 @@ public class WalkieTalkieFragment extends VoiceTranslationFragment {
     @Override
     protected void connectToService() {
         super.connectToService();
+        if (!prepareVoiceServiceConnection()) {
+            return;
+        }
         if (serviceConnectionHandle != null) {
             serviceConnectionHandle.cancel();
         }
