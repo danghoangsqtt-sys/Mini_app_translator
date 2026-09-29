@@ -1,7 +1,7 @@
 # Task 9.7 — Full regression and release-candidate gate
 
-**Status**: in_progress — `BUG-032`/`BUG-033` code and API 36 recovery PASS; same-two-phone retest, API matrix, accessibility, legal-owner, signing, and release approval remain mandatory
-**Depends on**: Tasks 9.1–9.6 persisted through PM state commit `a229d14`
+**Status**: blocked by Tasks 9.13–9.17 — do not request another physical APK installation yet
+**Depends on**: Tasks 9.1–9.6 and 9.8–9.17; the historical `a9d04d7` recovery remains evidence, not final approval
 **Owner split**: PM owns the gate, evidence, release decision, state, version/signing/tag/push; implementation changes are allowed only for defects proven during this task
 
 ## Objective
@@ -15,6 +15,7 @@ Prove the no-key flow across the supported Android range and two physical phones
 - Publisher/controller identity, privacy contact, legal approval, release keystore access, version assignment, signed artifact, release tag, and publication require explicit maintainer input.
 - Do not invent legal identity, generate or replace a production signing key, bump the version, create a release tag, or publish an unsigned/debug artifact.
 - Any shipping-code defect found here must receive a focused regression test and a separately reviewable fix before the affected gate can pass.
+- The 2026-09-29 crash-prevention findings must pass Tasks 9.13–9.17, including the executable API 36 fresh/upgrade qualification gate, before Gate C resumes.
 
 ## Locked paths
 
@@ -76,7 +77,7 @@ No application source, resource, Gradle, README, privacy, or CHANGELOG path is i
 - Re-run the narrowest relevant test after a defect fix, then repeat the complete blocking gate.
 - Keep Java 8/minSdk 23 compatibility and never weaken current secret/privacy safeguards to make a test pass.
 
-## Gate A — Automated repository and API 36 emulator evidence
+## Gate A — Automated repository and API 36 emulator evidence (must be rerun after Task 9.17)
 
 1. Confirm clean canonical `master`, `HEAD == origin/master` at the planning start point, and only the pre-existing `.viepilot/debug/` untracked state.
 2. Run:
@@ -115,7 +116,7 @@ git diff --check
 
 ## Acceptance criteria
 
-- [x] Gate A passes with zero test failures, zero lint errors, exact artifact/install evidence, and no unresolved Critical/High defect in the exercised scope.
+- [ ] Gate A is rerun after Tasks 9.13–9.17 with zero test failures, zero lint errors, exact artifact/install evidence, and no unresolved Critical/High defect in the exercised scope.
 - [ ] Gate B passes on API 23, 31, 34, and 36 with per-device evidence.
 - [ ] Gate C passes on two physical phones, including Bluetooth/SCO, no-key speech/translation, offline-model, accessibility, and visual checks.
 - [ ] Gate D has approved legal identity/privacy copy, authorized signing, reviewed version assignment, signed artifact evidence, and explicit release approval.
@@ -131,4 +132,4 @@ git diff --check
 
 The 2026-09-29 recovery implementation is `a9d04d73621276f7d5390d25e9e2ec49f21e136e`. Both mode callers now prevent an impossible foreground-service start while microphone permission is absent, the fragments own the grant/denial retry safely, and the supplied transparent Walkie icon replaces the blank placeholder. Deterministic API 36 deny/grant/relaunch smokes passed, including a microphone foreground-service type check. The clean gate passed 189 JVM tests, 24 API 36 instrumentation tests, lint 0 errors/122 warnings, debug/unsigned release assembly, R8 privacy verification, and clean diff checks. Debug APK: 79,279,141 bytes, SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`.
 
-Gate C still requires the same two phones to confirm that Conversation connection and WalkieTalkie activation no longer terminate, then complete connect/relaunch/disconnect/reconnect, peer-image, speech, Bluetooth/SCO, and offline-model QA. Gates B/D and the human accessibility/product review remain blocked. Canonical detail is in `evidence/TASK-9.7-QA.md`; Task 9.7 remains in progress until all four gates pass.
+The subsequent audit proved this evidence does not cover permission-result recreation, promotion-before-heavy-initialization, message-before-snapshot, callback-after-view teardown, or unbounded runtime/Binder state. Tasks 9.13–9.17 now block Gate C. Only after Task 9.17 passes may the same two phones retest Conversation and WalkieTalkie, then complete connect/relaunch/disconnect/reconnect, peer-image, speech, Bluetooth/SCO, and offline-model QA. Gates B/D and the human accessibility/product review remain blocked. Canonical detail is in `evidence/TASK-9.7-QA.md`; Task 9.7 remains release NO-GO until all four gates pass.

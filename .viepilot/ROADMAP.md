@@ -63,7 +63,7 @@
 
 ## Phase 4 — Remaining Hygiene Backlog (proposed, not yet started)
 
-Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-013` (test coverage buildout), `ENH-014` (unrestricted deserialization), `ENH-015` (selective comparison/porting from upstream `v3.00`), `ENH-016` (`.idea/*.xml` committed), `ENH-017` (unrelated `.agents/skills/` content at repo root). Run `/vp-evolve` again against these when ready to sequence them.
+Backlog of `ENH-*` requests not yet evolved into a phase: `ENH-014` (unrestricted deserialization), `ENH-015` (selective comparison/porting from upstream `v3.00`), `ENH-016` (`.idea/*.xml` committed), `ENH-017` (unrelated `.agents/skills/` content at repo root). `ENH-013` has moved to Phase 9 Task 9.17. Run `/vp-evolve` again against the remaining items when ready to sequence them.
 
 ## Phase 5 — Mini Conversation Rebrand & UI (in_progress — code complete, device/release QA pending)
 
@@ -155,11 +155,11 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 - [ ] Signed `1.2.0` installs and passes core Conversation/WalkieTalkie smoke tests.
 - [ ] State/docs/tags identify the exact verified release commit.
 
-## Phase 9 — No-Key On-Device Translation (in_progress; 8/12 tasks complete, deep-hardening remediation active)
+## Phase 9 — No-Key On-Device Translation (in_progress; 11/17 tasks complete, crash-prevention hardening planned)
 
 **Execution spec**: `.viepilot/phases/phase-9-no-key-translation/SPEC.md`
 **Target**: `1.3.0`; no versionCode change until release-candidate approval
-**Source**: confirmed 2026-09-23 brainstorm, `ENH-021`, `BUG-021`–`BUG-023`
+**Source**: confirmed 2026-09-23 brainstorm, `ENH-021`, `BUG-021`–`BUG-023`, and 2026-09-29 crash-prevention audit
 
 | Task | Description | Status |
 |---|---|---|
@@ -169,12 +169,17 @@ Sửa toàn bộ lint warning không đòi hỏi nâng dependency, đồng thờ
 | 9.4 | Implement lifecycle-safe Android SpeechRecognizer engine | done — `83fdeb2`; PM automated/emulator PASS |
 | 9.5 | Integrate default engines into Conversation and WalkieTalkie | done — `ab6094c`; PM automated/emulator PASS |
 | 9.6 | Make legacy Cloud opt-in, finish migration/privacy UX, and fix audit blockers | done — `8a8882b`; PM automated/emulator PASS |
-| 9.7 | Run full automated/device regression and release-candidate gate | in_progress — host baseline PASS, but 2026-09-29 deep-audit remediation and executable APK qualification are required before another physical cycle; release remains NO-GO |
+| 9.7 | Run full automated/device regression and release-candidate gate | blocked by Tasks 9.13–9.17; physical/human/signing gates remain NO-GO |
 | 9.8 | Fix audit state/restore/binding/recent-peer races (`BUG-027`–`BUG-030`) | done — PM automated/API 36 PASS; persisted through `5c9c70e` |
 | 9.9 | Remove sensitive production logging and bound Bluetooth ingress/image work (`ENH-007`, `BUG-031`) | done — `6ff92b8`; automated/API 36/R8 PASS; physical interoperability due 9.7 |
 | 9.10 | Correct Bluetooth permission and foreground-service runtime contracts (`BUG-013`, `BUG-015`) | done — `cc08c4f`; automated/API 36 PASS |
 | 9.11 | Cancel asynchronous bind initiation and suppress late Fragment callbacks (`BUG-029`) | done — `066002c`; automated/API 36 PASS |
 | 9.12 | Bound/coalesce recent-peer persistence and report write failures (`BUG-030`) | done — `484e67f`; automated/API 36/R8 PASS |
+| 9.13 | Add privacy-safe crash/exit diagnostics and a user-exported report (`ENH-006`) | planned — next |
+| 9.14 | Make voice-service promotion and permission-result ownership recreation-safe (`BUG-015`, `BUG-032`) | planned |
+| 9.15 | Make voice UI snapshots/callbacks generation-safe (`BUG-034`) | planned |
+| 9.16 | Bound session queues and Binder history (`BUG-035`) | planned |
+| 9.17 | Add executable fresh/upgrade APK crash-regression qualification (`ENH-013`) | planned — blocks physical APK handoff |
 
 **Release rule**: `1.2.0` must not be published. Phase 9 must prove a credential-free speech → translation → TTS path and clear the physical-device gates before any release claim.
 
@@ -194,7 +199,7 @@ Reserved for `ENH-020` after Phase 9. The planned `ConnectionTransport` abstract
 | 6 — Bug Fix Sprint | complete | 10 | 10 |
 | 7 — Operational State & Build Portability | complete | 4 | 4 |
 | 8 — Release Readiness & Project Closure | blocked / 1.2.0 NO-GO | 2 | 7 |
-| 9 — No-Key On-Device Translation | in_progress | 8 | 12 |
+| 9 — No-Key On-Device Translation | in_progress | 11 | 17 |
 | 10 — Wi-Fi Hotspot Connection | proposed | 0 | 6 |
 
-Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 is the active implementation phase: Tasks 9.1–9.6 and 9.8 are complete; deep-audit Tasks 9.9–9.12 must finish before Task 9.7 resumes the physical-device/release-candidate gate. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.
+Phase 2 is complete. Phase 3 and Phase 5 retain open physical-device gates. Phase 7 is canonical at `dffa145`. Phase 8 Tasks 8.1–8.2 are valid, but the `1.2.0` candidate is a NO-GO after field reports of unusable onboarding/Bluetooth behavior. Phase 9 Tasks 9.1–9.6 and 9.8–9.12 are complete. Tasks 9.13–9.17 now sequence diagnostics, foreground/permission lifecycle repair, UI callback ownership, bounded session state, and executable APK qualification; only then may Task 9.7 resume physical-device/release-candidate testing. The former Wi-Fi Phase 9 is Phase 10 and must not be mixed into this work. Phase 4 remains an independently schedulable hygiene backlog.

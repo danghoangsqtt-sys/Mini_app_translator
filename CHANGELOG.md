@@ -28,6 +28,9 @@ All notable changes to this fork will be documented in this file.
 - Do not publish or tag the current `1.2.0` candidate; it is a release NO-GO pending Phase 9.
 - Stabilize cold-start mode restore, service binding ownership, and recent-peer persistence before resuming the physical release gate (`BUG-028`–`BUG-030`).
 - Remove production Conversation payload/peer logging, bound Bluetooth ingress and image decode, correct Android 12+ permissions/foreground launch, cancel late service binding, and bound recent-peer persistence before Task 9.7 resumes (`ENH-007`, `BUG-013`, `BUG-015`, `BUG-029`–`BUG-031`).
+- Add local privacy-safe process-exit diagnostics and a user-exportable report before the next physical APK handoff (`ENH-006`).
+- Make voice-service promotion/permission results recreation-safe, make UI snapshot/callback delivery generation-safe, and bound all remaining session/Binder state (`BUG-015`, `BUG-032`, `BUG-034`, `BUG-035`).
+- Add a packaged-APK fresh-install/upgrade qualification command that fails on fatal, ANR, foreground deadline, unexpected process death, or orphan voice services (`ENH-013`).
 
 ### Fixed
 

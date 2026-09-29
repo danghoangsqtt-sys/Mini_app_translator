@@ -24,10 +24,12 @@
 
 - This repo's existing commit history is informal ("Update README.md" etc.) — for ViePilot-tracked work going forward, prefer Conventional Commits (`fix:`, `feat:`, `chore:`) so `CHANGELOG.md` generation (once introduced) can be automated later. Do not rewrite existing history to match.
 
-## Quality gates (for Phase 1 hardening work)
+## Quality gates
 
 - A fix for a `BUG-*` request is not done until: root cause addressed, and (where testable) a unit/instrumented test added under `app/src/test` or `app/src/androidTest` covering the failure scenario described in the request file.
-- Given current 0% real coverage (`ENH-013`), don't block a hotfix on writing a full test suite — one targeted regression test per fixed bug is the bar, not full coverage.
+- The project now has a substantive JVM/API 36 baseline; source-text or fake-only tests do not close a runtime Android lifecycle defect. Foreground-service, permission, process-recreation, Binder, and installed-APK failures require production-class runtime coverage.
+- Do not hand a new APK to the physical-phone tester after a Critical/High voice-path change until the Task 9.17 qualification command passes its mandatory available API lane and records the APK hash.
+- A passing emulator gate never substitutes for two-phone Bluetooth/SCO, accessibility, legal, signing, or release approval.
 
 ## Stack-specific notes (Android/Java, gRPC, Room)
 

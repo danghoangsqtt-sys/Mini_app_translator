@@ -34,5 +34,5 @@ app/src/main/java/nie/translator/rtranslatordevedition/
 ## Known constraints (do not re-derive, already established by audit)
 
 - No CI/CD is configured. The implemented toolchain is AGP 8.13.2 / Gradle 8.13 / compileSdk 36 / targetSdk 36 and requires JDK 17 to run Gradle; device evidence is still required before release.
-- Automated coverage remains limited (`ENH-013`), even though focused regression tests exist. Any new fix should add focused coverage where feasible without claiming broad end-to-end coverage.
+- Focused JVM/API 36 regression coverage exists, but packaged-APK permission/foreground-service fresh-install and upgrade qualification is still missing (`ENH-013`, planned as Phase 9 Task 9.17). Runtime Android lifecycle fixes need production-class coverage and must not claim broad end-to-end or physical-device PASS.
 - `.agents/` is excluded from the sanitized release history and ignored because it contained unrelated workstation/plugin payloads — do not treat it as application source or read it for Mini Conversation context.

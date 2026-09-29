@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 11/12 complete
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`; PENDING HUMAN, release NO-GO)
+- **Tasks**: 11/17 complete
+- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`planned`; next executable task)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -16,12 +16,17 @@
 | 9.4 — Android SpeechRecognizer engine | done — PM PASS | `83fdeb2`; 122 JVM tests; 16 API 36 tests; lint 0/136; bounded lifecycle and exact-once cleanup |
 | 9.5 — Conversation/WalkieTalkie integration | done — PM automated/emulator PASS | `ab6094c`; 137 JVM tests; 19 API 36 tests; lint 0/136; ON_DEVICE default with explicit Walkie source direction |
 | 9.6 — Legacy Cloud opt-in and migration UX | done — PM automated/emulator PASS | `8a8882b`; 143 JVM, 19 API 36 tests, lint 0/136; `BUG-024`/`BUG-025` resolved |
-| 9.7 — Full QA and release-candidate gate | in_progress — recovery code/API 36 PASS; deep-audit remediation planning required before another physical APK cycle; release NO-GO | `a9d04d7` closes the base `BUG-032` path and `BUG-033`; residual `BUG-015`/`BUG-032` plus new `BUG-034`/`BUG-035` must be planned, implemented, and runtime-qualified first |
+| 9.7 — Full QA and release-candidate gate | blocked by 9.13–9.17; release NO-GO | Physical retest may resume only after the executable APK qualification gate passes |
 | 9.8 — Audit stabilization hotfixes | done — PM automated/API 36 PASS | `ce265bd`; 154 JVM, 21 API 36 instrumentation, lint 0/136; persisted at `origin/master` through `5c9c70e`; 9.7 physical gate resumed |
 | 9.9 — Production privacy and bounded Bluetooth ingress | done — automated/API 36/release PASS | `6ff92b8`; 163 JVM, 23 instrumentation, lint 0/119; R8 DEX privacy gate PASS; physical interoperability remains 9.7 |
 | 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
 | 9.11 — Cancellable asynchronous service binding | done — automated/API 36 PASS | `066002c`; 174 JVM, 24 instrumentation, lint 0/122; exact pending/active ownership |
 | 9.12 — Bounded recent-peer persistence | done — automated/API 36/release PASS | `484e67f`; 184 JVM, 24 instrumentation, lint 0/122, R8 privacy PASS |
+| 9.13 — Privacy-safe crash diagnostics and error visibility | planned — next | `ENH-006`; local export and API 30+ exit reason, no telemetry/sensitive content |
+| 9.14 — Promotion-first services and recreation-safe permissions | planned | `BUG-015`, `BUG-032`; depends on 9.13 |
+| 9.15 — Generation-safe voice UI snapshot/callbacks | planned | `BUG-034`; depends on 9.14 |
+| 9.16 — Bounded session queues and Binder-safe history | planned | `BUG-035`; depends on 9.15 |
+| 9.17 — Executable APK crash-regression qualification | planned — blocks physical APK handoff | `ENH-013`; depends on 9.13–9.16 |
 
 ## PM control rules
 
@@ -29,6 +34,7 @@
 - No push, merge, release tag, phase-complete tag, worktree deletion, or version bump without explicit PM instruction.
 - Commit only files belonging to the task; pre-existing `.viepilot/debug/` and brainstorm changes are PM-owned.
 - A task is not PASS merely because Gradle succeeds; PM must review the diff and evidence.
+- Do not ask the user to install another physical APK until Task 9.17 passes its mandatory API 36 fresh-install and upgrade lanes.
 
 ## Task 9.1 evidence
 
@@ -94,6 +100,7 @@
 - **Canonical evidence**: `evidence/TASK-9.7-QA.md`.
 - **2026-09-29 physical retest**: the current hardened APK still terminated after two-phone connection and when WalkieTalkie was activated after reinstall; WalkieTalkie then replayed on every launch. API 36 reproduced `ForegroundServiceDidNotStartInTimeException` with `RECORD_AUDIO` denied (`BUG-032`). The existing Walkie action asset is an opaque white rectangle; the supplied transparent `images/call_icon.png` is approved for `BUG-033`. Task 9.7 remains `in_progress` and release NO-GO while the focused repair is implemented and retested.
 - **2026-09-29 deep-audit gate**: fresh host evidence remains 189 JVM tests and lint 0 errors/122 warnings, but the suite does not execute the installed APK through real permission-result recreation and foreground-service deadlines. `BUG-015` and `BUG-032` were re-opened on residual criteria; `BUG-034` (UI callback/restore lifecycle race) and `BUG-035` (unbounded runtime queues/Binder history) were added; `ENH-006` and `ENH-013` now own privacy-safe crash evidence and executable APK qualification. Do not consume another two-phone installation cycle until these items pass `/vp-evolve`/implementation/review.
+- **2026-09-29 remediation plan**: `/vp-evolve BUG-015 BUG-032 BUG-034 BUG-035 ENH-006 ENH-013` added Tasks 9.13–9.17 in dependency order: diagnostics → promotion/permission lifecycle → UI callback ownership → bounded session/Binder state → executable APK qualification. Application version remains `1.2.0`/15 and Phase 9 target remains `1.3.0`; no shipping code, tag, push, signing, or release action belongs to planning.
 - **2026-09-29 recovery**: `a9d04d7` prevents both mode services from starting before required foreground-type permissions exist, requests microphone permission before connect, makes denial/relaunch safe, and replaces the blank Walkie action with the supplied transparent icon. Pixel 7a API 36 denied/granted/relaunch smokes passed; granted Walkie ran foreground type `0x80`. Clean gate: 189 JVM, 24 instrumentation, lint 0 errors/122 warnings, debug/unsigned release assembly, R8 privacy PASS, and clean diff check. Debug APK 79,279,141 bytes, SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`. Physical same-two-phone confirmation remains mandatory.
 
 ## Task 9.8 implementation evidence

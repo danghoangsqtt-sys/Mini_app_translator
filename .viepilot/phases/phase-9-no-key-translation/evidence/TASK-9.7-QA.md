@@ -2,11 +2,11 @@
 
 ## Decision
 
-**PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. Two physical attempts exposed `BUG-026` and then `BUG-032`; both now have deterministic API 36 reproductions and code/emulator fixes, but the latest recovery still requires confirmation on the same two phones. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
+**PARTIAL / RELEASE NO-GO; PHYSICAL RETEST PAUSED.** Historical Gate A passed on the available API 36 emulator, but the 2026-09-29 deep audit found unexercised Critical/High lifecycle, callback, and bounded-state paths. Tasks 9.13–9.17 now block another physical APK installation. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
 
-The 2026-09-29 physical retest failed again: Conversation terminated immediately after connection, and a fresh-install WalkieTalkie activation also terminated then replayed on relaunch. API 36 deterministically reproduced `BUG-032`: with `RECORD_AUDIO` denied, the app called `startForegroundService()` but deliberately skipped `startForeground()`, causing `ForegroundServiceDidNotStartInTimeException`. Recovery commit `a9d04d7` now requests microphone permission before service launch, makes denial recoverable, and prevents both foreground-service starts when their declared-type permissions are absent. `BUG-033` is resolved with the supplied transparent icon. Code/API 36 evidence is PASS; no emulator result overrides the still-required physical retest.
+The 2026-09-29 physical retest failed again: Conversation terminated immediately after connection, and a fresh-install WalkieTalkie activation also terminated then replayed on relaunch. API 36 deterministically reproduced the base `BUG-032` path and recovery commit `a9d04d7` passed that narrow path; `BUG-033` is resolved. Subsequent audit found remaining promotion-before-initialization, permission-result recreation, UI callback generation, and unbounded queue/Binder risks. The historical APK is therefore not the next physical-retest candidate.
 
-Task 9.7 and Phase 9 remain `in_progress` at 11/12 tasks. No version bump, signed-release claim, completion tag, release tag, push, or publication is authorized by this evidence.
+Task 9.7 is blocked while Phase 9 remains `in_progress` at 11/17 tasks. No version bump, signed-release claim, completion tag, release tag, push, or publication is authorized by this evidence.
 
 ## Provenance
 
@@ -90,7 +90,7 @@ The instrumentation suite includes production on-device engine composition/lifec
 
 Installing additional large SDK images was not implicitly authorized. A complete supported-version PASS requires recorded runs on API 23, 31, and 34.
 
-## Gate C — FAILED TWICE; LATEST CODE/API 36 RECOVERY PASS, PHYSICAL RETEST REQUIRED
+## Gate C — FAILED TWICE; PHYSICAL RETEST PAUSED UNTIL TASK 9.17
 
 - PASS on API 36 emulator: on-device engine instrumentation; ML Kit model prepare/translate/delete; already-downloaded-model translation; initial-screen light/dark/200% font crash/clip smoke.
 - FAIL on the first two-phone attempt: both phones discovered each other and connected, then both apps terminated immediately; reopening repeated the termination loop.
@@ -98,7 +98,7 @@ Installing additional large SDK images was not implicitly authorized. A complete
 - Code/emulator hotfix: commit `24ee245` adds `FLAG_IMMUTABLE`; deterministic API 36 reproduction and regression pass. The same two phones must install the new APK and confirm connect, relaunch recovery, disconnect/reconnect, Conversation exchange, and Bluetooth/SCO before this gate can pass.
 - FAIL on the second two-phone attempt: Conversation again terminated immediately after connection; after reinstall, WalkieTalkie activation also terminated and persisted into a relaunch loop. The bottom-right Walkie action rendered no visible glyph.
 - Root cause reproduced for the second attempt: both modes could call `startForegroundService()` before microphone permission was granted. The base service then declined foreground promotion, leaving Android's deadline armed until `ForegroundServiceDidNotStartInTimeException`. The old Walkie PNG was an opaque white rectangle.
-- Latest code/API 36 recovery: commit `a9d04d7` adds caller and Fragment permission gates, safe denial recovery, and the supplied transparent icon. Denied/granted/relaunch smokes plus the full automated gate pass. The same two phones must confirm this artifact before either defect can be accepted for Gate C.
+- Historical code/API 36 recovery: commit `a9d04d7` adds caller and Fragment permission gates, safe denial recovery, and the supplied transparent icon. That evidence remains valid for the narrow base path, but this artifact must not be handed off again because Tasks 9.13–9.17 now cover residual release blockers.
 - BLOCKED: physical microphone/speech quality and recognizer present/absent behavior.
 - BLOCKED: human TalkBack navigation/labels/focus order and complete-screen 200% font/adaptive-icon/splash review.
 - BLOCKED: physical low-storage and user-driven model download failure/cancel/delete behavior.
@@ -112,10 +112,11 @@ Installing additional large SDK images was not implicitly authorized. A complete
 
 ## Required continuation
 
-> **Current physical-retest candidate (2026-09-29):** debug APK 79,279,141 bytes, SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`. It includes the foreground-service permission recovery and supplied Walkie icon at implementation `a9d04d7`. Automated gate: 189 JVM tests, 24 API 36 instrumentation tests, lint 0 errors/122 warnings, debug/unsigned release assembly and R8 privacy PASS. Commits remain local; no push was authorized.
+> **No current physical-retest candidate.** APK SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619` is retained only as historical Task 9.7 evidence. Do not reinstall it for this gate.
 
-1. Install the debug APK with SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619` on both phones. Grant microphone when first entering a voice mode, verify the bottom-right Walkie icon, then repeat Conversation connection and Walkie activation. If either app terminates, capture sanitized logs from both phones before reopening.
-2. Continue two-phone Conversation text/audio, Bluetooth/SCO, WalkieTalkie direction, permission recovery, and offline-model checks after connection remains stable.
-3. Provide or authorize runnable API 23, 31, and 34 devices/system images.
-4. Perform the human TalkBack/200% font/light-dark/icon/splash review on representative physical hardware.
-5. Supply/approve publisher-controller identity and privacy contact for legal review, then authorize release signing/version actions only after Gates B/C pass.
+1. Execute Tasks 9.13–9.17 in order and require Task 9.17's API 36 fresh-install plus upgrade-with-persisted-state qualification to pass.
+2. Only after Task 9.17 passes, produce and hash one new debug APK for the same-two-phone Conversation/Walkie/Bluetooth-SCO retest.
+3. Continue two-phone Conversation text/audio, Bluetooth/SCO, WalkieTalkie direction, permission recovery, and offline-model checks after connection remains stable.
+4. Provide or authorize runnable API 23, 31, and 34 devices/system images.
+5. Perform the human TalkBack/200% font/light-dark/icon/splash review on representative physical hardware.
+6. Supply/approve publisher-controller identity and privacy contact for legal review, then authorize release signing/version actions only after Gates B/C pass.

@@ -64,6 +64,17 @@ A functional Cloud speech selector is deliberately outside Phase 9: `LegacyCloud
 
 Voice services require launch extras that cannot be reconstructed after process death. They therefore reject a null restart intent, stop the restarted instance, and return `START_NOT_STICKY`. Normal starts capture their notification/languages before entering the bounded on-device controller lifecycle.
 
+## Planned crash-prevention boundary — Phase 9 Tasks 9.13–9.17
+
+The following is an approved plan, not yet implemented runtime behavior:
+
+- A local `diagnostics/` boundary will expose stable enum/counter milestones, API 30+ `ApplicationExitInfo` reason mapping, and a user-triggered SAF text export. It has no telemetry/backend and cannot accept conversation text, peer identity/address, credentials, audio, model content, throwable messages, or raw traces.
+- Voice-service `onCreate()` becomes minimal. One bootstrap state machine promotes the service before TTS, engines, wake-lock, Bluetooth helper, controller, or listener work, then rolls partial initialization back exactly once.
+- The Activity owns permission launch/result state through a saved generation token; Fragments do not interpret results using transient booleans.
+- UI state restoration uses a bounded snapshot revision plus generation-scoped live events. Old connection/view generations and cancelled attribute listeners cannot render.
+- Incoming translation, outbound Bluetooth text/data, retained history, and Binder snapshots use explicit count/byte budgets. One attributes reply is measured at no more than 128 KiB.
+- An external ADB/PowerShell gate plus instrumentation exercises the packaged APK through fresh install, upgrade with persisted state, permission cycles, real service lifecycle, timeout waits, queue stress, process-exit inspection, and orphan-service checks before physical handoff.
+
 ## UI architecture
 
 The existing Java + XML Views architecture uses Material DayNight resources, stable view IDs, localized EN/IT strings, and minimum touch-target/content-description improvements. Package/application ID migration is not part of the UI rebrand.
@@ -83,4 +94,4 @@ The existing Java + XML Views architecture uses Material DayNight resources, sta
 
 - Android compile/target 36, minSdk 23, AGP 8.13.2, Gradle 8.13, JDK 17 runtime, Java 8 source compatibility.
 - Room 2.1.0, legacy gRPC/auth dependencies, and their lint/security warnings remain under `ENH-012`.
-- Automated JVM/instrumentation/lint gates cover recent engine work, but physical API/device, two-phone Bluetooth/SCO, TalkBack, legal-controller, signing, and release-install evidence remain mandatory before release.
+- Automated JVM/instrumentation/lint gates cover recent engine work. Tasks 9.13–9.17 add the missing packaged-APK crash gate, but physical API/device, two-phone Bluetooth/SCO, TalkBack, legal-controller, signing, and release-install evidence remain mandatory before release.
