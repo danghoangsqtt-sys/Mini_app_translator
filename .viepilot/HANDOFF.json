@@ -24,7 +24,7 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; PENDING HUMAN, release NO-GO)",
+  "current_task": "9.7 — Full QA and release-candidate gate (in_progress; deep-audit remediation planning required before next physical APK cycle; release NO-GO)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
@@ -39,7 +39,7 @@
     "sanitized_candidate": "adopted as canonical master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved; old history retained in local backup branch"
   },
   "requests": {
-    "bug_count": 33,
+    "bug_count": 35,
     "enh_count": 22,
     "source": "vp-audit/vp-debug/vp-auto 2026-09-19 through 2026-09-29",
     "status": "mixed: resolved, in_progress, planned, and new"
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Task 9.7 recovery implementation a9d04d7 fixes BUG-032 in code/API 36 and resolves BUG-033. Final clean gate: 189 JVM, 24 API 36 instrumentation, lint 0/122, debug/unsigned release assembly and R8 DEX privacy PASS. Install debug APK SHA-256 2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619 on the same two physical phones; grant microphone before voice-service startup, verify the Walkie icon, then retest Conversation connect plus Walkie activation before the broader exchange/reconnect/background/SCO matrix. API 23/31/34, accessibility, legal identity, signing, version/tag, push, and release approval remain blocked or require PM/human action."
+  "resume_hint": "Do not ask for another physical APK installation yet. The 2026-09-29 deep audit re-opened BUG-015 and BUG-032 residuals, expanded ENH-006 and ENH-013, and added BUG-034/BUG-035. Run /vp-evolve BUG-015 BUG-032 BUG-034 BUG-035 ENH-006 ENH-013, then implement and pass an executable permission/foreground-service APK qualification gate before returning to same-two-phone Task 9.7 testing. Current host baseline remains 189 JVM tests and lint 0 errors/122 warnings; release, version/tag, push, signing, API 23/31/34, accessibility, legal identity, and physical Bluetooth/SCO approval remain blocked."
 }

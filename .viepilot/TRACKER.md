@@ -4,7 +4,7 @@
 
 - **Mode**: Brownfield (ViePilot initialized 2026-09-19 on an existing project, no prior brainstorm)
 - **Current phase**: Phase 9 — No-Key On-Device Translation (`in_progress`). Phase 8's unsigned `1.2.0` candidate is a release NO-GO; Tasks 8.1–8.2 remain valid repository history while its remaining gates are consolidated into Phase 9. Phase 3 and Phase 5 retain open human validation gates.
-- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`, PENDING HUMAN). The `BUG-032` permission crash-loop recovery and `BUG-033` Walkie icon fix pass code/API 36 at `a9d04d7`; release remains NO-GO pending same-two-phone, API matrix, accessibility, legal, and signing approval.
+- **Current task**: 9.7 — Full QA and release-candidate gate (`in_progress`, PENDING HUMAN). The `BUG-032` base permission crash-loop recovery and `BUG-033` Walkie icon fix pass code/API 36 at `a9d04d7`, but the 2026-09-29 deep audit reopened foreground/permission lifecycle residuals and logged callback-order plus unbounded-queue risks. Release remains NO-GO; plan and automate these findings before asking for another physical APK cycle.
 - **Branch**: sanitized `master` is canonical; the Task 9.7 recovery remains local and ahead of `origin/master`, with no push authorized. Pre-sanitization history is retained locally at `codex/backup-master-pre-sanitize-20260923`. Upstream RTranslator's default is `upstream/v3.00` (lineage review remains `ENH-015`).
 - **Target product name**: Mini Conversation — shipped in code (Phase 5, `app_name` and all first-party docs); `applicationId`/package remain `nie.translator.rtranslatordevedition` intentionally
 - **Remediation plan**: `.viepilot/REMEDIATION-PLAN.md` (Phases 1–2 complete; Phase 3 is `in_progress` with Cluster A static PASS and device QA blocked; Phase 6 complete)
@@ -57,7 +57,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-012 | 🐛 | GraphView vendored lib unimplemented branch throws | Low | closed/reclassified future capability; no production fix (Phase 2, task 2.6) |
 | BUG-013 | 🐛 | Android 12+ Bluetooth permission matrix over-requests location/Wi-Fi permissions | High | resolved in code/API 36 (`cc08c4f`); physical matrix remains 9.7 |
 | BUG-014 | 🐛 | Launcher activity missing explicit `android:exported` | High | in_progress (Phase 3, task 3.4 — code committed, device QA pending) |
-| BUG-015 | 🐛 | Foreground voice-service launch/promotion order is not modern-Android compliant | High | resolved in code/API 36 (`cc08c4f`); physical matrix remains 9.7 |
+| BUG-015 | 🐛 | Foreground voice-service launch/promotion order is not modern-Android compliant | High | reopened; heavy initialization still precedes promotion and failure/teardown races lack runtime coverage |
 | BUG-016 | 🐛 | README references two deleted screenshots | Low | resolved (Phase 5, task 5.1) |
 | BUG-017 | 🐛 | HANDOFF state/version drift after Phase 5 | Medium | resolved (Phase 7, task 7.1; canonical `688f395`) |
 | BUG-018 | 🐛 | Missing Phase 6 completion tag and closeout trace | Medium | resolved (Phase 7, task 7.2; local tag `mini-app-translator-vp-p6-complete`) |
@@ -68,14 +68,14 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | ENH-003 | 🔧 | Dead code with leak-prone patterns (`FileManager`, `EncryptionKey`) | Low | new |
 | ENH-004 | 🔧 | `FileLog` hardcoded legacy path + unclosed resource | Low | new |
 | ENH-005 | 🔧 | Deprecated `AsyncTask` / no-Looper `Handler()` usage | Low | new |
-| ENH-006 | 🔧 | Swallowed exceptions via `printStackTrace()` only | Low | new |
+| ENH-006 | 🔧 | Swallowed errors and missing privacy-safe field diagnostics | Medium | new; expanded after repeated physical crash reports |
 | ENH-007 | 🔧 | Production logs expose Conversation payloads and peer identifiers | High | resolved (Phase 9, task 9.9; `6ff92b8`) |
 | ENH-008 | 🔧 | gRPC `channel.shutdown()` without `awaitTermination` | Low | new |
 | ENH-009 | 🔧 | Unsynchronized field race in `RecognizerService.languageCode` | Low | new |
 | ENH-010 | 🔧 | Dead fragment-action constants (removed account/password flow) | Low | new |
 | ENH-011 | 🔧 | Toolchain 6+ years outdated (AGP 3.6.1 / Gradle 5.6.4 / compileSdk 29) | High | in_progress (Phase 3 Cluster A static PASS; device/release QA pending) |
 | ENH-012 | 🔧 | Core dependencies frozen at 2018–2020 versions (incl. Room 2.1.0, play-services-nearby 17.0.0) | Medium | planned (Phase 3, task 3.3) |
-| ENH-013 | 🔧 | Near-zero automated test coverage | Medium | new |
+| ENH-013 | 🔧 | Executable APK qualification for voice-service crash regressions | Medium | new; broad unit baseline exists, real permission/FGS install matrix is missing |
 | ENH-014 | 🔧 | Unrestricted Java deserialization in `Tools.objToByte/byteToObj` | Low | new |
 | ENH-015 | 🔧 | Review fork `master` against upstream `v3.00` before porting large changes | Medium | new (branch ambiguity resolved) |
 | ENH-016 | 🔧 | `.idea/*.xml` committed to git | Low | resolved on canonical sanitized `master` |
@@ -86,13 +86,15 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 | BUG-024 | 🐛 | Sticky service restart can crash on null `onStartCommand` intent | High | resolved (Phase 9, task 9.6; `8a8882b`) |
 | BUG-025 | 🐛 | Missing-TTS Settings message uses wrong Bundle key and falls through | High | resolved (Phase 9, task 9.6; `8a8882b`) |
 | BUG-026 | 🐛 | Android 12+ crashes when Conversation builds a notification PendingIntent without a mutability flag | Critical | code/emulator resolved (Phase 9, task 9.7; `24ee245`); same two-phone retest pending |
-| BUG-027 | 🐛 | ROADMAP and backlog statuses drift from canonical Phase 9 state | Medium | resolved locally (Phase 9, task 9.8; `c2bc8fe`) |
+| BUG-027 | 🐛 | ROADMAP and backlog statuses drift from canonical Phase 9 state | Medium | reopened; BUG-029 row and Phase 9 summary are stale |
 | BUG-028 | 🐛 | Persisted mode restore can re-enter a Conversation crash loop | High | code/emulator resolved (Phase 9, task 9.8; `ce265bd`); physical regression due 9.7 |
 | BUG-029 | 🐛 | Service binding ownership and pre-connect Fragment stop race | High | planned (Phase 9, task 9.11) |
 | BUG-030 | 🐛 | Recent-peer persistence ordering and unbounded work queue | High | resolved (`484e67f`; bounded/coalescing queue and observable failures) |
 | BUG-031 | 🐛 | Unbounded inbound Bluetooth payload reassembly/image decode | High | code/emulator resolved (Phase 9, task 9.9; `6ff92b8`); physical interop due 9.7 |
-| BUG-032 | 🐛 | Missing microphone permission causes a foreground-service crash/relaunch loop | Critical | code/API 36 resolved (`a9d04d7`); same-two-phone retest due 9.7 |
+| BUG-032 | 🐛 | Missing microphone permission causes a foreground-service crash/relaunch loop | Critical | reopened residual; base fix passes API 36, permission-result recreation remains unsafe |
 | BUG-033 | 🐛 | WalkieTalkie action uses a blank opaque icon | Medium | resolved (`a9d04d7`) |
+| BUG-034 | 🐛 | Voice UI callback ordering can hit an uninitialized adapter or destroyed view | High | new |
+| BUG-035 | 🐛 | Unbounded voice/Bluetooth queues and Binder history can exhaust memory | High | new |
 | ENH-018 | 🔧 | Rename/rebrand application as Mini Conversation and replace launcher icons | Medium | resolved (Phase 5, tasks 5.1–5.2) |
 | ENH-019 | 🔧 | Modernize Views UI, dark theme, responsive layout, and accessibility | Medium | in_progress (tasks 5.3–5.5 done; task 5.6 device/release QA pending) |
 | ENH-020 | 🔧 | Add Wi-Fi Hotspot transport alongside Bluetooth | Medium | proposed (Phase 10) |
@@ -141,6 +143,7 @@ Sourced from `/vp-audit` passes on 2026-09-19 and 2026-09-20. Planning status do
 - **2026-09-28**: `/vp-auto` completed Task 9.11 at `066002c`: Conversation and Walkie now own a synchronous cancellable bind handle from initiation, no longer use communicator ID `0`, atomically bind/register against cancellation, clear stopped-Fragment callbacks, and stop only otherwise-orphan pre-connect starts. Evidence: 174 JVM tests, 24 Pixel 7a API 36 instrumentation tests including late-framework-connect suppression, lint 0 errors/122 warnings, and debug assembly PASS.
 - **2026-09-28**: `/vp-auto` completed Task 9.12 at `484e67f`: recent-peer work now has a 32-task pending cap plus one running task, coalesces same-key updates, defensively copies image bytes, survives Room/observer failures, reports sanitized failures through the Conversation callback, and rejects work after shutdown. Final clean gate: 184 JVM tests, 24 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug/unsigned release assembly and R8 DEX privacy PASS. Tasks 9.9–9.12 no longer block Task 9.7; physical/human/signing gates still do.
 - **2026-09-29**: Physical Task 9.7 retest exposed `BUG-032` and `BUG-033`. `/vp-auto` reproduced the fatal `ForegroundServiceDidNotStartInTimeException` on API 36, then implemented `a9d04d7`: foreground-service callers now preflight microphone/type permissions, mode fragments own grant/denial recovery without null-communicator teardown, and the supplied transparent Walkie icon replaces the blank placeholder. Denied/granted/relaunch smokes pass; clean gate: 189 JVM, 24 API 36 instrumentation, lint 0 errors/122 warnings, debug/unsigned release and R8 privacy PASS. APK SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`; same-two-phone confirmation remains release-blocking.
+- **2026-09-29**: `/vp-audit` deep crash-prevention pass re-opened `BUG-015` (heavy `onCreate()` work still precedes foreground promotion), `BUG-032` (permission-result ownership is not recreation-safe), and `BUG-027` (narrow state drift); it expanded `ENH-006` with privacy-safe post-crash diagnostics and refocused `ENH-013` on executable APK qualification. New `BUG-034` covers message/attribute callback ordering against uninitialized or destroyed UI, and `BUG-035` covers unbounded translation/outbound/history queues plus one-shot Binder restore. Fresh host gate remains green at 189 JVM tests and lint 0 errors/122 warnings, but current tests do not execute the real denied/granted/recreated FGS paths. No shipping code, version, tag, push, or release state changed; Task 9.7 remains NO-GO and `/vp-evolve BUG-015 BUG-032 BUG-034 BUG-035 ENH-006 ENH-013` is the recommended next control point before another physical APK installation.
 
 ## Version info
 
