@@ -31,6 +31,8 @@ All notable changes to this fork will be documented in this file.
 
 ### Fixed
 
+- Prevent Conversation and WalkieTalkie from starting a microphone foreground service before runtime permission is granted; denial now returns safely to Pairing instead of entering a process-crash/relaunch loop (`BUG-032`).
+- Replace the blank opaque WalkieTalkie action placeholder with the supplied transparent call icon and an accurate localized accessibility label (`BUG-033`).
 - Corrected the Android Bluetooth permission matrix and foreground voice-service launch/promotion lifecycle (`BUG-013`, `BUG-015`).
 - Made Conversation/Walkie asynchronous service binding cancellable from initiation through late framework callbacks, eliminating placeholder ownership and orphan pre-connect services (`BUG-029`).
 - Removed release-reachable Conversation payload/peer-address logs, bounded Bluetooth fragment reassembly before full allocation, and validated/downsampled peer images on a bounded worker (`ENH-007`, `BUG-031`).

@@ -30,7 +30,7 @@
     "versionCode": 15
   },
   "branch": {
-    "checked_out": "master (sanitized canonical history, synchronized with origin/master)",
+    "checked_out": "master (local Task 9.7 recovery commits ahead of origin/master; no push authorized)",
     "origin_tracking": "origin/master",
     "upstream_default": "upstream/v3.00",
     "mismatch_flagged": false,
@@ -39,9 +39,9 @@
     "sanitized_candidate": "adopted as canonical master; zero .agents objects; only .idea/codeStyles/Project.xml shared; app tree preserved; old history retained in local backup branch"
   },
   "requests": {
-    "bug_count": 31,
+    "bug_count": 33,
     "enh_count": 22,
-    "source": "vp-audit/vp-debug 2026-09-19 through 2026-09-28",
+    "source": "vp-audit/vp-debug/vp-auto 2026-09-19 through 2026-09-29",
     "status": "mixed: resolved, in_progress, planned, and new"
   },
   "scope_reduction": {
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Tasks 9.9–9.12 are complete locally through implementation 484e67f. Final clean gate: 184 JVM, 24 API 36 instrumentation, lint 0/122, debug/unsigned release assembly and R8 DEX privacy PASS. Resume Task 9.7 on the same two physical phones using the debug APK: connect, exchange text/images, disconnect/reconnect, background/foreground, relaunch, and capture sanitized logs. API 23/31/34, accessibility, legal identity, signing, version/tag, push, and release approval remain blocked or require PM/human action."
+  "resume_hint": "Task 9.7 recovery implementation a9d04d7 fixes BUG-032 in code/API 36 and resolves BUG-033. Final clean gate: 189 JVM, 24 API 36 instrumentation, lint 0/122, debug/unsigned release assembly and R8 DEX privacy PASS. Install debug APK SHA-256 2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619 on the same two physical phones; grant microphone before voice-service startup, verify the Walkie icon, then retest Conversation connect plus Walkie activation before the broader exchange/reconnect/background/SCO matrix. API 23/31/34, accessibility, legal identity, signing, version/tag, push, and release approval remain blocked or require PM/human action."
 }

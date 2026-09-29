@@ -1,6 +1,6 @@
 # Task 9.7 — Full regression and release-candidate gate
 
-**Status**: in_progress — Gate A PASS after `BUG-026` hotfix; physical two-phone retest, accessibility, legal-owner, signing, and release approval remain mandatory
+**Status**: in_progress — `BUG-032`/`BUG-033` code and API 36 recovery PASS; same-two-phone retest, API matrix, accessibility, legal-owner, signing, and release approval remain mandatory
 **Depends on**: Tasks 9.1–9.6 persisted through PM state commit `a229d14`
 **Owner split**: PM owns the gate, evidence, release decision, state, version/signing/tag/push; implementation changes are allowed only for defects proven during this task
 
@@ -32,10 +32,12 @@ Prove the no-key flow across the supported Android range and two physical phones
 - `app/src/main/java/nie/translator/rtranslatordevedition/voice_translation/_walkie_talkie_mode/_walkie_talkie/WalkieTalkieFragment.java`
 - `app/src/main/res/layout/fragment_pairing.xml`
 - `app/src/main/res/drawable-nodpi/call_icon.png`
+- `app/src/main/res/drawable/walkie_talkie_white_icon.png` (remove blank placeholder)
 - `app/src/main/res/values/strings.xml`
 - `app/src/main/res/values-it/strings.xml`
 - `app/src/test/java/nie/translator/rtranslatordevedition/voice_translation/VoiceServiceLaunchPolicyTest.java`
 - `app/src/test/java/nie/translator/rtranslatordevedition/voice_translation/WalkieTalkieIconContractTest.java`
+- `CHANGELOG.md`
 - `app/build/outputs/apk/debug/app-debug.apk` (generated evidence only; never commit)
 - `app/build/reports/tests/testDebugUnitTest/` (generated evidence only; never commit)
 - `app/build/reports/lint-results-debug.html` and `app/build/reports/lint-results-debug.xml` (generated evidence only; never commit)
@@ -55,6 +57,7 @@ No application source, resource, Gradle, README, privacy, or CHANGELOG path is i
 - `VoiceTranslationFragment.java`, `ConversationMainFragment.java`, and `WalkieTalkieFragment.java`: request microphone permission before service launch, resume binding only after grant, and leave the persisted mode safely after denial.
 - `images/call_icon.png`, `drawable-nodpi/call_icon.png`, `fragment_pairing.xml`, and localized strings: retain the supplied source asset and use it as the visible WalkieTalkie action icon with an accurate accessibility label.
 - Focused JVM contracts: cover the launch-permission truth table, enforce guard-before-start ordering, and reject a blank/opaque replacement icon.
+- `CHANGELOG.md`: record both reproduced customer-visible fixes under Unreleased without changing the application version.
 
 ## 2026-09-29 physical incident recovery plan
 
@@ -126,4 +129,6 @@ git diff --check
 
 ## Completion evidence
 
-Gate A passed again on 2026-09-28 after reproducing and fixing `BUG-026`, then was superseded by Task 9.8 stabilization: 154 JVM tests, 21 API 36 instrumentation tests, lint 0 errors/136 warnings, safe stale-Conversation cold start, idempotent binding teardown, deterministic recent-peer ordering, and debug APK SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`. Gate C requires the same two phones to confirm connect/relaunch/disconnect/reconnect, peer-image retention, and Bluetooth/SCO QA; Gates B/D remain blocked. Canonical detail is in `evidence/TASK-9.7-QA.md`. Task 9.8 is complete; Task 9.7 remains in progress until all four gates pass.
+The 2026-09-29 recovery implementation is `a9d04d73621276f7d5390d25e9e2ec49f21e136e`. Both mode callers now prevent an impossible foreground-service start while microphone permission is absent, the fragments own the grant/denial retry safely, and the supplied transparent Walkie icon replaces the blank placeholder. Deterministic API 36 deny/grant/relaunch smokes passed, including a microphone foreground-service type check. The clean gate passed 189 JVM tests, 24 API 36 instrumentation tests, lint 0 errors/122 warnings, debug/unsigned release assembly, R8 privacy verification, and clean diff checks. Debug APK: 79,279,141 bytes, SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`.
+
+Gate C still requires the same two phones to confirm that Conversation connection and WalkieTalkie activation no longer terminate, then complete connect/relaunch/disconnect/reconnect, peer-image, speech, Bluetooth/SCO, and offline-model QA. Gates B/D and the human accessibility/product review remain blocked. Canonical detail is in `evidence/TASK-9.7-QA.md`; Task 9.7 remains in progress until all four gates pass.

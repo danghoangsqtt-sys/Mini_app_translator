@@ -2,11 +2,11 @@
 
 ## Decision
 
-**PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. A real two-phone connection attempt exposed `BUG-026`, a deterministic Android 12+ Conversation-start crash; the hotfix passes emulator reproduction/regression but still requires confirmation on the same two phones. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
+**PARTIAL / RELEASE NO-GO.** Gate A passes on the available API 36 emulator. Two physical attempts exposed `BUG-026` and then `BUG-032`; both now have deterministic API 36 reproductions and code/emulator fixes, but the latest recovery still requires confirmation on the same two phones. Gates B, C, and D otherwise remain incomplete due missing API 23/31/34 runtime images or devices, human accessibility/product review, publisher/controller confirmation, release signing material, version approval, and explicit release approval.
 
-The 2026-09-29 physical retest failed again: Conversation terminated immediately after connection, and a fresh-install WalkieTalkie activation also terminated then replayed on relaunch. API 36 now deterministically reproduces `BUG-032`: with `RECORD_AUDIO` denied, the app calls `startForegroundService()` but deliberately skips `startForeground()`, causing `ForegroundServiceDidNotStartInTimeException`. `BUG-033` also confirms that the old Walkie action PNG is an opaque white rectangle. Both findings are in active repair; no previous automated PASS is being used to override the physical failure.
+The 2026-09-29 physical retest failed again: Conversation terminated immediately after connection, and a fresh-install WalkieTalkie activation also terminated then replayed on relaunch. API 36 deterministically reproduced `BUG-032`: with `RECORD_AUDIO` denied, the app called `startForegroundService()` but deliberately skipped `startForeground()`, causing `ForegroundServiceDidNotStartInTimeException`. Recovery commit `a9d04d7` now requests microphone permission before service launch, makes denial recoverable, and prevents both foreground-service starts when their declared-type permissions are absent. `BUG-033` is resolved with the supplied transparent icon. Code/API 36 evidence is PASS; no emulator result overrides the still-required physical retest.
 
-Task 9.7 and Phase 9 remain `in_progress`; Task 9.8 raised Phase 9 to 7/8 complete. No version bump, signed-release claim, completion tag, release tag, or publication is authorized by this evidence.
+Task 9.7 and Phase 9 remain `in_progress` at 11/12 tasks. No version bump, signed-release claim, completion tag, release tag, push, or publication is authorized by this evidence.
 
 ## Provenance
 
@@ -17,6 +17,9 @@ Task 9.7 and Phase 9 remain `in_progress`; Task 9.8 raised Phase 9 to 7/8 comple
 - Fix scope: README capability wording plus a focused regression assertion; no shipping source/resource/Gradle/version/signing change.
 - Physical-device crash hotfix: `24ee245e3cb9ceb5c3bf605f15e823f132d5437e` (`BUG-026`).
 - Hotfix scope: add `FLAG_IMMUTABLE` to the Conversation/Walkie foreground-notification `PendingIntent` and add an API 36 instrumentation regression; no resource/Gradle/version/signing change.
+- 2026-09-29 incident planning/state commit: `3b10ccba48a52cb7ea2ff7f989b5dda0695e30f2`.
+- 2026-09-29 permission/icon recovery: `a9d04d73621276f7d5390d25e9e2ec49f21e136e` (`BUG-032`, `BUG-033`).
+- Recovery scope: caller-side foreground-service permission gates, fragment grant/denial retry lifecycle, null-safe pre-service teardown, exact supplied Walkie icon/resource labels, and focused JVM contracts; no Gradle, manifest, version, signing, tag, or push action.
 - Pre-gate repository state: planning baseline synchronized with `origin/master`, ahead/behind `0/0`, with only the pre-existing untracked `.viepilot/debug/`.
 
 ## Environment inventory
@@ -30,23 +33,25 @@ Task 9.7 and Phase 9 remain `in_progress`; Task 9.8 raised Phase 9 to 7/8 comple
 
 ## Gate A — PASS
 
-Final commands after the QA fix:
+Latest clean commands after the 2026-09-29 recovery:
 
 ```powershell
-.\gradlew.bat clean testDebugUnitTest lintDebug assembleDebug --console=plain --no-daemon
+.\gradlew.bat clean testDebugUnitTest lintDebug assembleDebug verifyReleasePrivacy --console=plain --no-daemon
 .\gradlew.bat connectedDebugAndroidTest --console=plain --no-daemon
 git diff --check
 ```
 
 Results:
 
-- JVM: 143 tests, 0 failures, 0 errors, 0 skipped.
-- Instrumentation: 20 tests, 0 failures, 0 errors, 0 skipped on Pixel 7a API 36.
-- Lint: 0 errors, 136 warnings.
+- JVM: 189 tests, 0 failures, 0 errors, 0 skipped.
+- Instrumentation: 24 tests, 0 failures, 0 errors, 0 skipped on Pixel 7a API 36.
+- Lint: 0 errors, 122 warnings.
 - `git diff --check`: clean.
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`.
-- APK size: 79,115,725 bytes.
-- APK SHA-256: `D80109A70D47DF99B35D94CBB20C9A37ACF5DD1603F3D8876B8DB4CA83AC560D`.
+- APK size: 79,279,141 bytes.
+- APK SHA-256: `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`.
+- Unsigned release APK: 71,003,381 bytes; SHA-256 `605E5B375A19BC7A8D936F42A4F731D2A84BEEE9EA13FDD38433DDFDD62F0C5E`.
+- Release R8 DEX privacy verification: PASS.
 
 The instrumentation suite includes production on-device engine composition/lifecycle, Android SpeechRecognizer behavior, model prepare/translate/delete, a separate translation using an already downloaded model without another download, model-management UI opening, credential encryption/migration/delete, and database/service lifecycle coverage.
 
@@ -61,6 +66,10 @@ The instrumentation suite includes production on-device engine composition/lifec
 - TalkBack is installed on the emulator, but navigation, spoken labels, focus order, and the complete 200% font screen matrix require human observation and therefore remain Gate C, not PASS.
 - Pre-fix reproduction: forcing persisted preference `fragment=1` on API 36 produced a main-thread FATAL `IllegalArgumentException` at `VoiceTranslationActivity.buildNotification`: target S+ requires `FLAG_IMMUTABLE` or `FLAG_MUTABLE`. This matches the physical sequence because connection success stores the Conversation fragment before its service notification is built.
 - Post-fix reproduction: the same persisted-Conversation launch remained alive without FATAL both before and after granting microphone/Nearby permissions. The focused notification test and full 20-test instrumentation suite passed.
+- `BUG-032` pre-fix reproduction: persisted WalkieTalkie plus revoked `RECORD_AUDIO` terminated after the foreground-service deadline with `ForegroundServiceDidNotStartInTimeException` originating from `VoiceTranslationActivity.startWalkieTalkieService()`.
+- `BUG-032` denied-path recovery: the updated APK displayed the microphone request before service start, remained alive beyond nine seconds with no service record or FATAL, returned to Pairing after denial, and survived a force-stop/relaunch without re-entering WalkieTalkie. Exercising denial also exposed a null-communicator `ButtonMic.deactivate()` crash, which was fixed and re-run successfully.
+- `BUG-032` granted-path recovery: after granting `RECORD_AUDIO`, the Walkie action started `.WalkieTalkieService` as a foreground service with type `0x80` (microphone), remained alive beyond the deadline, and logged no FATAL.
+- `BUG-033` visual/resource recovery: the bottom-right Pairing action visibly renders the reporter-supplied Walkie icon through `srcCompat`; the packaged/source PNG bytes match, retain alpha, and the old opaque drawable is removed.
 
 ### Source/content guard
 
@@ -81,12 +90,15 @@ The instrumentation suite includes production on-device engine composition/lifec
 
 Installing additional large SDK images was not implicitly authorized. A complete supported-version PASS requires recorded runs on API 23, 31, and 34.
 
-## Gate C — FAIL THEN HOTFIXED; PHYSICAL RETEST REQUIRED
+## Gate C — FAILED TWICE; LATEST CODE/API 36 RECOVERY PASS, PHYSICAL RETEST REQUIRED
 
 - PASS on API 36 emulator: on-device engine instrumentation; ML Kit model prepare/translate/delete; already-downloaded-model translation; initial-screen light/dark/200% font crash/clip smoke.
 - FAIL on the first two-phone attempt: both phones discovered each other and connected, then both apps terminated immediately; reopening repeated the termination loop.
 - Root cause reproduced: `TaskStackBuilder.getPendingIntent` was called with only `FLAG_UPDATE_CURRENT` while targeting SDK 36. Android 12+ throws before Conversation service startup, and the persisted Conversation fragment re-entered that crash on every relaunch.
 - Code/emulator hotfix: commit `24ee245` adds `FLAG_IMMUTABLE`; deterministic API 36 reproduction and regression pass. The same two phones must install the new APK and confirm connect, relaunch recovery, disconnect/reconnect, Conversation exchange, and Bluetooth/SCO before this gate can pass.
+- FAIL on the second two-phone attempt: Conversation again terminated immediately after connection; after reinstall, WalkieTalkie activation also terminated and persisted into a relaunch loop. The bottom-right Walkie action rendered no visible glyph.
+- Root cause reproduced for the second attempt: both modes could call `startForegroundService()` before microphone permission was granted. The base service then declined foreground promotion, leaving Android's deadline armed until `ForegroundServiceDidNotStartInTimeException`. The old Walkie PNG was an opaque white rectangle.
+- Latest code/API 36 recovery: commit `a9d04d7` adds caller and Fragment permission gates, safe denial recovery, and the supplied transparent icon. Denied/granted/relaunch smokes plus the full automated gate pass. The same two phones must confirm this artifact before either defect can be accepted for Gate C.
 - BLOCKED: physical microphone/speech quality and recognizer present/absent behavior.
 - BLOCKED: human TalkBack navigation/labels/focus order and complete-screen 200% font/adaptive-icon/splash review.
 - BLOCKED: physical low-storage and user-driven model download failure/cancel/delete behavior.
@@ -100,9 +112,9 @@ Installing additional large SDK images was not implicitly authorized. A complete
 
 ## Required continuation
 
-> **Superseded candidate (Task 9.8, 2026-09-28):** use the new debug APK, 79,115,713 bytes, SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7`. It adds safe stale-mode restore, exact service-binding ownership, and serialized peer identity/image persistence. Automated gate: 154 JVM tests, 21 API 36 instrumentation tests, lint 0 errors/136 warnings. Commits are persisted through `5c9c70e`; `HEAD == origin/master`, ahead/behind `0/0` at the persistence gate.
+> **Current physical-retest candidate (2026-09-29):** debug APK 79,279,141 bytes, SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619`. It includes the foreground-service permission recovery and supplied Walkie icon at implementation `a9d04d7`. Automated gate: 189 JVM tests, 24 API 36 instrumentation tests, lint 0 errors/122 warnings, debug/unsigned release assembly and R8 privacy PASS. Commits remain local; no push was authorized.
 
-1. Install the debug APK with SHA-256 `0842D8B157148801110D3AACEEC1B1CFAADA3B9896C8015CB5551F32064E42C7` on both phones and repeat connection/background-relaunch/disconnect/reconnect plus peer-image retention. Send bug reports/logs from both phones if either app terminates again.
+1. Install the debug APK with SHA-256 `2DF29D15487D3EEE730B5EA0678AB0D9131436265913DFD4F0FD331F6C35E619` on both phones. Grant microphone when first entering a voice mode, verify the bottom-right Walkie icon, then repeat Conversation connection and Walkie activation. If either app terminates, capture sanitized logs from both phones before reopening.
 2. Continue two-phone Conversation text/audio, Bluetooth/SCO, WalkieTalkie direction, permission recovery, and offline-model checks after connection remains stable.
 3. Provide or authorize runnable API 23, 31, and 34 devices/system images.
 4. Perform the human TalkBack/200% font/light-dark/icon/splash review on representative physical hardware.
