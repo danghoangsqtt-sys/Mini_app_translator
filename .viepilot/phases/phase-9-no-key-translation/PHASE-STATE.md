@@ -1,8 +1,8 @@
 # Phase State — Phase 9: No-Key On-Device Translation
 
 - **Status**: in_progress
-- **Tasks**: 11/17 complete
-- **Current task**: 9.13 — Privacy-safe crash diagnostics and error visibility (`in_progress`; implementation/local gates PASS, persistence pending)
+- **Tasks**: 12/17 complete
+- **Current task**: 9.14 — Promotion-first services and recreation-safe permissions (`planned`; next)
 - **Created**: 2026-09-23 via `/vp-brainstorm` → `/vp-crystallize` → `/vp-evolve`
 - **Target**: `1.3.0`; no versionCode change until a release candidate is approved
 - **PM**: current task owner
@@ -22,7 +22,7 @@
 | 9.10 — Permission and foreground-service lifecycle correction | done — automated/API 36 PASS | `cc08c4f`; 166 JVM, 23 instrumentation, lint 0/122; physical API/device matrix remains 9.7 |
 | 9.11 — Cancellable asynchronous service binding | done — automated/API 36 PASS | `066002c`; 174 JVM, 24 instrumentation, lint 0/122; exact pending/active ownership |
 | 9.12 — Bounded recent-peer persistence | done — automated/API 36/release PASS | `484e67f`; 184 JVM, 24 instrumentation, lint 0/122, R8 privacy PASS |
-| 9.13 — Privacy-safe crash diagnostics and error visibility | in_progress — persistence pending | `489e569`; 201 JVM, 26 API 36 instrumentation, lint 0/122, debug/release/R8 privacy PASS; no push authorized |
+| 9.13 — Privacy-safe crash diagnostics and error visibility | done — automated/API 36/release PASS | `489e569`; 201 JVM, 26 API 36 instrumentation, lint 0/122, debug/release/R8 privacy PASS; persisted through `7b876e2` |
 | 9.14 — Promotion-first services and recreation-safe permissions | planned | `BUG-015`, `BUG-032`; depends on 9.13 |
 | 9.15 — Generation-safe voice UI snapshot/callbacks | planned | `BUG-034`; depends on 9.14 |
 | 9.16 — Bounded session queues and Binder-safe history | planned | `BUG-035`; depends on 9.15 |
@@ -140,4 +140,4 @@
 - **Visibility**: scoped Messenger/Handler, service-start/bind, permission, and foreground-promotion failures now produce bounded categories instead of raw `printStackTrace()` output or invisible generic failure only.
 - **Final automated gate**: 201 JVM tests, 26 Pixel 7a API 36 instrumentation tests, lint 0 errors/122 warnings, debug and unsigned release assembly, R8 DEX privacy verification, and clean `git diff --check`.
 - **Artifacts**: debug APK 79,370,448 bytes, SHA-256 `497EF8EF079F7044FBA9B50087855BCE9F58CBC136E5C497A46386E3F50F271C`; unsigned release APK 71,006,077 bytes, SHA-256 `A47DC92E8D7A9781224F6D8723ACBFB79754649E5D5874281A40ADB4A31DCE5C`.
-- **Control point**: technical gates are green, but ViePilot cannot mark PASS or start dependent Task 9.14 until the unpushed branch is durably persisted or the PM selects another control-point action.
+- **Persistence**: PM authorized a fast-forward of the accumulated local chain; `HEAD == origin/master == 7b876e2`, ahead/behind `0/0`, before this closeout state. The pre-existing `.viepilot/debug/` remains untracked and untouched.

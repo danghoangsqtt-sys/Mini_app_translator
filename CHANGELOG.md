@@ -50,6 +50,7 @@ All notable changes to this fork will be documented in this file.
 
 ### Changed
 
+- Added local-only, privacy-safe process-exit diagnostics with bounded enum events, sanitized foreground/IPC failure categories, and a user-triggered SAF report export (`ENH-006`).
 - Made legacy Cloud credential management explicitly optional/advanced, removed hidden token access from ordinary Settings, and synchronized README/privacy/architecture with the on-device default (`ENH-021`).
 - Added runtime-neutral speech-recognition, text-translation, and speech-output contracts with explicit engine selection and isolated legacy adapters (`ENH-021`).
 - Added official on-device ML Kit language identification and translation with explicit Wi-Fi-first model download/delete management, English built-in handling, localized Google attribution/privacy disclosures, lifecycle-safe callbacks, and verified offline translation (`ENH-021`).

@@ -1,6 +1,6 @@
 # Task 9.13 — Privacy-safe crash diagnostics and error visibility
 
-**Status**: in_progress — implementation and local quality gates PASS; git persistence gate pending
+**Status**: done — automated/API 36/release PASS; persisted to `origin/master`
 **Request**: `ENH-006`
 **Depends on**: audit baseline `5c9de7a`; Task 9.7 remains blocked
 
@@ -78,7 +78,7 @@ git diff --check
 - Final Pixel 7a API 36 gate: 26 instrumentation tests passed with no failures or skips. One earlier full-suite attempt was interrupted by emulator memory pressure during the pre-existing online ML Kit test; that test then passed alone 3/3 and the complete suite passed twice after recovery, including the final-code run.
 - Final debug APK: 79,370,448 bytes, SHA-256 `497EF8EF079F7044FBA9B50087855BCE9F58CBC136E5C497A46386E3F50F271C`.
 - Final unsigned release APK: 71,006,077 bytes, SHA-256 `A47DC92E8D7A9781224F6D8723ACBFB79754649E5D5874281A40ADB4A31DCE5C`.
-- The task remains `in_progress` because `master` contains pre-existing and current unpushed commits. Per the ViePilot persistence gate and task prohibition, no push was performed and Task 9.14 was not started.
+- Persistence gate: PM explicitly authorized the accumulated fast-forward; `HEAD == origin/master == 7b876e2` with ahead/behind `0/0` before closeout state. The pre-existing `.viepilot/debug/` remains untracked and untouched.
 
 ## Forbidden changes
 

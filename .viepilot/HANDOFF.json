@@ -24,13 +24,13 @@
       "note": "Tasks 8.1-8.2 remain valid. The unsigned 1.2.0/versionCode 15 candidate must not be published after physical-device usability findings; remaining release gates are consolidated into Phase 9.7."
     }
   },
-  "current_task": "9.13 — Privacy-safe crash diagnostics and error visibility (in_progress; implementation and local gates PASS at 489e569; persistence pending)",
+  "current_task": "9.14 — Promotion-first voice services and recreation-safe permissions (planned; next)",
   "app_version": {
     "versionName": "1.2.0",
     "versionCode": 15
   },
   "branch": {
-    "checked_out": "master (Task 9.13 implementation is committed locally; upstream persistence pending; no push authorized)",
+    "checked_out": "master (Task 9.13 implementation/evidence persisted to origin/master through 7b876e2; closeout state pending push)",
     "origin_tracking": "origin/master",
     "upstream_default": "upstream/v3.00",
     "mismatch_flagged": false,
@@ -51,5 +51,5 @@
     "external_stack_research": false,
     "reason": "Upstream open-source project identity files left untouched; stack guardrails are captured per finding instead of generic research."
   },
-  "resume_hint": "Resolve the Task 9.13 git persistence control point for implementation 489e569 and this evidence state; only then mark 9.13 PASS and start 9.14. Do not ask for another physical installation until Task 9.17 passes mandatory API 36. Current source version remains 1.2.0/versionCode 15 with target 1.3.0; release, version/phase tag, signing, API 23/31/34, accessibility, legal identity, and physical Bluetooth/SCO approval remain blocked."
+  "resume_hint": "Execute Task 9.14 from its promotion-first/recreation-safe contract, then Tasks 9.15-9.17 in order. Do not ask for another physical installation until Task 9.17 passes mandatory API 36. Current source version remains 1.2.0/versionCode 15 with target 1.3.0; release/version/phase tag, signing, API 23/31/34, accessibility, legal identity, and physical Bluetooth/SCO approval remain blocked."
 }
